@@ -171,6 +171,11 @@ extension Visionaire {
         try await multiObservationHandler(mode.task, image: image)
     }
 
+    public func saliencyAnalysis(mode: SaliencyMode, image: CIImage) async throws -> [VNRectangleObservation] {
+        let saliency: [VNSaliencyImageObservation] = try await multiObservationHandler(mode.task, image: image)
+        return saliency.flatMap { $0.salientObjects ?? [] }
+    }
+
     public func faceDetection(image: CIImage, regionOfInterest: CGRect? = nil, revision: Int? = nil) async throws -> [VNFaceObservation] {
         try await multiObservationHandler(.faceDetection, image: image)
     }
