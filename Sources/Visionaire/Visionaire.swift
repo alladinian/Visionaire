@@ -1,75 +1,9 @@
 import Vision
 import CoreImage
 
-public enum SaliencyMode {
-    case attention
-    case object
-}
-
-public enum VisionTask {
-    case horizonDetection
-    case saliency(mode: SaliencyMode)
-    case faceDetection
-    case faceLandmarkDetection
-
-    var requestType: VNImageBasedRequest.Type {
-        switch self {
-        case .horizonDetection:
-            return VNDetectHorizonRequest.self
-        case .saliency(let mode):
-            switch mode {
-            case .attention: return VNGenerateAttentionBasedSaliencyImageRequest.self
-            case .object:    return VNGenerateObjectnessBasedSaliencyImageRequest.self
-            }
-        case .faceDetection:
-            return VNDetectFaceRectanglesRequest.self
-        case .faceLandmarkDetection:
-            return VNDetectFaceLandmarksRequest.self
-        }
-    }
-
-    var observationType: VNObservation.Type {
-        switch self {
-        case .horizonDetection:
-            return VNHorizonObservation.self
-        case .saliency:
-            return VNSaliencyImageObservation.self
-        case .faceDetection, .faceLandmarkDetection:
-            return VNFaceObservation.self
-        }
-    }
-
-    func request(revision: Int? = nil, completion: @escaping (VNRequest, Error?) -> Void) -> some VNImageBasedRequest {
-        let request = requestType.init() { request, error in
-            if let error {
-                completion(request, error)
-                return
-            }
-            guard let _ = request.results else {
-                completion(request, VisionaireError.noObservations)
-                return
-            }
-            completion(request, nil)
-        }
-        
-        if let revision, requestType.supportedRevisions.contains(revision) {
-            request.revision = revision
-        }
-        
-        return request
-    }
-}
-
-public enum VisionaireError: Error {
-    case noObservations
-    case invalidImage
-    case unknown
-}
-
 private let kVisionaireContext: CIContext = CIContext(options: [.name: "VisionaireCIContext"])
 
-public class Visionaire {
-    var runningRequests: [VNRequest] = []
+public final class Visionaire {
 
     public static let shared = Visionaire()
 
@@ -82,16 +16,27 @@ public class Visionaire {
             let handler = self.imageHandler(for: solidImage.cropped(to: smallRect))
             do {
                 try handler.perform([VisionTask.faceDetection.request(completion: { _, _ in })])
-                print("Warmed up", kVisionaireContext)
+                debugPrint("[Visionaire] Warmed up...")//, kVisionaireContext)
             } catch {
-                print(error)
+                debugPrint(error)
             }
         }
     }
+}
+
+//MARK: - Image Handlers
+extension Visionaire {
 
     private func imageHandler(for image: CIImage, context: CIContext? = nil) -> VNImageRequestHandler {
         VNImageRequestHandler(ciImage: image, options: [.ciContext: context ?? kVisionaireContext])
     }
+
+}
+
+//MARK: - Task Execution
+extension Visionaire {
+
+    //MARK: Multiple tasks
 
     public func performTasks(_ tasks: [VisionTask],
                              ciContext context: CIContext? = nil,
@@ -99,17 +44,13 @@ public class Visionaire {
                              regionOfInterest: CGRect? = nil,
                              revision: Int? = nil,
                              preferBackgroundProcessing: Bool = false
-    ) async throws -> [(request: VNRequest, observation: VNObservation)] {
+    ) async throws -> [VisionTaskResult] {
 
-        var observations = [(VNRequest, VNObservation)]()
+        var taskResults = [VisionTaskResult]()
 
         let requests = tasks.map {
             let request = $0.request(revision: revision) { request, error in
-                if let results = request.results {
-                    for result in results {
-                        observations.append((request, result))
-                    }
-                }
+                taskResults.append(VisionTaskResult(request: request, error: error))
             }
 
             if let regionOfInterest {
@@ -125,40 +66,86 @@ public class Visionaire {
 
         try imageHandler(for: image, context: context).perform(requests)
 
-        return observations
+        return taskResults
     }
 
-    public func horizonAngle(image: CIImage) async throws -> (VNRequest, VNHorizonObservation) {
-        guard let observations = try await performTasks([.horizonDetection], onImage: image) as? [(VNRequest, VNHorizonObservation)] else {
-            throw VisionaireError.noObservations
+    //MARK: Single Task
+
+    public func performTask(_ task: VisionTask,
+                            ciContext context: CIContext? = nil,
+                            onImage image: CIImage,
+                            regionOfInterest: CGRect? = nil,
+                            revision: Int? = nil,
+                            preferBackgroundProcessing: Bool = false
+    ) async throws -> VisionTaskResult {
+
+        var result: VisionTaskResult?
+
+        let request = task.request(revision: revision) { request, error in
+            result = VisionTaskResult(request: request, error: error)
         }
 
-        guard let top = observations.first else {
-            throw VisionaireError.noObservations
+        if let regionOfInterest {
+            request.regionOfInterest = regionOfInterest
         }
 
-        return top
+        if preferBackgroundProcessing {
+            request.preferBackgroundProcessing = true
+        }
+
+        try imageHandler(for: image, context: context).perform([request])
+
+        guard let result else {
+            throw VisionaireError.noResult
+        }
+
+        return result
     }
 
-    public func saliencyAnalysis(mode: SaliencyMode, image: CIImage) async throws -> [(VNRequest, VNSaliencyImageObservation)] {
-        guard let observations = try await performTasks([.saliency(mode: mode)], onImage: image) as? [(VNRequest, VNSaliencyImageObservation)] else {
-            throw VisionaireError.noObservations
+}
+
+//MARK: - Observation Casting
+
+extension Visionaire {
+
+    private func multiObservationHandler<T>(_ task: VisionTask, image: CIImage) async throws -> [T] {
+        let result = try await performTask(task, onImage: image)
+
+        if let error = result.error {
+            throw error
         }
-        return observations
+
+        return result.observations.compactMap { $0 as? T }
     }
 
-    public func faceDetection(image: CIImage, regionOfInterest: CGRect? = nil, revision: Int? = nil) async throws -> [(VNRequest, VNFaceObservation)] {
-        guard let observations = try await performTasks([.faceDetection], onImage: image, regionOfInterest: regionOfInterest, revision: revision) as? [(VNRequest, VNFaceObservation)] else {
+    private func singleObservationHandler<T>(_ task: VisionTask, image: CIImage) async throws -> T {
+        let result = try await performTask(task, onImage: image)
+        guard let observation = result.observations.first, let first = observation as? T else {
             throw VisionaireError.noObservations
         }
-        return observations
+        return first
     }
 
-    public func faceLandmarkDetection(image: CIImage, regionOfInterest: CGRect? = nil, revision: Int? = nil) async throws -> [(VNRequest, VNFaceObservation)] {
-        guard let observations = try await performTasks([.faceLandmarkDetection], onImage: image, regionOfInterest: regionOfInterest, revision: revision) as? [(VNRequest, VNFaceObservation)] else {
-            throw VisionaireError.noObservations
-        }
-        return observations
+}
+
+//MARK: - Convenience Methods (Observation Based)
+
+extension Visionaire {
+
+    public func horizonAngle(image: CIImage) async throws -> VNHorizonObservation {
+        try await singleObservationHandler(.horizonDetection, image: image)
+    }
+
+    public func saliencyAnalysis(mode: SaliencyMode, image: CIImage) async throws -> [VNSaliencyImageObservation] {
+        try await multiObservationHandler(mode.task, image: image)
+    }
+
+    public func faceDetection(image: CIImage, regionOfInterest: CGRect? = nil, revision: Int? = nil) async throws -> [VNFaceObservation] {
+        try await multiObservationHandler(.faceDetection, image: image)
+    }
+
+    public func faceLandmarkDetection(image: CIImage, regionOfInterest: CGRect? = nil, revision: Int? = nil) async throws -> [VNFaceObservation] {
+        try await multiObservationHandler(.faceLandmarkDetection, image: image)
     }
 
 }
