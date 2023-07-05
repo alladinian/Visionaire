@@ -3,20 +3,23 @@ import CoreImage
 
 private let kVisionaireContext: CIContext = CIContext(options: [.name: "VisionaireCIContext"])
 
-public final class Visionaire {
+public final class Visionaire: ObservableObject {
 
     public static let shared = Visionaire()
 
-    private init() {
-        // Warm-up
-        let solidImage = CIImage(color: .red)
+    public init() {
+
+    }
+
+    @Published public var isProcessing: Bool = false
+
+    public func warmup(tasks: [VisionTask]) {
         let smallRect  = CGRect(x: 0, y: 0, width: 64, height: 64)
-        DispatchQueue.global(qos: .background).async { [weak self] in
-            guard let self = self else { return }
-            let handler = self.imageHandler(for: solidImage.cropped(to: smallRect))
+        let solidImage = CIImage(color: .red).cropped(to: smallRect)
+        Task {
             do {
-                try handler.perform([VisionTask.faceDetection.request(completion: { _, _ in })])
-                debugPrint("[Visionaire] Warmed up...")//, kVisionaireContext)
+                let _ = try await performTasks(tasks, onImage: solidImage)
+                debugPrint("[Visionaire] Warmed up...")
             } catch {
                 debugPrint(error)
             }
@@ -46,6 +49,10 @@ extension Visionaire {
                              preferBackgroundProcessing: Bool = false
     ) async throws -> [VisionTaskResult] {
 
+        await MainActor.run {
+            isProcessing = true
+        }
+
         var taskResults = [VisionTaskResult]()
 
         let requests = tasks.map {
@@ -64,7 +71,17 @@ extension Visionaire {
             return request
         }
 
-        try imageHandler(for: image, context: context).perform(requests)
+        do {
+            try imageHandler(for: image, context: context).perform(requests)
+            await MainActor.run {
+                isProcessing = false
+            }
+        } catch {
+            await MainActor.run {
+                isProcessing = false
+            }
+            throw error
+        }
 
         return taskResults
     }
@@ -78,6 +95,10 @@ extension Visionaire {
                             revision: Int? = nil,
                             preferBackgroundProcessing: Bool = false
     ) async throws -> VisionTaskResult {
+
+        await MainActor.run {
+            isProcessing = true
+        }
 
         var result: VisionTaskResult?
 
@@ -93,7 +114,17 @@ extension Visionaire {
             request.preferBackgroundProcessing = true
         }
 
-        try imageHandler(for: image, context: context).perform([request])
+        do {
+            try imageHandler(for: image, context: context).perform([request])
+            await MainActor.run {
+                isProcessing = false
+            }
+        } catch {
+            await MainActor.run {
+                isProcessing = false
+            }
+            throw error
+        }
 
         guard let result else {
             throw VisionaireError.noResult
@@ -132,7 +163,7 @@ extension Visionaire {
 
 extension Visionaire {
 
-    public func horizonAngle(image: CIImage) async throws -> VNHorizonObservation {
+    public func horizonDetection(image: CIImage) async throws -> VNHorizonObservation {
         try await singleObservationHandler(.horizonDetection, image: image)
     }
 
