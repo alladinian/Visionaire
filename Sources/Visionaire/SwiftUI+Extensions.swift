@@ -8,6 +8,12 @@
 import SwiftUI
 import Vision
 
+private extension View {
+    func flipped(_ isFlipped: Bool) -> some View {
+        scaleEffect(x: 1, y: isFlipped ? -1 : 1)
+    }
+}
+
 public extension View {
 
     func drawObservations(_ observations: [VNDetectedObjectObservation], isFlipped: Bool = true, _ drawingClosure: @escaping () -> some View) -> some View {
@@ -22,19 +28,21 @@ public extension View {
                                 y: denormalizedRect.origin.y)
                 }
             }
-            .scaleEffect(x: 1, y: isFlipped ? -1 : 1)
+            .flipped(isFlipped)
         )
     }
 
-    func drawFaceLandmarks(_ observations: [VNFaceObservation], landmarks: FaceLandmarks = .all, isFlipped: Bool = true, _ styleClosure: @escaping (ScaledShape<VNFaceObservationShape>) -> some View) -> some View  {
+    func drawFaceLandmarks(_ observations: [VNFaceObservation], landmarks: FaceLandmarks = .all, isFlipped: Bool = true, _ styleClosure: @escaping (VNFaceObservationShape) -> some View) -> some View  {
         overlay(
-            styleClosure(VNFaceObservationShape(observations: observations, enabledLandmarks: landmarks).scale(x: 1, y: isFlipped ? -1 : 1))
+            styleClosure(VNFaceObservationShape(observations: observations, enabledLandmarks: landmarks))
+                .flipped(isFlipped)
         )
     }
 
-    func drawQuad(_ observations: [VNRectangleObservation], isFlipped: Bool = true, _ styleClosure: @escaping (ScaledShape<VNRectangleObservationShape>) -> some View) -> some View  {
+    func drawQuad(_ observations: [VNRectangleObservation], isFlipped: Bool = true, _ styleClosure: @escaping (VNRectangleObservationShape) -> some View) -> some View  {
         overlay(
-            styleClosure(VNRectangleObservationShape(observations: observations).scale(x: 1, y: isFlipped ? -1 : 1))
+            styleClosure(VNRectangleObservationShape(observations: observations))
+                .flipped(isFlipped)
         )
     }
 
@@ -52,9 +60,9 @@ public extension View {
 }
 
 public extension [VNDetectedObjectObservation] {
-    func visionRects(isFlipped: Bool = true) -> some Shape {
+    func visionRects(isFlipped: Bool = true) -> some View {
         VNDetectedObjectObservationShape(observations: self)
-            .scale(x: 1, y: isFlipped ? -1 : 1)
+            .flipped(isFlipped)
     }
 }
 
