@@ -32,12 +32,15 @@ public extension View {
         )
     }
 
+    func drawQuad(_ observations: [VNRectangleObservation], isFlipped: Bool = true, _ styleClosure: @escaping (ScaledShape<QuadShape>) -> some View) -> some View  {
+        overlay(
+            styleClosure(QuadShape(observations: observations).scale(x: 1, y: isFlipped ? -1 : 1))
+        )
+    }
+
 
     @ViewBuilder
     func visualizePersonSegmentationMask(_ observations: [VNPixelBufferObservation]) -> some View {
-//        overlay(
-//            PixelBufferObservationsCompositeMask(observations: observations)
-//        )
         if #available(macOS 12.0, *) {
            mask {
                PixelBufferObservationsCompositeMask(observations: observations)
@@ -53,6 +56,22 @@ public extension [VNDetectedObjectObservation] {
     func visionRects(isFlipped: Bool = true) -> some Shape {
         DetectorRectangles(observations: self)
             .scale(x: 1, y: isFlipped ? -1 : 1)
+    }
+}
+
+public struct QuadShape: Shape {
+    let observations: [VNRectangleObservation]
+
+    public func path(in rect: CGRect) -> Path {
+        Path { path in
+            for observation in observations {
+                let points = [observation.bottomLeft, observation.topLeft, observation.topRight, observation.bottomRight].map {
+                    VNImagePointForNormalizedPoint($0, Int(rect.size.width), Int(rect.size.height))
+                }
+                path.addLines(points)
+                path.closeSubpath()
+            }
+        }
     }
 }
 

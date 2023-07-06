@@ -16,6 +16,7 @@ enum VisionTaskEnum {
     case humanRectanglesDetection
     case faceCaptureQuality
     case personSegmentation
+    case documentSegmentation
 }
 
 public enum SaliencyMode {
@@ -45,6 +46,8 @@ public struct VisionTask {
 
     @available(iOS 15.0, macOS 12.0, tvOS 15.0, *)
     static let personSegmentation       = VisionTask(.personSegmentation)
+
+    static let documentSegmentation     = VisionTask(.documentSegmentation)
 
     private let taskEnum: VisionTaskEnum
 
@@ -78,6 +81,12 @@ extension VisionTask {
             } else {
                 return VNImageBasedRequest.self
             }
+        case .documentSegmentation:
+            if #available(iOS 15.0, macOS 12.0, tvOS 13.0, *) {
+                return VNDetectDocumentSegmentationRequest.self
+            } else {
+                return VNImageBasedRequest.self
+            }
         }
     }
 
@@ -102,6 +111,9 @@ extension VisionTask {
             } else {
                 return VNObservation.self
             }
+
+        case .documentSegmentation:
+            return VNRectangleObservation.self
         }
     }
 }

@@ -163,4 +163,9 @@ extension Visionaire {
         try await multiObservationHandler(.personSegmentation, image: image)
     }
 
+    @available(iOS 15.0, macOS 12.0, tvOS 13.0, *)
+    public func documentSegmentation(image: CIImage) async throws -> [VNRectangleObservation] {
+        try await multiObservationHandler(.documentSegmentation, image: image)
+    }
+
 }
