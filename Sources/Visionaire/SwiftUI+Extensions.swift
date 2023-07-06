@@ -26,11 +26,11 @@ public extension View {
         )
     }
 
-    func drawFaceLandmarks(_ observations: [VNFaceObservation], landmarks: FaceLandmarks = .all) -> some View  {
+    func drawFaceLandmarks<T: ShapeStyle>(_ observations: [VNFaceObservation], landmarks: FaceLandmarks = .all, shapeStyle: T, strokeStyle: StrokeStyle) -> some View  {
         overlay(
             FaceLandmarksShape(observations: observations, enabledLandmarks: landmarks)
                 .scale(x: 1, y: -1)
-                .stroke(Color.red, lineWidth: 1)
+                .stroke(shapeStyle, style: strokeStyle)
         )
     }
 }

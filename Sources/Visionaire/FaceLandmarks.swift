@@ -15,31 +15,32 @@ public struct FaceLandmarks: OptionSet {
         self.rawValue = rawValue
     }
 
-    public static let all          = FaceLandmarks(rawValue: 1 << 0) // Constellation (TODO: add an all option for all others)
-    public static let contour      = FaceLandmarks(rawValue: 1 << 1)
-    public static let leftEye      = FaceLandmarks(rawValue: 1 << 2)
-    public static let rightEye     = FaceLandmarks(rawValue: 1 << 3)
-    public static let leftEyebrow  = FaceLandmarks(rawValue: 1 << 4)
-    public static let rightEyebrow = FaceLandmarks(rawValue: 1 << 5)
-    public static let nose         = FaceLandmarks(rawValue: 1 << 6)
-    public static let noseCrest    = FaceLandmarks(rawValue: 1 << 7)
-    public static let medianLine   = FaceLandmarks(rawValue: 1 << 8)
-    public static let outerLips    = FaceLandmarks(rawValue: 1 << 9)
-    public static let innerLips    = FaceLandmarks(rawValue: 1 << 10)
-    public static let leftPupil    = FaceLandmarks(rawValue: 1 << 11)
-    public static let rightPupil   = FaceLandmarks(rawValue: 1 << 12)
-
+    public static let constellation = FaceLandmarks(rawValue: 1 << 0) // Constellation (TODO: add an all option for all others)
+    public static let contour       = FaceLandmarks(rawValue: 1 << 1)
+    public static let leftEye       = FaceLandmarks(rawValue: 1 << 2)
+    public static let rightEye      = FaceLandmarks(rawValue: 1 << 3)
+    public static let leftEyebrow   = FaceLandmarks(rawValue: 1 << 4)
+    public static let rightEyebrow  = FaceLandmarks(rawValue: 1 << 5)
+    public static let nose          = FaceLandmarks(rawValue: 1 << 6)
+    public static let noseCrest     = FaceLandmarks(rawValue: 1 << 7)
+    public static let medianLine    = FaceLandmarks(rawValue: 1 << 8)
+    public static let outerLips     = FaceLandmarks(rawValue: 1 << 9)
+    public static let innerLips     = FaceLandmarks(rawValue: 1 << 10)
+    public static let leftPupil     = FaceLandmarks(rawValue: 1 << 11)
+    public static let rightPupil    = FaceLandmarks(rawValue: 1 << 12)
 
     public static let eyes: FaceLandmarks     = [.leftEye, .rightEye]
     public static let pupils: FaceLandmarks   = [.leftPupil, .rightPupil]
     public static let eyeBrows: FaceLandmarks = [.leftEyebrow, .rightEyebrow]
     public static let lips: FaceLandmarks     = [.innerLips, .outerLips]
+
+    public static let all: FaceLandmarks = [.contour, .eyes, .eyeBrows, .nose, .noseCrest, .medianLine, .lips, .pupils]
 }
 
 public extension VNFaceLandmarks2D {
     func regionsFor(landmarks: FaceLandmarks) -> [VNFaceLandmarkRegion2D] {
 
-        if landmarks == .all {
+        if landmarks == .constellation {
             return [self.allPoints ?? nil].compactMap { $0 }
         }
 
