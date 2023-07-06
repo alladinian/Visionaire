@@ -26,11 +26,9 @@ public extension View {
         )
     }
 
-    func drawFaceLandmarks<T: ShapeStyle>(_ observations: [VNFaceObservation], landmarks: FaceLandmarks = .all, shapeStyle: T, strokeStyle: StrokeStyle) -> some View  {
+    func drawFaceLandmarks(_ observations: [VNFaceObservation], landmarks: FaceLandmarks = .all, _ styleClosure: @escaping (ScaledShape<FaceLandmarksShape>) -> some View) -> some View  {
         overlay(
-            FaceLandmarksShape(observations: observations, enabledLandmarks: landmarks)
-                .scale(x: 1, y: -1)
-                .stroke(shapeStyle, style: strokeStyle)
+            styleClosure(FaceLandmarksShape(observations: observations, enabledLandmarks: landmarks).scale(x: 1, y: -1))
         )
     }
 }
@@ -54,11 +52,11 @@ struct DetectorRectangles: Shape {
     }
 }
 
-struct FaceLandmarksShape: Shape {
+public struct FaceLandmarksShape: Shape {
     let observations: [VNFaceObservation]
-    var enabledLandmarks: FaceLandmarks = .all
+    var enabledLandmarks: FaceLandmarks
 
-    func path(in rect: CGRect) -> Path {
+    public func path(in rect: CGRect) -> Path {
         Path { path in
             for observation in observations {
                 guard let landmarks = observation.landmarks else { return }
@@ -69,7 +67,9 @@ struct FaceLandmarksShape: Shape {
                         switch region.pointsClassification {
                         case .disconnected:
                             for point in points {
-                                path.addEllipse(in: .init(origin: point, size: .init(width: 1, height: 1)))
+                                let dotSize = 4.0
+                                let dotRect = CGRect(origin: point, size: .init(width: dotSize, height: dotSize)).offsetBy(dx: -dotSize / 2, dy: -dotSize / 2)
+                                path.addEllipse(in: dotRect)
                             }
                         case .openPath:
                             path.addLines(points)
