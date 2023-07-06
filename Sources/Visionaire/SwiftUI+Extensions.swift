@@ -26,18 +26,17 @@ public extension View {
         )
     }
 
-    func drawFaceLandmarks(_ observations: [VNFaceObservation], landmarks: FaceLandmarks = .all, isFlipped: Bool = true, _ styleClosure: @escaping (ScaledShape<FaceLandmarksShape>) -> some View) -> some View  {
+    func drawFaceLandmarks(_ observations: [VNFaceObservation], landmarks: FaceLandmarks = .all, isFlipped: Bool = true, _ styleClosure: @escaping (ScaledShape<VNFaceObservationShape>) -> some View) -> some View  {
         overlay(
-            styleClosure(FaceLandmarksShape(observations: observations, enabledLandmarks: landmarks).scale(x: 1, y: isFlipped ? -1 : 1))
+            styleClosure(VNFaceObservationShape(observations: observations, enabledLandmarks: landmarks).scale(x: 1, y: isFlipped ? -1 : 1))
         )
     }
 
-    func drawQuad(_ observations: [VNRectangleObservation], isFlipped: Bool = true, _ styleClosure: @escaping (ScaledShape<QuadShape>) -> some View) -> some View  {
+    func drawQuad(_ observations: [VNRectangleObservation], isFlipped: Bool = true, _ styleClosure: @escaping (ScaledShape<VNRectangleObservationShape>) -> some View) -> some View  {
         overlay(
-            styleClosure(QuadShape(observations: observations).scale(x: 1, y: isFlipped ? -1 : 1))
+            styleClosure(VNRectangleObservationShape(observations: observations).scale(x: 1, y: isFlipped ? -1 : 1))
         )
     }
-
 
     @ViewBuilder
     func visualizePersonSegmentationMask(_ observations: [VNPixelBufferObservation]) -> some View {
@@ -54,12 +53,13 @@ public extension View {
 
 public extension [VNDetectedObjectObservation] {
     func visionRects(isFlipped: Bool = true) -> some Shape {
-        DetectorRectangles(observations: self)
+        VNDetectedObjectObservationShape(observations: self)
             .scale(x: 1, y: isFlipped ? -1 : 1)
     }
 }
 
-public struct QuadShape: Shape {
+/// A Shape constructed from `VNRectangleObservation` objects
+public struct VNRectangleObservationShape: Shape {
     let observations: [VNRectangleObservation]
 
     public func path(in rect: CGRect) -> Path {
@@ -75,7 +75,8 @@ public struct QuadShape: Shape {
     }
 }
 
-struct DetectorRectangles: Shape {
+/// A Shape constructed from `VNDetectedObjectObservation` objects
+struct VNDetectedObjectObservationShape: Shape {
     let observations: [VNDetectedObjectObservation]
 
     func path(in rect: CGRect) -> Path {
@@ -87,6 +88,7 @@ struct DetectorRectangles: Shape {
     }
 }
 
+/// A View constructed by stacking `CVPixelBuffer` based images suitable for masking (luminanceToAlpha)
 struct PixelBufferObservationsCompositeMask: View {
     let observations: [VNPixelBufferObservation]
 
@@ -104,6 +106,7 @@ struct PixelBufferObservationsCompositeMask: View {
     }
 }
 
+/// Presents an Image based on the contents of a `CVPixelBuffer`
 struct PixelBufferImage: View {
     let buffer: CVPixelBuffer
 
@@ -116,31 +119,41 @@ struct PixelBufferImage: View {
     }
 }
 
-public struct FaceLandmarksShape: Shape {
+/// A Shape constructed from `VNFaceObservation` objects
+public struct VNFaceObservationShape: Shape {
     let observations: [VNFaceObservation]
     var enabledLandmarks: FaceLandmarks
 
     public func path(in rect: CGRect) -> Path {
         Path { path in
             for observation in observations {
+
                 guard let landmarks = observation.landmarks else { return }
+
                 let regions = landmarks.regionsFor(landmarks: enabledLandmarks)
+
                 for region in regions {
+
                     let points = region.pointsInImage(imageSize: rect.size)
+
                     if #available(iOS 16.0, macOS 13.0, tvOS 16, *) {
                         switch region.pointsClassification {
+
                         case .disconnected:
                             for point in points {
                                 let dotSize = 4.0
                                 let dotRect = CGRect(origin: point, size: .init(width: dotSize, height: dotSize)).offsetBy(dx: -dotSize / 2, dy: -dotSize / 2)
                                 path.addEllipse(in: dotRect)
                             }
+
                         case .openPath:
                             path.addLines(points)
+
                         case .closedPath:
                             path.addLines(points)
                             path.closeSubpath()
                         }
+
                     } else {
                         path.addLines(points)
                         path.closeSubpath()
