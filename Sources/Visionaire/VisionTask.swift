@@ -15,6 +15,7 @@ enum VisionTaskEnum {
     case faceLandmarkDetection
     case humanRectanglesDetection
     case faceCaptureQuality
+    case personSegmentation
 }
 
 public enum SaliencyMode {
@@ -31,15 +32,19 @@ public enum SaliencyMode {
 
 public struct VisionTask {
     static let horizonDetection         = VisionTask(.horizonDetection)
+
     static let attentionSaliency        = VisionTask(.saliency(mode: .attention))
     static let objectnessSaliency       = VisionTask(.saliency(mode: .object))
+
     static let faceDetection            = VisionTask(.faceDetection)
     static let faceLandmarkDetection    = VisionTask(.faceLandmarkDetection)
+    static let faceCaptureQuality       = VisionTask(.faceCaptureQuality)
 
-    @available(iOS 15.0, macOS 12.0, tvOS 13.0, *)
+    @available(iOS 15.0, macOS 12.0, tvOS 15.0, *)
     static let humanRectanglesDetection =  VisionTask(.humanRectanglesDetection)
 
-    static let faceCaptureQuality = VisionTask(.faceCaptureQuality)
+    @available(iOS 15.0, macOS 12.0, tvOS 15.0, *)
+    static let personSegmentation       = VisionTask(.personSegmentation)
 
     private let taskEnum: VisionTaskEnum
 
@@ -67,6 +72,12 @@ extension VisionTask {
             return VNDetectHumanRectanglesRequest.self
         case .faceCaptureQuality:
             return VNDetectFaceCaptureQualityRequest.self
+        case .personSegmentation:
+            if #available(iOS 15.0, macOS 12.0, tvOS 13.0, *) {
+                return VNGeneratePersonSegmentationRequest.self
+            } else {
+                return VNImageBasedRequest.self
+            }
         }
     }
 
@@ -76,7 +87,7 @@ extension VisionTask {
             return VNHorizonObservation.self
         case .saliency:
             return VNSaliencyImageObservation.self
-        case .faceDetection, .faceLandmarkDetection:
+        case .faceDetection, .faceLandmarkDetection, .faceCaptureQuality:
             return VNFaceObservation.self
         case .humanRectanglesDetection:
             if #available(iOS 15.0, macOS 12.0, tvOS 13.0, *) {
@@ -84,8 +95,13 @@ extension VisionTask {
             } else {
                 return VNObservation.self
             }
-        case .faceCaptureQuality:
-            return VNFaceObservation.self
+
+        case .personSegmentation:
+            if #available(iOS 15.0, macOS 12.0, tvOS 13.0, *) {
+                return VNPixelBufferObservation.self
+            } else {
+                return VNObservation.self
+            }
         }
     }
 }

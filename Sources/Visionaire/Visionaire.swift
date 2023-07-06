@@ -1,7 +1,7 @@
 import Vision
 import CoreImage
 
-private let kVisionaireContext: CIContext = CIContext(options: [.name: "VisionaireCIContext"])
+let kVisionaireContext: CIContext = CIContext(options: [.name: "VisionaireCIContext"])
 
 public final class Visionaire: ObservableObject {
 
@@ -95,42 +95,12 @@ extension Visionaire {
                             revision: Int? = nil,
                             preferBackgroundProcessing: Bool = false
     ) async throws -> VisionTaskResult {
-
-        await MainActor.run {
-            isProcessing = true
-        }
-
-        var result: VisionTaskResult?
-
-        let request = task.request(revision: revision) { request, error in
-            result = VisionTaskResult(request: request, error: error)
-        }
-
-        if let regionOfInterest {
-            request.regionOfInterest = regionOfInterest
-        }
-
-        if preferBackgroundProcessing {
-            request.preferBackgroundProcessing = true
-        }
-
-        do {
-            try imageHandler(for: image, context: context).perform([request])
-            await MainActor.run {
-                isProcessing = false
-            }
-        } catch {
-            await MainActor.run {
-                isProcessing = false
-            }
-            throw error
-        }
-
-        guard let result else {
-            throw VisionaireError.noResult
-        }
-
-        return result
+        try await performTasks([task],
+                               ciContext: context,
+                               onImage: image,
+                               regionOfInterest: regionOfInterest,
+                               revision: revision,
+                               preferBackgroundProcessing: preferBackgroundProcessing).first!
     }
 
 }
@@ -182,6 +152,15 @@ extension Visionaire {
 
     public func faceLandmarkDetection(image: CIImage, regionOfInterest: CGRect? = nil, revision: Int? = nil) async throws -> [VNFaceObservation] {
         try await multiObservationHandler(.faceLandmarkDetection, image: image)
+    }
+
+    public func faceCaptureQualityDetection(image: CIImage, regionOfInterest: CGRect? = nil, revision: Int? = nil) async throws -> [VNFaceObservation] {
+        try await multiObservationHandler(.faceCaptureQuality, image: image)
+    }
+
+    @available(iOS 15.0, macOS 12.0, tvOS 13.0, *)
+    public func personSegmentation(image: CIImage, qualityLevel: VNGeneratePersonSegmentationRequest.QualityLevel) async throws -> [VNPixelBufferObservation] {
+        try await multiObservationHandler(.personSegmentation, image: image)
     }
 
 }

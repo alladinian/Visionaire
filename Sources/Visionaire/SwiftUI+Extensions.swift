@@ -26,10 +26,26 @@ public extension View {
         )
     }
 
-    func drawFaceLandmarks(_ observations: [VNFaceObservation], landmarks: FaceLandmarks = .all, _ styleClosure: @escaping (ScaledShape<FaceLandmarksShape>) -> some View) -> some View  {
+    func drawFaceLandmarks(_ observations: [VNFaceObservation], landmarks: FaceLandmarks = .all, isFlipped: Bool = true, _ styleClosure: @escaping (ScaledShape<FaceLandmarksShape>) -> some View) -> some View  {
         overlay(
-            styleClosure(FaceLandmarksShape(observations: observations, enabledLandmarks: landmarks).scale(x: 1, y: -1))
+            styleClosure(FaceLandmarksShape(observations: observations, enabledLandmarks: landmarks).scale(x: 1, y: isFlipped ? -1 : 1))
         )
+    }
+
+
+    @ViewBuilder
+    func visualizePersonSegmentationMask(_ observations: [VNPixelBufferObservation]) -> some View {
+//        overlay(
+//            PixelBufferObservationsCompositeMask(observations: observations)
+//        )
+        if #available(macOS 12.0, *) {
+           mask {
+               PixelBufferObservationsCompositeMask(observations: observations)
+            }
+        } else {
+            // Fallback on earlier versions
+            mask(PixelBufferObservationsCompositeMask(observations: observations))
+        }
     }
 }
 
@@ -48,6 +64,35 @@ struct DetectorRectangles: Shape {
             for normalizedRect in observations.map({ $0.boundingBox }) {
                 path.addRect(VNImageRectForNormalizedRect(normalizedRect, Int(rect.size.width), Int(rect.size.height)))
             }
+        }
+    }
+}
+
+struct PixelBufferObservationsCompositeMask: View {
+    let observations: [VNPixelBufferObservation]
+
+    var body: some View {
+        if observations.isEmpty {
+            Color.black
+        } else {
+            ZStack {
+                ForEach(observations, id: \.self) { observation in
+                    PixelBufferImage(buffer: observation.pixelBuffer)
+                }
+            }
+            .luminanceToAlpha()
+        }
+    }
+}
+
+struct PixelBufferImage: View {
+    let buffer: CVPixelBuffer
+
+    var body: some View {
+        let image = CIImage(cvPixelBuffer: buffer)
+        if let cgImage = kVisionaireContext.createCGImage(image, from: image.extent) {
+            Image(cgImage, scale: 1, label: Text(""))
+                .resizable()
         }
     }
 }
