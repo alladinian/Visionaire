@@ -158,14 +158,19 @@ extension Visionaire {
         try await multiObservationHandler(.faceCaptureQuality, image: image)
     }
 
-    @available(iOS 15.0, macOS 12.0, tvOS 13.0, *)
+    @available(iOS 15.0, macOS 12.0, tvOS 15.0, *)
     public func personSegmentation(image: CIImage, qualityLevel: VNGeneratePersonSegmentationRequest.QualityLevel) async throws -> [VNPixelBufferObservation] {
         try await multiObservationHandler(.personSegmentation, image: image)
     }
 
-    @available(iOS 15.0, macOS 12.0, tvOS 13.0, *)
+    @available(iOS 15.0, macOS 12.0, tvOS 15.0, *)
     public func documentSegmentation(image: CIImage) async throws -> [VNRectangleObservation] {
         try await multiObservationHandler(.documentSegmentation, image: image)
+    }
+
+    @available(iOS 15.0, macOS 12.0, tvOS 15.0, *)
+    public func humanRectanglesDetection(image: CIImage) async throws -> [VNHumanObservation] {
+        try await multiObservationHandler(.humanRectanglesDetection, image: image)
     }
 
 }

@@ -115,13 +115,13 @@ extension VisionTask {
         case .faceCaptureQuality:
             return VNDetectFaceCaptureQualityRequest.self
         case .personSegmentation:
-            if #available(iOS 15.0, macOS 12.0, tvOS 13.0, *) {
+            if #available(iOS 15.0, macOS 12.0, tvOS 15.0, *) {
                 return VNGeneratePersonSegmentationRequest.self
             } else {
                 return VNImageBasedRequest.self
             }
         case .documentSegmentation:
-            if #available(iOS 15.0, macOS 12.0, tvOS 13.0, *) {
+            if #available(iOS 15.0, macOS 12.0, tvOS 15.0, *) {
                 return VNDetectDocumentSegmentationRequest.self
             } else {
                 return VNImageBasedRequest.self
@@ -138,14 +138,14 @@ extension VisionTask {
         case .faceDetection, .faceLandmarkDetection, .faceCaptureQuality:
             return VNFaceObservation.self
         case .humanRectanglesDetection:
-            if #available(iOS 15.0, macOS 12.0, tvOS 13.0, *) {
+            if #available(iOS 15.0, macOS 12.0, tvOS 15.0, *) {
                 return VNHumanObservation.self
             } else {
                 return VNObservation.self
             }
 
         case .personSegmentation:
-            if #available(iOS 15.0, macOS 12.0, tvOS 13.0, *) {
+            if #available(iOS 15.0, macOS 12.0, tvOS 15.0, *) {
                 return VNPixelBufferObservation.self
             } else {
                 return VNObservation.self
