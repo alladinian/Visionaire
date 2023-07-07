@@ -8,15 +8,39 @@
 import Foundation
 import Vision
 
-enum VisionTaskEnum {
+enum VisionTaskEnum: Int {
     case horizonDetection
-    case saliency(mode: SaliencyMode)
+    case attentionSaliency
+    case objectnessSaliency
     case faceDetection
     case faceLandmarkDetection
     case humanRectanglesDetection
     case faceCaptureQuality
     case personSegmentation
     case documentSegmentation
+
+    var title: String {
+        switch self {
+        case .horizonDetection:
+            return "Horizon Detection"
+        case .attentionSaliency:
+            return "Attention Saliency"
+        case .objectnessSaliency:
+            return "Objectness Saliency"
+        case .faceDetection:
+            return "Face Detection"
+        case .faceLandmarkDetection:
+            return "Face Landmark Detection"
+        case .humanRectanglesDetection:
+            return "Human Rectangles Detection"
+        case .faceCaptureQuality:
+            return "Face Capture Quality"
+        case .personSegmentation:
+            return "Person Segmentation"
+        case .documentSegmentation:
+            return "Document Segmentation"
+        }
+    }
 }
 
 public enum SaliencyMode {
@@ -31,23 +55,39 @@ public enum SaliencyMode {
     }
 }
 
-public struct VisionTask {
-    static let horizonDetection         = VisionTask(.horizonDetection)
+public struct VisionTask: Hashable {
+    public static func == (lhs: VisionTask, rhs: VisionTask) -> Bool {
+        lhs.taskEnum == rhs.taskEnum
+    }
 
-    static let attentionSaliency        = VisionTask(.saliency(mode: .attention))
-    static let objectnessSaliency       = VisionTask(.saliency(mode: .object))
+    public static let horizonDetection         = VisionTask(.horizonDetection)
 
-    static let faceDetection            = VisionTask(.faceDetection)
-    static let faceLandmarkDetection    = VisionTask(.faceLandmarkDetection)
-    static let faceCaptureQuality       = VisionTask(.faceCaptureQuality)
+    public static let attentionSaliency        = VisionTask(.attentionSaliency)
+    public static let objectnessSaliency       = VisionTask(.objectnessSaliency)
+
+    public static let faceDetection            = VisionTask(.faceDetection)
+    public static let faceLandmarkDetection    = VisionTask(.faceLandmarkDetection)
+    public static let faceCaptureQuality       = VisionTask(.faceCaptureQuality)
 
     @available(iOS 15.0, macOS 12.0, tvOS 15.0, *)
-    static let humanRectanglesDetection =  VisionTask(.humanRectanglesDetection)
+    public static let humanRectanglesDetection =  VisionTask(.humanRectanglesDetection)
 
     @available(iOS 15.0, macOS 12.0, tvOS 15.0, *)
-    static let personSegmentation       = VisionTask(.personSegmentation)
+    public static let personSegmentation       = VisionTask(.personSegmentation)
 
-    static let documentSegmentation     = VisionTask(.documentSegmentation)
+    public static let documentSegmentation     = VisionTask(.documentSegmentation)
+
+    public static var allSupportedTasks: [VisionTask] {
+        var tasks: [VisionTask] = [.horizonDetection, .attentionSaliency, .objectnessSaliency, .faceDetection, .faceLandmarkDetection, .faceCaptureQuality, .documentSegmentation]
+
+        if #available(iOS 15.0, macOS 12.0, tvOS 15.0, *) {
+            tasks.append(contentsOf: [.humanRectanglesDetection, .personSegmentation])
+        }
+
+        return tasks
+    }
+
+    public var title: String { taskEnum.title }
 
     private let taskEnum: VisionTaskEnum
 
@@ -62,11 +102,10 @@ extension VisionTask {
         switch taskEnum {
         case .horizonDetection:
             return VNDetectHorizonRequest.self
-        case .saliency(let mode):
-            switch mode {
-            case .attention: return VNGenerateAttentionBasedSaliencyImageRequest.self
-            case .object:    return VNGenerateObjectnessBasedSaliencyImageRequest.self
-            }
+        case .attentionSaliency:
+            return VNGenerateAttentionBasedSaliencyImageRequest.self
+        case .objectnessSaliency:
+            return VNGenerateObjectnessBasedSaliencyImageRequest.self
         case .faceDetection:
             return VNDetectFaceRectanglesRequest.self
         case .faceLandmarkDetection:
@@ -94,7 +133,7 @@ extension VisionTask {
         switch taskEnum {
         case .horizonDetection:
             return VNHorizonObservation.self
-        case .saliency:
+        case .attentionSaliency, .objectnessSaliency:
             return VNSaliencyImageObservation.self
         case .faceDetection, .faceLandmarkDetection, .faceCaptureQuality:
             return VNFaceObservation.self
