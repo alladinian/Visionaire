@@ -48,7 +48,7 @@ public extension View {
 
     @ViewBuilder
     func visualizePersonSegmentationMask(_ observations: [VNPixelBufferObservation]) -> some View {
-        if #available(macOS 12.0, *) {
+        if #available(macOS 12.0, iOS 15.0, tvOS 15.0, *) {
            mask {
                PixelBufferObservationsCompositeMask(observations: observations)
             }
