@@ -10,9 +10,9 @@ import Vision
 
 //MARK: - Task Result Wrapper
 public struct VisionTaskResult {
-    let request: VNRequest
-    let observations: [VNObservation]
-    let error: Error?
+    public let request: VNRequest
+    public let observations: [VNObservation]
+    public let error: Error?
 
     init(request: VNRequest, error: Error?) {
         self.request      = request
