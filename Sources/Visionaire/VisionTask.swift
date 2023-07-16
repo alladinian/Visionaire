@@ -8,18 +8,33 @@
 import Foundation
 import Vision
 
-enum VisionTaskEnum: Int {
+public enum VisionTask: CaseIterable {
+    public static var allCases: [VisionTask] {
+        var tasks: [VisionTask] = [.horizonDetection, .attentionSaliency, .objectnessSaliency, .faceDetection, .faceLandmarkDetection, .faceCaptureQuality, .documentSegmentation]
+
+        if #available(iOS 15.0, macOS 12.0, tvOS 15.0, *) {
+            tasks.append(contentsOf: [.humanRectanglesDetection, .personSegmentation])
+        }
+
+        return tasks
+    }
+
     case horizonDetection
     case attentionSaliency
     case objectnessSaliency
     case faceDetection
     case faceLandmarkDetection
+
+    @available(iOS 15.0, macOS 12.0, tvOS 15.0, *)
     case humanRectanglesDetection
-    case faceCaptureQuality
+
+    @available(iOS 15.0, macOS 12.0, tvOS 15.0, *)
     case personSegmentation
+
+    case faceCaptureQuality
     case documentSegmentation
 
-    var title: String {
+    public var title: String {
         switch self {
         case .horizonDetection:
             return "Horizon Detection"
@@ -55,51 +70,9 @@ public enum SaliencyMode {
     }
 }
 
-public struct VisionTask: Hashable {
-    public static func == (lhs: VisionTask, rhs: VisionTask) -> Bool {
-        lhs.taskEnum == rhs.taskEnum
-    }
-
-    public static let horizonDetection         = VisionTask(.horizonDetection)
-
-    public static let attentionSaliency        = VisionTask(.attentionSaliency)
-    public static let objectnessSaliency       = VisionTask(.objectnessSaliency)
-
-    public static let faceDetection            = VisionTask(.faceDetection)
-    public static let faceLandmarkDetection    = VisionTask(.faceLandmarkDetection)
-    public static let faceCaptureQuality       = VisionTask(.faceCaptureQuality)
-
-    @available(iOS 15.0, macOS 12.0, tvOS 15.0, *)
-    public static let humanRectanglesDetection =  VisionTask(.humanRectanglesDetection)
-
-    @available(iOS 15.0, macOS 12.0, tvOS 15.0, *)
-    public static let personSegmentation       = VisionTask(.personSegmentation)
-
-    public static let documentSegmentation     = VisionTask(.documentSegmentation)
-
-    public static var allSupportedTasks: [VisionTask] {
-        var tasks: [VisionTask] = [.horizonDetection, .attentionSaliency, .objectnessSaliency, .faceDetection, .faceLandmarkDetection, .faceCaptureQuality, .documentSegmentation]
-
-        if #available(iOS 15.0, macOS 12.0, tvOS 15.0, *) {
-            tasks.append(contentsOf: [.humanRectanglesDetection, .personSegmentation])
-        }
-
-        return tasks
-    }
-
-    public var title: String { taskEnum.title }
-
-    private let taskEnum: VisionTaskEnum
-
-    init(_ taskEnum: VisionTaskEnum) {
-        self.taskEnum = taskEnum
-    }
-
-}
-
 extension VisionTask {
     var requestType: VNImageBasedRequest.Type {
-        switch taskEnum {
+        switch self {
         case .horizonDetection:
             return VNDetectHorizonRequest.self
         case .attentionSaliency:
@@ -130,7 +103,7 @@ extension VisionTask {
     }
 
     var observationType: VNObservation.Type {
-        switch taskEnum {
+        switch self {
         case .horizonDetection:
             return VNHorizonObservation.self
         case .attentionSaliency, .objectnessSaliency:
@@ -159,16 +132,19 @@ extension VisionTask {
 
 
 extension VisionTask {
-    func request(revision: Int? = nil, completion: @escaping (VNRequest, Error?) -> Void) -> some VNImageBasedRequest {
+    func request(revision: Int? = nil, completion: @escaping (VNRequest, Error?) -> Void) -> VNImageBasedRequest {
         let request = requestType.init() { request, error in
+
             if let error {
                 completion(request, error)
                 return
             }
+
             guard let _ = request.results else {
                 completion(request, VisionaireError.noObservations)
                 return
             }
+
             completion(request, nil)
         }
 
