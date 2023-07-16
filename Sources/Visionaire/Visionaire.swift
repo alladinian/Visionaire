@@ -141,12 +141,15 @@ extension Visionaire {
                             revision: Int? = nil,
                             preferBackgroundProcessing: Bool = false
     ) async throws -> VisionTaskResult {
-        try await performTasks([task],
-                               ciContext: context,
-                               onImage: image,
-                               regionOfInterest: regionOfInterest,
-                               revision: revision,
-                               preferBackgroundProcessing: preferBackgroundProcessing).first!
+        guard let result = try await performTasks([task],
+                                                  ciContext: context,
+                                                  onImage: image,
+                                                  regionOfInterest: regionOfInterest,
+                                                  revision: revision,
+                                                  preferBackgroundProcessing: preferBackgroundProcessing).first else {
+            throw VisionaireError.noResult
+        }
+        return result
     }
 
 }
