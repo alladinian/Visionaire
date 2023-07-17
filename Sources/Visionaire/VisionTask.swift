@@ -30,22 +30,45 @@ public struct VisionTask: Identifiable, Hashable {
         return tasks
     }
 
-    public static let horizonDetection         = VisionTask(title: "Horizon Detection",        requestType: VNDetectHorizonRequest.self, observationType: VNHorizonObservation.self)
-    public static let attentionSaliency        = VisionTask(title: "Attention Saliency",       requestType: VNGenerateAttentionBasedSaliencyImageRequest.self, observationType: VNSaliencyImageObservation.self)
-    public static let objectnessSaliency       = VisionTask(title: "Objectness Saliency",      requestType: VNGenerateObjectnessBasedSaliencyImageRequest.self, observationType: VNSaliencyImageObservation.self)
-    public static let faceDetection            = VisionTask(title: "Face Detection",           requestType: VNDetectFaceRectanglesRequest.self, observationType: VNFaceObservation.self)
-    public static let faceLandmarkDetection    = VisionTask(title: "Face Landmark Detection",  requestType: VNDetectFaceLandmarksRequest.self, observationType: VNFaceObservation.self)
+    public static let horizonDetection         = VisionTask(title: "Horizon Detection",
+                                                            requestType: VNDetectHorizonRequest.self,
+                                                            observationType: VNHorizonObservation.self)
+
+    public static let attentionSaliency        = VisionTask(title: "Attention Saliency",
+                                                            requestType: VNGenerateAttentionBasedSaliencyImageRequest.self,
+                                                            observationType: VNSaliencyImageObservation.self)
+
+    public static let objectnessSaliency       = VisionTask(title: "Objectness Saliency",
+                                                            requestType: VNGenerateObjectnessBasedSaliencyImageRequest.self,
+                                                            observationType: VNSaliencyImageObservation.self)
+
+    public static let faceDetection            = VisionTask(title: "Face Detection",
+                                                            requestType: VNDetectFaceRectanglesRequest.self,
+                                                            observationType: VNFaceObservation.self)
+
+    public static let faceLandmarkDetection    = VisionTask(title: "Face Landmark Detection",
+                                                            requestType: VNDetectFaceLandmarksRequest.self,
+                                                            observationType: VNFaceObservation.self)
+
 
     @available(iOS 15.0, macOS 12.0, tvOS 15.0, *)
-    public static let humanRectanglesDetection = VisionTask(title: "Human Rectangles Detection", requestType: VNDetectHumanRectanglesRequest.self, observationType: VNHumanObservation.self)
+    public static let humanRectanglesDetection = VisionTask(title: "Human Rectangles Detection",
+                                                            requestType: VNDetectHumanRectanglesRequest.self,
+                                                            observationType: VNHumanObservation.self)
 
     @available(iOS 15.0, macOS 12.0, tvOS 15.0, *)
-    public static let personSegmentation       = VisionTask(title: "Person Segmentation",     requestType: VNGeneratePersonSegmentationRequest.self, observationType: VNPixelBufferObservation.self)
+    public static let personSegmentation       = VisionTask(title: "Person Segmentation",
+                                                            requestType: VNGeneratePersonSegmentationRequest.self,
+                                                            observationType: VNPixelBufferObservation.self)
 
-    public static let faceCaptureQuality       = VisionTask(title: "Face Capture Quality",      requestType: VNDetectFaceCaptureQualityRequest.self, observationType: VNFaceObservation.self)
+    public static let faceCaptureQuality       = VisionTask(title: "Face Capture Quality",
+                                                            requestType: VNDetectFaceCaptureQualityRequest.self,
+                                                            observationType: VNFaceObservation.self)
 
     @available(iOS 15.0, macOS 12.0, tvOS 15.0, *)
-    public static let documentSegmentation     = VisionTask(title: "Document Segmentation",    requestType: VNDetectDocumentSegmentationRequest.self, observationType: VNRectangleObservation.self)
+    public static let documentSegmentation     = VisionTask(title: "Document Segmentation",
+                                                            requestType: VNDetectDocumentSegmentationRequest.self,
+                                                            observationType: VNRectangleObservation.self)
 
     public var title: String
 
