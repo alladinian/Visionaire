@@ -30,54 +30,58 @@ public final class Visionaire: ObservableObject {
 //MARK: - Image Handlers
 extension Visionaire {
 
+    private func optionsForContext(_ context: CIContext?) -> [VNImageOption : Any] {
+        [.ciContext: context ?? kVisionaireContext]
+    }
+
     private func imageHandler(for image: CGImage, context: CIContext? = nil) -> VNImageRequestHandler {
-        VNImageRequestHandler(cgImage: image, options: [.ciContext: context ?? kVisionaireContext])
+        VNImageRequestHandler(cgImage: image, options: optionsForContext(context))
     }
 
     private func imageHandler(for image: CGImage, orientation: CGImagePropertyOrientation, context: CIContext? = nil) -> VNImageRequestHandler {
-        VNImageRequestHandler(cgImage: image, orientation: orientation, options: [.ciContext: context ?? kVisionaireContext])
+        VNImageRequestHandler(cgImage: image, orientation: orientation, options: optionsForContext(context))
     }
 
     private func imageHandler(for image: CIImage, context: CIContext? = nil) -> VNImageRequestHandler {
-        VNImageRequestHandler(ciImage: image, options: [.ciContext: context ?? kVisionaireContext])
+        VNImageRequestHandler(ciImage: image, options: optionsForContext(context))
     }
 
     private func imageHandler(for image: CIImage, orientation: CGImagePropertyOrientation, context: CIContext? = nil) -> VNImageRequestHandler {
-        VNImageRequestHandler(ciImage: image, orientation: orientation, options: [.ciContext: context ?? kVisionaireContext])
+        VNImageRequestHandler(ciImage: image, orientation: orientation, options: optionsForContext(context))
     }
 
     private func imageHandler(for image: CVPixelBuffer, context: CIContext? = nil) -> VNImageRequestHandler {
-        VNImageRequestHandler(cvPixelBuffer: image, options: [.ciContext: context ?? kVisionaireContext])
+        VNImageRequestHandler(cvPixelBuffer: image, options: optionsForContext(context))
     }
 
     private func imageHandler(for image: CVPixelBuffer, orientation: CGImagePropertyOrientation, context: CIContext? = nil) -> VNImageRequestHandler {
-        VNImageRequestHandler(cvPixelBuffer: image, orientation: orientation, options: [.ciContext: context ?? kVisionaireContext])
+        VNImageRequestHandler(cvPixelBuffer: image, orientation: orientation, options: optionsForContext(context))
     }
 
     @available(macOS 11.0, iOS 14.0, *)
     private func imageHandler(for image: CMSampleBuffer, context: CIContext? = nil) -> VNImageRequestHandler {
-        VNImageRequestHandler(cmSampleBuffer: image, options: [.ciContext: context ?? kVisionaireContext])
+        VNImageRequestHandler(cmSampleBuffer: image, options: optionsForContext(context))
     }
 
     @available(macOS 11.0, iOS 14.0, *)
     private func imageHandler(for image: CMSampleBuffer, orientation: CGImagePropertyOrientation, context: CIContext? = nil) -> VNImageRequestHandler {
-        VNImageRequestHandler(cmSampleBuffer: image, orientation: orientation, options: [.ciContext: context ?? kVisionaireContext])
+        VNImageRequestHandler(cmSampleBuffer: image, orientation: orientation, options: optionsForContext(context))
     }
 
     private func imageHandler(for image: Data, context: CIContext? = nil) -> VNImageRequestHandler {
-        VNImageRequestHandler(data: image, options: [.ciContext: context ?? kVisionaireContext])
+        VNImageRequestHandler(data: image, options: optionsForContext(context))
     }
 
     private func imageHandler(for image: Data, orientation: CGImagePropertyOrientation, context: CIContext? = nil) -> VNImageRequestHandler {
-        VNImageRequestHandler(data: image, orientation: orientation, options: [.ciContext: context ?? kVisionaireContext])
+        VNImageRequestHandler(data: image, orientation: orientation, options: optionsForContext(context))
     }
 
     private func imageHandler(for image: URL, context: CIContext? = nil) -> VNImageRequestHandler {
-        VNImageRequestHandler(url: image, options: [.ciContext: context ?? kVisionaireContext])
+        VNImageRequestHandler(url: image, options: optionsForContext(context))
     }
 
     private func imageHandler(for image: URL, orientation: CGImagePropertyOrientation, context: CIContext? = nil) -> VNImageRequestHandler {
-        VNImageRequestHandler(url: image, orientation: orientation, options: [.ciContext: context ?? kVisionaireContext])
+        VNImageRequestHandler(url: image, orientation: orientation, options: optionsForContext(context))
     }
 
 }
@@ -92,7 +96,8 @@ extension Visionaire {
                              onImage image: CIImage,
                              regionOfInterest: CGRect? = nil,
                              revision: Int? = nil,
-                             preferBackgroundProcessing: Bool = false
+                             preferBackgroundProcessing: Bool = false,
+                             options: [String : Any] = [:]
     ) async throws -> [VisionTaskResult] {
 
         await MainActor.run {
@@ -112,6 +117,16 @@ extension Visionaire {
 
             if preferBackgroundProcessing {
                 request.preferBackgroundProcessing = true
+            }
+
+            for (key, value) in options {
+                if #available(macOS 12.0, iOS 15.0, *) {
+                    if key == #keyPath(VNGeneratePersonSegmentationRequest.qualityLevel),
+                       let request = request as? VNGeneratePersonSegmentationRequest,
+                       let value = value as? VNGeneratePersonSegmentationRequest.QualityLevel {
+                        request.qualityLevel = value
+                    }
+                }
             }
 
             return request
@@ -139,14 +154,17 @@ extension Visionaire {
                             onImage image: CIImage,
                             regionOfInterest: CGRect? = nil,
                             revision: Int? = nil,
-                            preferBackgroundProcessing: Bool = false
+                            preferBackgroundProcessing: Bool = false,
+                            options: [String : Any] = [:]
     ) async throws -> VisionTaskResult {
         guard let result = try await performTasks([task],
                                                   ciContext: context,
                                                   onImage: image,
                                                   regionOfInterest: regionOfInterest,
                                                   revision: revision,
-                                                  preferBackgroundProcessing: preferBackgroundProcessing).first else {
+                                                  preferBackgroundProcessing: preferBackgroundProcessing,
+                                                  options: options
+        ).first else {
             throw VisionaireError.noResult
         }
         return result
@@ -158,8 +176,8 @@ extension Visionaire {
 
 extension Visionaire {
 
-    private func multiObservationHandler<T>(_ task: VisionTask, image: CIImage) async throws -> [T] {
-        let result = try await performTask(task, onImage: image)
+    private func multiObservationHandler<T>(_ task: VisionTask, image: CIImage, options: [String : Any] = [:]) async throws -> [T] {
+        let result = try await performTask(task, onImage: image, options: options)
 
         if let error = result.error {
             throw error
@@ -168,8 +186,8 @@ extension Visionaire {
         return result.observations.compactMap { $0 as? T }
     }
 
-    private func singleObservationHandler<T>(_ task: VisionTask, image: CIImage) async throws -> T {
-        let result = try await performTask(task, onImage: image)
+    private func singleObservationHandler<T>(_ task: VisionTask, image: CIImage, options: [String : Any] = [:]) async throws -> T {
+        let result = try await performTask(task, onImage: image, options: options)
         guard let observation = result.observations.first, let first = observation as? T else {
             throw VisionaireError.noObservations
         }
@@ -209,7 +227,7 @@ extension Visionaire {
 
     @available(iOS 15.0, macOS 12.0, tvOS 15.0, *)
     public func personSegmentation(image: CIImage, qualityLevel: VNGeneratePersonSegmentationRequest.QualityLevel) async throws -> [VNPixelBufferObservation] {
-        try await multiObservationHandler(.personSegmentation, image: image)
+        try await multiObservationHandler(.personSegmentation, image: image, options: [#keyPath(VNGeneratePersonSegmentationRequest.qualityLevel) : qualityLevel])
     }
 
     @available(iOS 15.0, macOS 12.0, tvOS 15.0, *)
