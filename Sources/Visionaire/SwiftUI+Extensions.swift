@@ -48,7 +48,7 @@ public extension View {
 
     @ViewBuilder
     func visualizePersonSegmentationMask(_ observations: [VNPixelBufferObservation]) -> some View {
-        if #available(macOS 12.0, iOS 15.0, tvOS 15.0, *) {
+        if #available(macOS 12.0, iOS 15.0, *) {
            mask {
                PixelBufferObservationsCompositeMask(observations: observations)
             }
@@ -144,7 +144,7 @@ public struct VNFaceObservationShape: Shape {
 
                     let points = region.pointsInImage(imageSize: rect.size)
 
-                    if #available(iOS 16.0, macOS 13.0, tvOS 16, *) {
+                    if #available(iOS 16.0, macOS 13.0, *) {
                         switch region.pointsClassification {
 
                         case .disconnected:
