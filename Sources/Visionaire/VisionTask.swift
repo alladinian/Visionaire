@@ -8,30 +8,33 @@
 import Foundation
 import Vision
 
-public enum VisionTaskType: CaseIterable {
+public enum VisionTaskType: CaseIterable, Identifiable {
+
+    public var id: VisionTaskType { self }
+
     case horizonDetection,
          attentionSaliency,
          objectnessSaliency,
          faceDetection,
          faceLandmarkDetection,
-         faceCaptureQuality
+         faceCaptureQuality,
+         humanRectanglesDetection
     
     @available(iOS 15.0, macOS 12.0, *)
-    case humanRectanglesDetection,
-         personSegmentation,
+    case personSegmentation,
          documentSegmentation
     
     public static var allCases: [VisionTaskType] = {
-        var tasks: [VisionTaskType] = [.horizonDetection, .attentionSaliency, .objectnessSaliency, .faceDetection, .faceLandmarkDetection, .faceCaptureQuality]
+        var tasks: [VisionTaskType] = [.horizonDetection, .attentionSaliency, .objectnessSaliency, .faceDetection, .faceLandmarkDetection, .faceCaptureQuality, .humanRectanglesDetection]
 
         if #available(iOS 15.0, macOS 12.0, *) {
-            tasks.append(contentsOf: [.humanRectanglesDetection, .personSegmentation, .documentSegmentation])
+            tasks.append(contentsOf: [.personSegmentation, .documentSegmentation])
         }
 
         return tasks
     }()
     
-    var title: String {
+    public var title: String {
         switch self {
         case .horizonDetection:
             return "Horizon Detection"
@@ -70,82 +73,70 @@ public struct VisionTask: Identifiable, Hashable {
 
     public let taskType: VisionTaskType
     
-    public var title: String { taskType.title }
+    public var title: String {
+        taskType.title
+    }
 
-    var requestType: VNImageBasedRequest.Type
-    var observationType: VNObservation.Type
+    let request: VNRequest
+
+//    var requestType: VNImageBasedRequest.Type
+//    var observationType: VNObservation.Type
     
-    init(taskType: VisionTaskType) {
+    private init(taskType: VisionTaskType, request: VNRequest) {
         self.taskType = taskType
-        
-        switch taskType {
-        case .horizonDetection:
-            requestType     = VNDetectHorizonRequest.self
-            observationType = VNHorizonObservation.self
-        case .attentionSaliency:
-            requestType     = VNGenerateAttentionBasedSaliencyImageRequest.self
-            observationType = VNSaliencyImageObservation.self
-        case .objectnessSaliency:
-            requestType     = VNGenerateObjectnessBasedSaliencyImageRequest.self
-            observationType = VNSaliencyImageObservation.self
-        case .faceDetection:
-            requestType     = VNDetectFaceRectanglesRequest.self
-            observationType = VNFaceObservation.self
-        case .faceLandmarkDetection:
-            requestType     = VNDetectFaceLandmarksRequest.self
-            observationType = VNFaceObservation.self
-        case .faceCaptureQuality:
-            requestType     = VNDetectFaceCaptureQualityRequest.self
-            observationType = VNFaceObservation.self
-        case .humanRectanglesDetection:
-            requestType     = VNDetectHumanRectanglesRequest.self
-            observationType = VNHumanObservation.self
-        case .personSegmentation:
-            requestType     = VNGeneratePersonSegmentationRequest.self
-            observationType = VNPixelBufferObservation.self
-        case .documentSegmentation:
-            requestType     = VNDetectDocumentSegmentationRequest.self
-            observationType = VNRectangleObservation.self
-        }
+        self.request = request
     }
 
     public static var horizonDetection: VisionTask {
-        VisionTask(taskType: .horizonDetection)
+        VisionTask(taskType: .horizonDetection, request: VNDetectHorizonRequest())
     }
 
     public static var attentionSaliency: VisionTask {
-        VisionTask(taskType: .attentionSaliency)
+        VisionTask(taskType: .attentionSaliency, request: VNGenerateAttentionBasedSaliencyImageRequest())
     }
 
     public static var objectnessSaliency: VisionTask {
-        VisionTask(taskType: .objectnessSaliency)
+        VisionTask(taskType: .objectnessSaliency, request: VNGenerateObjectnessBasedSaliencyImageRequest())
     }
 
     public static var faceDetection: VisionTask {
-        VisionTask(taskType: .faceDetection)
+        VisionTask(taskType: .faceDetection, request: VNDetectFaceRectanglesRequest())
     }
 
     public static var faceLandmarkDetection: VisionTask {
-        VisionTask(taskType: .faceLandmarkDetection)
+        VisionTask(taskType: .faceLandmarkDetection, request: VNDetectFaceLandmarksRequest())
+    }
+
+    public static var humanRectanglesDetection: VisionTask {
+        VisionTask(taskType: .humanRectanglesDetection, request: VNDetectHumanRectanglesRequest())
     }
 
     @available(iOS 15.0, macOS 12.0, *)
-    public static var humanRectanglesDetection: VisionTask {
-        VisionTask(taskType: .humanRectanglesDetection)
+    public static func humanRectanglesDetection(upperBodyOnly: Bool) -> VisionTask {
+        let request = VNDetectHumanRectanglesRequest()
+        request.upperBodyOnly = upperBodyOnly
+        return VisionTask(taskType: .humanRectanglesDetection, request: request)
     }
     
     @available(iOS 15.0, macOS 12.0, *)
     public static var personSegmentation: VisionTask {
-        VisionTask(taskType: .personSegmentation)
+        VisionTask(taskType: .personSegmentation, request: VNGeneratePersonSegmentationRequest())
+    }
+
+    @available(iOS 15.0, macOS 12.0, *)
+    public static func personSegmentation(qualityLevel: VNGeneratePersonSegmentationRequest.QualityLevel) -> VisionTask {
+        let request = VNGeneratePersonSegmentationRequest()
+        request.qualityLevel = qualityLevel
+        return VisionTask(taskType: .personSegmentation, request: request)
     }
     
     public static var faceCaptureQuality: VisionTask {
-        VisionTask(taskType: .faceCaptureQuality)
+        VisionTask(taskType: .faceCaptureQuality, request: VNDetectFaceCaptureQualityRequest())
     }
     
     @available(iOS 15.0, macOS 12.0, *)
     public static var documentSegmentation: VisionTask {
-        VisionTask(taskType: .documentSegmentation)
+        VisionTask(taskType: .documentSegmentation, request: VNDetectDocumentSegmentationRequest())
     }
 
 
@@ -160,31 +151,5 @@ public enum SaliencyMode {
         case .attention: return .attentionSaliency
         case .object:    return .objectnessSaliency
         }
-    }
-}
-
-
-extension VisionTask {
-    func request(revision: Int? = nil, completion: @escaping (VNRequest, Error?) -> Void) -> VNImageBasedRequest {
-        let request = requestType.init() { request, error in
-
-            if let error {
-                completion(request, error)
-                return
-            }
-
-            guard let _ = request.results else {
-                completion(request, VisionaireError.noObservations)
-                return
-            }
-
-            completion(request, nil)
-        }
-
-        if let revision, requestType.supportedRevisions.contains(revision) {
-            request.revision = revision
-        }
-
-        return request
     }
 }

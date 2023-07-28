@@ -95,9 +95,7 @@ extension Visionaire {
                              ciContext context: CIContext? = nil,
                              onImage image: CIImage,
                              regionOfInterest: CGRect? = nil,
-                             revision: Int? = nil,
-                             preferBackgroundProcessing: Bool = false,
-                             options: [String : Any] = [:]
+                             preferBackgroundProcessing: Bool = false
     ) async throws -> [VisionTaskResult] {
 
         await MainActor.run {
@@ -106,12 +104,10 @@ extension Visionaire {
 
         var taskResults = [VisionTaskResult]()
 
-        let requests = tasks.map {
-            let request = $0.request(revision: revision) { request, error in
-                taskResults.append(VisionTaskResult(request: request, error: error))
-            }
+        let requests = tasks.map { task in
+            let request = task.request
 
-            if let regionOfInterest {
+            if let request = request as? VNImageBasedRequest, let regionOfInterest {
                 request.regionOfInterest = regionOfInterest
             }
 
@@ -119,21 +115,14 @@ extension Visionaire {
                 request.preferBackgroundProcessing = true
             }
 
-            for (key, value) in options {
-                if #available(macOS 12.0, iOS 15.0, *) {
-                    if key == #keyPath(VNGeneratePersonSegmentationRequest.qualityLevel),
-                       let request = request as? VNGeneratePersonSegmentationRequest,
-                       let value = value as? VNGeneratePersonSegmentationRequest.QualityLevel {
-                        request.qualityLevel = value
-                    }
-                }
-            }
-
             return request
         }
 
         do {
             try imageHandler(for: image, context: context).perform(requests)
+            for request in requests {
+                taskResults.append(VisionTaskResult(request: request, error: nil))
+            }
             await MainActor.run {
                 isProcessing = false
             }
@@ -154,16 +143,13 @@ extension Visionaire {
                             onImage image: CIImage,
                             regionOfInterest: CGRect? = nil,
                             revision: Int? = nil,
-                            preferBackgroundProcessing: Bool = false,
-                            options: [String : Any] = [:]
+                            preferBackgroundProcessing: Bool = false
     ) async throws -> VisionTaskResult {
         guard let result = try await performTasks([task],
                                                   ciContext: context,
                                                   onImage: image,
                                                   regionOfInterest: regionOfInterest,
-                                                  revision: revision,
-                                                  preferBackgroundProcessing: preferBackgroundProcessing,
-                                                  options: options
+                                                  preferBackgroundProcessing: preferBackgroundProcessing
         ).first else {
             throw VisionaireError.noResult
         }
@@ -176,8 +162,8 @@ extension Visionaire {
 
 extension Visionaire {
 
-    private func multiObservationHandler<T>(_ task: VisionTask, image: CIImage, options: [String : Any] = [:]) async throws -> [T] {
-        let result = try await performTask(task, onImage: image, options: options)
+    private func multiObservationHandler<T>(_ task: VisionTask, image: CIImage) async throws -> [T] {
+        let result = try await performTask(task, onImage: image)
 
         if let error = result.error {
             throw error
@@ -186,8 +172,8 @@ extension Visionaire {
         return result.observations.compactMap { $0 as? T }
     }
 
-    private func singleObservationHandler<T>(_ task: VisionTask, image: CIImage, options: [String : Any] = [:]) async throws -> T {
-        let result = try await performTask(task, onImage: image, options: options)
+    private func singleObservationHandler<T>(_ task: VisionTask, image: CIImage) async throws -> T {
+        let result = try await performTask(task, onImage: image)
         guard let observation = result.observations.first, let first = observation as? T else {
             throw VisionaireError.noObservations
         }
@@ -226,8 +212,13 @@ extension Visionaire {
     }
 
     @available(iOS 15.0, macOS 12.0, *)
+    public func personSegmentation(image: CIImage) async throws -> [VNPixelBufferObservation] {
+        try await multiObservationHandler(.personSegmentation, image: image)
+    }
+
+    @available(iOS 15.0, macOS 12.0, *)
     public func personSegmentation(image: CIImage, qualityLevel: VNGeneratePersonSegmentationRequest.QualityLevel) async throws -> [VNPixelBufferObservation] {
-        try await multiObservationHandler(.personSegmentation, image: image, options: [#keyPath(VNGeneratePersonSegmentationRequest.qualityLevel) : qualityLevel])
+        try await multiObservationHandler(.personSegmentation(qualityLevel: qualityLevel), image: image)
     }
 
     @available(iOS 15.0, macOS 12.0, *)
