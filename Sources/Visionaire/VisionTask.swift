@@ -59,15 +59,7 @@ public enum VisionTaskType: CaseIterable, Identifiable {
     
 }
 
-public struct VisionTask: Identifiable, Hashable {
-
-    public static func == (lhs: VisionTask, rhs: VisionTask) -> Bool {
-        lhs.id == rhs.id
-    }
-
-    public func hash(into hasher: inout Hasher) {
-        hasher.combine(id)
-    }
+public struct VisionTask: Identifiable {
 
     public let id = UUID()
 
@@ -77,11 +69,15 @@ public struct VisionTask: Identifiable, Hashable {
         taskType.title
     }
 
-    let request: VNRequest
+    public let request: VNRequest
     
     private init(taskType: VisionTaskType, request: VNRequest) {
         self.taskType = taskType
         self.request = request
+    }
+
+    public func cancel() {
+        request.cancel()
     }
 
     public func preferBackgroundProcessing(_ preferBackgroundProcessing: Bool) -> VisionTask {
