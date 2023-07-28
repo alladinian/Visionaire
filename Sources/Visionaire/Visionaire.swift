@@ -231,4 +231,19 @@ extension Visionaire {
         try await multiObservationHandler(.humanRectanglesDetection, image: image)
     }
 
+    public func rectanglesDetection(image: CIImage,
+                                    minimumAspectRatio: VNAspectRatio? = nil,
+                                    maximumAspectRatio: VNAspectRatio? = nil,
+                                    quadratureTolerance: VNDegrees? = nil,
+                                    minimumSize: Float? = nil,
+                                    minimumConfidence: VNConfidence? = nil,
+                                    maximumObservations: Int? = nil) async throws -> [VNRectangleObservation] {
+        try await multiObservationHandler(.rectanglesDetection(minimumAspectRatio: minimumAspectRatio,
+                                                               maximumAspectRatio: maximumAspectRatio,
+                                                               quadratureTolerance: quadratureTolerance,
+                                                               minimumSize: minimumSize,
+                                                               minimumConfidence: minimumConfidence,
+                                                               maximumObservations: maximumObservations), image: image)
+    }
+
 }

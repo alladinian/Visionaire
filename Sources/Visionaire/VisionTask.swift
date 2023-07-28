@@ -18,14 +18,15 @@ public enum VisionTaskType: CaseIterable, Identifiable {
          faceDetection,
          faceLandmarkDetection,
          faceCaptureQuality,
-         humanRectanglesDetection
+         humanRectanglesDetection,
+         rectanglesDetection
     
     @available(iOS 15.0, macOS 12.0, *)
     case personSegmentation,
          documentSegmentation
     
     public static var allCases: [VisionTaskType] = {
-        var tasks: [VisionTaskType] = [.horizonDetection, .attentionSaliency, .objectnessSaliency, .faceDetection, .faceLandmarkDetection, .faceCaptureQuality, .humanRectanglesDetection]
+        var tasks: [VisionTaskType] = [.horizonDetection, .attentionSaliency, .objectnessSaliency, .faceDetection, .faceLandmarkDetection, .faceCaptureQuality, .humanRectanglesDetection, .rectanglesDetection]
 
         if #available(iOS 15.0, macOS 12.0, *) {
             tasks.append(contentsOf: [.personSegmentation, .documentSegmentation])
@@ -54,6 +55,8 @@ public enum VisionTaskType: CaseIterable, Identifiable {
             return "Person Segmentation"
         case .documentSegmentation:
             return "Document Segmentation"
+        case .rectanglesDetection:
+            return "Rectangles Detection"
         }
     }
     
@@ -160,6 +163,42 @@ public struct VisionTask: Identifiable {
     @available(iOS 15.0, macOS 12.0, *)
     public static var documentSegmentation: VisionTask {
         VisionTask(taskType: .documentSegmentation, request: VNDetectDocumentSegmentationRequest())
+    }
+
+    /*----------------------------------------------------------------------------------------------------------------*/
+
+    public static var rectanglesDetection: VisionTask {
+        VisionTask(taskType: .rectanglesDetection, request: VNDetectRectanglesRequest())
+    }
+
+    public static func rectanglesDetection(minimumAspectRatio: VNAspectRatio? = nil,
+                                           maximumAspectRatio: VNAspectRatio? = nil,
+                                           quadratureTolerance: VNDegrees? = nil,
+                                           minimumSize: Float? = nil,
+                                           minimumConfidence: VNConfidence? = nil,
+                                           maximumObservations: Int? = nil) -> VisionTask {
+        let request = VNDetectRectanglesRequest()
+
+        if let minimumAspectRatio {
+            request.minimumAspectRatio = minimumAspectRatio
+        }
+        if let maximumAspectRatio {
+            request.maximumAspectRatio = maximumAspectRatio
+        }
+        if let quadratureTolerance {
+            request.quadratureTolerance = quadratureTolerance
+        }
+        if let minimumSize {
+            request.minimumSize = minimumSize
+        }
+        if let minimumConfidence {
+            request.minimumConfidence = minimumConfidence
+        }
+        if let maximumObservations {
+            request.maximumObservations = maximumObservations
+        }
+
+        return VisionTask(taskType: .rectanglesDetection, request: request)
     }
 
 
