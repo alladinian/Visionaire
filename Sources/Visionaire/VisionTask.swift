@@ -126,6 +126,15 @@ public struct VisionTask: Identifiable, Hashable {
         VisionTask(taskType: .faceLandmarkDetection, request: VNDetectFaceLandmarksRequest())
     }
 
+    /*----------------------------------------------------------------------------------------------------------------*/
+
+    @available(iOS 15.0, macOS 12.0, *)
+    public static func humanRectanglesDetection(upperBodyOnly: Bool) -> VisionTask {
+        let request = VNDetectHumanRectanglesRequest()
+        request.upperBodyOnly = upperBodyOnly
+        return VisionTask(taskType: .humanRectanglesDetection, request: request)
+    }
+
     public static var humanRectanglesDetection: VisionTask {
         VisionTask(taskType: .humanRectanglesDetection, request: VNDetectHumanRectanglesRequest())
     }
