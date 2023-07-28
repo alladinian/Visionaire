@@ -78,13 +78,32 @@ public struct VisionTask: Identifiable, Hashable {
     }
 
     let request: VNRequest
-
-//    var requestType: VNImageBasedRequest.Type
-//    var observationType: VNObservation.Type
     
     private init(taskType: VisionTaskType, request: VNRequest) {
         self.taskType = taskType
         self.request = request
+    }
+
+    public func preferBackgroundProcessing(_ preferBackgroundProcessing: Bool) -> VisionTask {
+        request.preferBackgroundProcessing = preferBackgroundProcessing
+        return self
+    }
+
+    public func usesCPUOnly(_ usesCPUOnly: Bool) -> VisionTask {
+        request.usesCPUOnly = usesCPUOnly
+        return self
+    }
+
+    public func revision(_ revision: Int) -> VisionTask {
+        if type(of: request).supportedRevisions.contains(revision) {
+            request.revision = revision
+        }
+        return self
+    }
+
+    public func regionOfInterest(_ regionOfInterest: CGRect) -> VisionTask {
+        (request as? VNImageBasedRequest)?.regionOfInterest = regionOfInterest
+        return self
     }
 
     public static var horizonDetection: VisionTask {
@@ -111,12 +130,7 @@ public struct VisionTask: Identifiable, Hashable {
         VisionTask(taskType: .humanRectanglesDetection, request: VNDetectHumanRectanglesRequest())
     }
 
-    @available(iOS 15.0, macOS 12.0, *)
-    public static func humanRectanglesDetection(upperBodyOnly: Bool) -> VisionTask {
-        let request = VNDetectHumanRectanglesRequest()
-        request.upperBodyOnly = upperBodyOnly
-        return VisionTask(taskType: .humanRectanglesDetection, request: request)
-    }
+    /*----------------------------------------------------------------------------------------------------------------*/
     
     @available(iOS 15.0, macOS 12.0, *)
     public static var personSegmentation: VisionTask {
@@ -129,10 +143,14 @@ public struct VisionTask: Identifiable, Hashable {
         request.qualityLevel = qualityLevel
         return VisionTask(taskType: .personSegmentation, request: request)
     }
+
+    /*----------------------------------------------------------------------------------------------------------------*/
     
     public static var faceCaptureQuality: VisionTask {
         VisionTask(taskType: .faceCaptureQuality, request: VNDetectFaceCaptureQualityRequest())
     }
+
+    /*----------------------------------------------------------------------------------------------------------------*/
     
     @available(iOS 15.0, macOS 12.0, *)
     public static var documentSegmentation: VisionTask {
