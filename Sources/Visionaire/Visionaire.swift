@@ -34,54 +34,53 @@ extension Visionaire {
         [.ciContext: context ?? kVisionaireContext]
     }
 
-    private func imageHandler(for image: CGImage, context: CIContext? = nil) -> VNImageRequestHandler {
-        VNImageRequestHandler(cgImage: image, options: optionsForContext(context))
+    private func imageHandler(for image: CGImage, orientation: CGImagePropertyOrientation? = nil, context: CIContext? = nil) -> VNImageRequestHandler {
+        if let orientation {
+            return VNImageRequestHandler(cgImage: image, orientation: orientation, options: optionsForContext(context))
+        } else {
+            return VNImageRequestHandler(cgImage: image, options: optionsForContext(context))
+        }
     }
 
-    private func imageHandler(for image: CGImage, orientation: CGImagePropertyOrientation, context: CIContext? = nil) -> VNImageRequestHandler {
-        VNImageRequestHandler(cgImage: image, orientation: orientation, options: optionsForContext(context))
+    private func imageHandler(for image: CIImage, orientation: CGImagePropertyOrientation? = nil, context: CIContext? = nil) -> VNImageRequestHandler {
+        if let orientation {
+            return VNImageRequestHandler(ciImage: image, orientation: orientation, options: optionsForContext(context))
+        } else {
+            return VNImageRequestHandler(ciImage: image, options: optionsForContext(context))
+        }
     }
 
-    private func imageHandler(for image: CIImage, context: CIContext? = nil) -> VNImageRequestHandler {
-        VNImageRequestHandler(ciImage: image, options: optionsForContext(context))
-    }
-
-    private func imageHandler(for image: CIImage, orientation: CGImagePropertyOrientation, context: CIContext? = nil) -> VNImageRequestHandler {
-        VNImageRequestHandler(ciImage: image, orientation: orientation, options: optionsForContext(context))
-    }
-
-    private func imageHandler(for image: CVPixelBuffer, context: CIContext? = nil) -> VNImageRequestHandler {
-        VNImageRequestHandler(cvPixelBuffer: image, options: optionsForContext(context))
-    }
-
-    private func imageHandler(for image: CVPixelBuffer, orientation: CGImagePropertyOrientation, context: CIContext? = nil) -> VNImageRequestHandler {
-        VNImageRequestHandler(cvPixelBuffer: image, orientation: orientation, options: optionsForContext(context))
-    }
-
-    @available(macOS 11.0, iOS 14.0, *)
-    private func imageHandler(for image: CMSampleBuffer, context: CIContext? = nil) -> VNImageRequestHandler {
-        VNImageRequestHandler(cmSampleBuffer: image, options: optionsForContext(context))
+    private func imageHandler(for image: CVPixelBuffer, orientation: CGImagePropertyOrientation? = nil, context: CIContext? = nil) -> VNImageRequestHandler {
+        if let orientation {
+            return VNImageRequestHandler(cvPixelBuffer: image, orientation: orientation, options: optionsForContext(context))
+        } else {
+            return VNImageRequestHandler(cvPixelBuffer: image, options: optionsForContext(context))
+        }
     }
 
     @available(macOS 11.0, iOS 14.0, *)
-    private func imageHandler(for image: CMSampleBuffer, orientation: CGImagePropertyOrientation, context: CIContext? = nil) -> VNImageRequestHandler {
-        VNImageRequestHandler(cmSampleBuffer: image, orientation: orientation, options: optionsForContext(context))
+    private func imageHandler(for image: CMSampleBuffer, orientation: CGImagePropertyOrientation? = nil, context: CIContext? = nil) -> VNImageRequestHandler {
+        if let orientation {
+            return VNImageRequestHandler(cmSampleBuffer: image, orientation: orientation, options: optionsForContext(context))
+        } else {
+            return VNImageRequestHandler(cmSampleBuffer: image, options: optionsForContext(context))
+        }
     }
 
-    private func imageHandler(for image: Data, context: CIContext? = nil) -> VNImageRequestHandler {
-        VNImageRequestHandler(data: image, options: optionsForContext(context))
+    private func imageHandler(for image: Data, orientation: CGImagePropertyOrientation? = nil, context: CIContext? = nil) -> VNImageRequestHandler {
+        if let orientation {
+            return VNImageRequestHandler(data: image, orientation: orientation, options: optionsForContext(context))
+        } else {
+            return VNImageRequestHandler(data: image, options: optionsForContext(context))
+        }
     }
 
-    private func imageHandler(for image: Data, orientation: CGImagePropertyOrientation, context: CIContext? = nil) -> VNImageRequestHandler {
-        VNImageRequestHandler(data: image, orientation: orientation, options: optionsForContext(context))
-    }
-
-    private func imageHandler(for image: URL, context: CIContext? = nil) -> VNImageRequestHandler {
-        VNImageRequestHandler(url: image, options: optionsForContext(context))
-    }
-
-    private func imageHandler(for image: URL, orientation: CGImagePropertyOrientation, context: CIContext? = nil) -> VNImageRequestHandler {
-        VNImageRequestHandler(url: image, orientation: orientation, options: optionsForContext(context))
+    private func imageHandler(for image: URL, orientation: CGImagePropertyOrientation? = nil, context: CIContext? = nil) -> VNImageRequestHandler {
+        if let orientation {
+            return VNImageRequestHandler(url: image, orientation: orientation, options: optionsForContext(context))
+        } else {
+            return VNImageRequestHandler(url: image, options: optionsForContext(context))
+        }
     }
 
 }
