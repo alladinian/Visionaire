@@ -95,7 +95,8 @@ extension Visionaire {
                              ciContext context: CIContext? = nil,
                              onImage image: CIImage,
                              regionOfInterest: CGRect? = nil,
-                             preferBackgroundProcessing: Bool = false
+                             preferBackgroundProcessing: Bool? = nil,
+                             usesCPUOnly: Bool? = nil
     ) async throws -> [VisionTaskResult] {
 
         await MainActor.run {
@@ -111,8 +112,12 @@ extension Visionaire {
                 request.regionOfInterest = regionOfInterest
             }
 
-            if preferBackgroundProcessing {
-                request.preferBackgroundProcessing = true
+            if let preferBackgroundProcessing {
+                request.preferBackgroundProcessing = preferBackgroundProcessing
+            }
+
+            if let usesCPUOnly {
+                request.usesCPUOnly = usesCPUOnly
             }
 
             return request
@@ -143,13 +148,15 @@ extension Visionaire {
                             onImage image: CIImage,
                             regionOfInterest: CGRect? = nil,
                             revision: Int? = nil,
-                            preferBackgroundProcessing: Bool = false
+                            preferBackgroundProcessing: Bool? = nil,
+                            usesCPUOnly: Bool? = nil
     ) async throws -> VisionTaskResult {
         guard let result = try await performTasks([task],
                                                   ciContext: context,
                                                   onImage: image,
                                                   regionOfInterest: regionOfInterest,
-                                                  preferBackgroundProcessing: preferBackgroundProcessing
+                                                  preferBackgroundProcessing: preferBackgroundProcessing,
+                                                  usesCPUOnly: usesCPUOnly
         ).first else {
             throw VisionaireError.noResult
         }
