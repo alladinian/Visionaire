@@ -27,74 +27,77 @@ public final class Visionaire: ObservableObject {
     }
 }
 
-protocol VisionInputSource {}
-
-extension CGImage: VisionInputSource {}
-extension CIImage: VisionInputSource {}
-extension CVPixelBuffer: VisionInputSource {}
-
-@available(macOS 11.0, iOS 14.0, *)
-extension CMSampleBuffer: VisionInputSource {}
-
-extension Data: VisionInputSource {}
-extension URL: VisionInputSource {}
-
 //MARK: - Image Handlers
-extension Visionaire {
 
-    private func optionsForContext(_ context: CIContext?) -> [VNImageOption : Any] {
+public protocol VisionImageSource {
+    func VNImageHandler(orientation: CGImagePropertyOrientation?, context: CIContext?) -> VNImageRequestHandler
+}
+
+extension VisionImageSource {
+    public func optionsForContext(_ context: CIContext?) -> [VNImageOption : Any] {
         [.ciContext: context ?? kVisionaireContext]
     }
+}
 
-    private func imageHandler(for image: CGImage, orientation: CGImagePropertyOrientation? = nil, context: CIContext? = nil) -> VNImageRequestHandler {
+extension CGImage: VisionImageSource {
+    public func VNImageHandler(orientation: CGImagePropertyOrientation? = nil, context: CIContext?) -> VNImageRequestHandler {
         if let orientation {
-            return VNImageRequestHandler(cgImage: image, orientation: orientation, options: optionsForContext(context))
+            return VNImageRequestHandler(cgImage: self, orientation: orientation, options: optionsForContext(context))
         } else {
-            return VNImageRequestHandler(cgImage: image, options: optionsForContext(context))
+            return VNImageRequestHandler(cgImage: self, options: optionsForContext(context))
         }
     }
+}
 
-    private func imageHandler(for image: CIImage, orientation: CGImagePropertyOrientation? = nil, context: CIContext? = nil) -> VNImageRequestHandler {
+extension CIImage: VisionImageSource {
+    public func VNImageHandler(orientation: CGImagePropertyOrientation? = nil, context: CIContext? = nil) -> VNImageRequestHandler {
         if let orientation {
-            return VNImageRequestHandler(ciImage: image, orientation: orientation, options: optionsForContext(context))
+            return VNImageRequestHandler(ciImage: self, orientation: orientation, options: optionsForContext(context))
         } else {
-            return VNImageRequestHandler(ciImage: image, options: optionsForContext(context))
+            return VNImageRequestHandler(ciImage: self, options: optionsForContext(context))
         }
     }
+}
 
-    private func imageHandler(for image: CVPixelBuffer, orientation: CGImagePropertyOrientation? = nil, context: CIContext? = nil) -> VNImageRequestHandler {
+extension CVPixelBuffer: VisionImageSource {
+    public func VNImageHandler(orientation: CGImagePropertyOrientation? = nil, context: CIContext? = nil) -> VNImageRequestHandler {
         if let orientation {
-            return VNImageRequestHandler(cvPixelBuffer: image, orientation: orientation, options: optionsForContext(context))
+            return VNImageRequestHandler(cvPixelBuffer: self, orientation: orientation, options: optionsForContext(context))
         } else {
-            return VNImageRequestHandler(cvPixelBuffer: image, options: optionsForContext(context))
+            return VNImageRequestHandler(cvPixelBuffer: self, options: optionsForContext(context))
         }
     }
+}
 
-    @available(macOS 11.0, iOS 14.0, *)
-    private func imageHandler(for image: CMSampleBuffer, orientation: CGImagePropertyOrientation? = nil, context: CIContext? = nil) -> VNImageRequestHandler {
+@available(macOS 11.0, iOS 14.0, *)
+extension CMSampleBuffer: VisionImageSource {
+    public func VNImageHandler(orientation: CGImagePropertyOrientation? = nil, context: CIContext? = nil) -> VNImageRequestHandler {
         if let orientation {
-            return VNImageRequestHandler(cmSampleBuffer: image, orientation: orientation, options: optionsForContext(context))
+            return VNImageRequestHandler(cmSampleBuffer: self, orientation: orientation, options: optionsForContext(context))
         } else {
-            return VNImageRequestHandler(cmSampleBuffer: image, options: optionsForContext(context))
+            return VNImageRequestHandler(cmSampleBuffer: self, options: optionsForContext(context))
         }
     }
+}
 
-    private func imageHandler(for image: Data, orientation: CGImagePropertyOrientation? = nil, context: CIContext? = nil) -> VNImageRequestHandler {
+extension Data: VisionImageSource {
+    public func VNImageHandler(orientation: CGImagePropertyOrientation? = nil, context: CIContext? = nil) -> VNImageRequestHandler {
         if let orientation {
-            return VNImageRequestHandler(data: image, orientation: orientation, options: optionsForContext(context))
+            return VNImageRequestHandler(data: self, orientation: orientation, options: optionsForContext(context))
         } else {
-            return VNImageRequestHandler(data: image, options: optionsForContext(context))
+            return VNImageRequestHandler(data: self, options: optionsForContext(context))
         }
     }
+}
 
-    private func imageHandler(for image: URL, orientation: CGImagePropertyOrientation? = nil, context: CIContext? = nil) -> VNImageRequestHandler {
+extension URL: VisionImageSource {
+    public func VNImageHandler(orientation: CGImagePropertyOrientation? = nil, context: CIContext? = nil) -> VNImageRequestHandler {
         if let orientation {
-            return VNImageRequestHandler(url: image, orientation: orientation, options: optionsForContext(context))
+            return VNImageRequestHandler(url: self, orientation: orientation, options: optionsForContext(context))
         } else {
-            return VNImageRequestHandler(url: image, options: optionsForContext(context))
+            return VNImageRequestHandler(url: self, options: optionsForContext(context))
         }
     }
-
 }
 
 //MARK: - Task Execution
@@ -127,7 +130,7 @@ extension Visionaire {
 
     public func performTasks(_ tasks: [VisionTask],
                              ciContext context: CIContext? = nil,
-                             on imageSource: CIImage,
+                             on imageSource: VisionImageSource,
                              regionOfInterest: CGRect? = nil,
                              preferBackgroundProcessing: Bool? = nil,
                              usesCPUOnly: Bool? = nil
@@ -141,7 +144,7 @@ extension Visionaire {
         let taskResults: [VisionTaskResult]
 
         do {
-            try imageHandler(for: imageSource, context: context).perform(requests)
+            try imageSource.VNImageHandler(orientation: nil, context: context).perform(requests)
             taskResults = requests.map(VisionTaskResult.init)
             await MainActor.run {
                 isProcessing = false
@@ -160,7 +163,7 @@ extension Visionaire {
 
     public func performTask(_ task: VisionTask,
                             ciContext context: CIContext? = nil,
-                            on imageSource: CIImage,
+                            on imageSource: VisionImageSource,
                             regionOfInterest: CGRect? = nil,
                             preferBackgroundProcessing: Bool? = nil,
                             usesCPUOnly: Bool? = nil
@@ -183,13 +186,13 @@ extension Visionaire {
 
 extension Visionaire {
 
-    private func multiObservationHandler<T>(_ task: VisionTask, image: CIImage) async throws -> [T] {
-        let result = try await performTask(task, on: image)
+    private func multiObservationHandler<T>(_ task: VisionTask, imageSource: VisionImageSource) async throws -> [T] {
+        let result = try await performTask(task, on: imageSource)
         return result.observations.compactMap { $0 as? T }
     }
 
-    private func singleObservationHandler<T>(_ task: VisionTask, image: CIImage) async throws -> T {
-        let result = try await performTask(task, on: image)
+    private func singleObservationHandler<T>(_ task: VisionTask, imageSource: VisionImageSource) async throws -> T {
+        let result = try await performTask(task, on: imageSource)
         guard let observation = result.observations.first, let first = observation as? T else {
             throw VisionaireError.noObservations
         }
@@ -202,52 +205,52 @@ extension Visionaire {
 
 extension Visionaire {
 
-    public func horizonDetection(image: CIImage) async throws -> VNHorizonObservation {
-        try await singleObservationHandler(.horizonDetection, image: image)
+    public func horizonDetection(imageSource: VisionImageSource) async throws -> VNHorizonObservation {
+        try await singleObservationHandler(.horizonDetection, imageSource: imageSource)
     }
 
-    public func saliencyAnalysis(mode: SaliencyMode, image: CIImage) async throws -> [VNSaliencyImageObservation] {
-        try await multiObservationHandler(mode.task, image: image)
+    public func saliencyAnalysis(mode: SaliencyMode, imageSource: VisionImageSource) async throws -> [VNSaliencyImageObservation] {
+        try await multiObservationHandler(mode.task, imageSource: imageSource)
     }
 
-    public func saliencyAnalysis(mode: SaliencyMode, image: CIImage) async throws -> [VNRectangleObservation] {
-        let saliency: [VNSaliencyImageObservation] = try await multiObservationHandler(mode.task, image: image)
+    public func saliencyAnalysis(mode: SaliencyMode, imageSource: VisionImageSource) async throws -> [VNRectangleObservation] {
+        let saliency: [VNSaliencyImageObservation] = try await multiObservationHandler(mode.task, imageSource: imageSource)
         return saliency.flatMap { $0.salientObjects ?? [] }
     }
 
-    public func faceDetection(image: CIImage, regionOfInterest: CGRect? = nil, revision: Int? = nil) async throws -> [VNFaceObservation] {
-        try await multiObservationHandler(.faceDetection, image: image)
+    public func faceDetection(imageSource: VisionImageSource, regionOfInterest: CGRect? = nil, revision: Int? = nil) async throws -> [VNFaceObservation] {
+        try await multiObservationHandler(.faceDetection, imageSource: imageSource)
     }
 
-    public func faceLandmarkDetection(image: CIImage, regionOfInterest: CGRect? = nil, revision: Int? = nil) async throws -> [VNFaceObservation] {
-        try await multiObservationHandler(.faceLandmarkDetection, image: image)
+    public func faceLandmarkDetection(imageSource: VisionImageSource, regionOfInterest: CGRect? = nil, revision: Int? = nil) async throws -> [VNFaceObservation] {
+        try await multiObservationHandler(.faceLandmarkDetection, imageSource: imageSource)
     }
 
-    public func faceCaptureQualityDetection(image: CIImage, regionOfInterest: CGRect? = nil, revision: Int? = nil) async throws -> [VNFaceObservation] {
-        try await multiObservationHandler(.faceCaptureQuality, image: image)
-    }
-
-    @available(iOS 15.0, macOS 12.0, *)
-    public func personSegmentation(image: CIImage) async throws -> [VNPixelBufferObservation] {
-        try await multiObservationHandler(.personSegmentation, image: image)
+    public func faceCaptureQualityDetection(imageSource: VisionImageSource, regionOfInterest: CGRect? = nil, revision: Int? = nil) async throws -> [VNFaceObservation] {
+        try await multiObservationHandler(.faceCaptureQuality, imageSource: imageSource)
     }
 
     @available(iOS 15.0, macOS 12.0, *)
-    public func personSegmentation(image: CIImage, qualityLevel: VNGeneratePersonSegmentationRequest.QualityLevel) async throws -> [VNPixelBufferObservation] {
-        try await multiObservationHandler(.personSegmentation(qualityLevel: qualityLevel), image: image)
+    public func personSegmentation(imageSource: VisionImageSource) async throws -> [VNPixelBufferObservation] {
+        try await multiObservationHandler(.personSegmentation, imageSource: imageSource)
     }
 
     @available(iOS 15.0, macOS 12.0, *)
-    public func documentSegmentation(image: CIImage) async throws -> [VNRectangleObservation] {
-        try await multiObservationHandler(.documentSegmentation, image: image)
+    public func personSegmentation(imageSource: VisionImageSource, qualityLevel: VNGeneratePersonSegmentationRequest.QualityLevel) async throws -> [VNPixelBufferObservation] {
+        try await multiObservationHandler(.personSegmentation(qualityLevel: qualityLevel), imageSource: imageSource)
     }
 
     @available(iOS 15.0, macOS 12.0, *)
-    public func humanRectanglesDetection(image: CIImage) async throws -> [VNHumanObservation] {
-        try await multiObservationHandler(.humanRectanglesDetection, image: image)
+    public func documentSegmentation(imageSource: VisionImageSource) async throws -> [VNRectangleObservation] {
+        try await multiObservationHandler(.documentSegmentation, imageSource: imageSource)
     }
 
-    public func rectanglesDetection(image: CIImage,
+    @available(iOS 15.0, macOS 12.0, *)
+    public func humanRectanglesDetection(imageSource: VisionImageSource) async throws -> [VNHumanObservation] {
+        try await multiObservationHandler(.humanRectanglesDetection, imageSource: imageSource)
+    }
+
+    public func rectanglesDetection(imageSource: VisionImageSource,
                                     minimumAspectRatio: VNAspectRatio? = nil,
                                     maximumAspectRatio: VNAspectRatio? = nil,
                                     quadratureTolerance: VNDegrees? = nil,
@@ -259,12 +262,12 @@ extension Visionaire {
                                                                quadratureTolerance: quadratureTolerance,
                                                                minimumSize: minimumSize,
                                                                minimumConfidence: minimumConfidence,
-                                                               maximumObservations: maximumObservations), image: image)
+                                                               maximumObservations: maximumObservations), imageSource: imageSource)
     }
 
     @available(iOS 14.0, macOS 11.0, *)
-    public func humanBodyPoseDetection(image: CIImage) async throws -> [VNHumanBodyPoseObservation] {
-        try await multiObservationHandler(.humanBodyPoseDetection, image: image)
+    public func humanBodyPoseDetection(imageSource: VisionImageSource) async throws -> [VNHumanBodyPoseObservation] {
+        try await multiObservationHandler(.humanBodyPoseDetection, imageSource: imageSource)
     }
 
 }
