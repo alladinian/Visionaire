@@ -20,6 +20,9 @@ public enum VisionTaskType: CaseIterable, Identifiable {
          faceCaptureQuality,
          humanRectanglesDetection,
          rectanglesDetection
+
+    @available(iOS 14.0, macOS 11.0, *)
+    case humanBodyPoseDetection
     
     @available(iOS 15.0, macOS 12.0, *)
     case personSegmentation,
@@ -27,6 +30,10 @@ public enum VisionTaskType: CaseIterable, Identifiable {
     
     public static var allCases: [VisionTaskType] = {
         var tasks: [VisionTaskType] = [.horizonDetection, .attentionSaliency, .objectnessSaliency, .faceDetection, .faceLandmarkDetection, .faceCaptureQuality, .humanRectanglesDetection, .rectanglesDetection]
+
+        if #available(iOS 14.0, macOS 11.0, *) {
+            tasks.append(contentsOf: [.humanBodyPoseDetection])
+        }
 
         if #available(iOS 15.0, macOS 12.0, *) {
             tasks.append(contentsOf: [.personSegmentation, .documentSegmentation])
@@ -57,6 +64,8 @@ public enum VisionTaskType: CaseIterable, Identifiable {
             return "Document Segmentation"
         case .rectanglesDetection:
             return "Rectangles Detection"
+        case .humanBodyPoseDetection:
+            return "Human Body Pose Detection"
         }
     }
     
@@ -201,6 +210,10 @@ public struct VisionTask: Identifiable {
         return VisionTask(taskType: .rectanglesDetection, request: request)
     }
 
+    @available(iOS 14.0, macOS 11.0, *)
+    public static var humanBodyPoseDetection: VisionTask {
+        VisionTask(taskType: .humanBodyPoseDetection, request: VNDetectHumanBodyPoseRequest())
+    }
 
 }
 

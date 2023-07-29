@@ -57,6 +57,14 @@ public extension View {
             mask(PixelBufferObservationsCompositeMask(observations: observations))
         }
     }
+
+    @available(iOS 14.0, macOS 11.0, *)
+    func visualizeHumanBodyPose(_ observations: [VNHumanBodyPoseObservation], isFlipped: Bool = true, _ styleClosure: @escaping (VNHumanBodyPoseObservationShape) -> some View) -> some View {
+        overlay(
+            styleClosure(VNHumanBodyPoseObservationShape(observations: observations))
+                .flipped(isFlipped)
+        )
+    }
 }
 
 public extension [VNDetectedObjectObservation] {
@@ -78,6 +86,35 @@ public struct VNRectangleObservationShape: Shape {
                 }
                 path.addLines(points)
                 path.closeSubpath()
+            }
+        }
+    }
+}
+
+@available(iOS 14.0, macOS 11.0, *)
+public struct VNHumanBodyPoseObservationShape: Shape {
+    let observations: [VNHumanBodyPoseObservation]
+
+    public func path(in rect: CGRect) -> Path {
+        Path { path in
+            var points = [CGPoint]()
+            for observation in observations {
+                for group in observation.availableJointsGroupNames {
+                    guard let recognizedPoints = try? observation.recognizedPoints(group) else {
+                        continue
+                    }
+
+                    for (_, point) in recognizedPoints {
+                        let cgPoint = VNImagePointForNormalizedPoint(point.location, Int(rect.size.width), Int(rect.size.height))
+                        //points.append(cgPoint)
+                        let dotSize = 4.0
+                        let dotRect = CGRect(origin: cgPoint, size: .init(width: dotSize, height: dotSize)).offsetBy(dx: -dotSize / 2, dy: -dotSize / 2)
+                        path.addEllipse(in: dotRect)
+                    }
+
+                    //path.addLines(points)
+                    //points = []
+                }
             }
         }
     }

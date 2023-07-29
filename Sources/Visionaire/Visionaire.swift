@@ -246,4 +246,9 @@ extension Visionaire {
                                                                maximumObservations: maximumObservations), image: image)
     }
 
+    @available(iOS 14.0, macOS 11.0, *)
+    public func humanBodyPoseDetection(image: CIImage) async throws -> [VNHumanBodyPoseObservation] {
+        try await multiObservationHandler(.humanBodyPoseDetection, image: image)
+    }
+
 }
