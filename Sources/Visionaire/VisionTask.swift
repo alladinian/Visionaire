@@ -81,9 +81,9 @@ public struct VisionTask: Identifiable {
         taskType.title
     }
 
-    public let request: VNRequest
+    public let request: VNImageBasedRequest
     
-    private init(taskType: VisionTaskType, request: VNRequest) {
+    private init(taskType: VisionTaskType, request: VNImageBasedRequest) {
         self.taskType = taskType
         self.request = request
     }
@@ -110,7 +110,7 @@ public struct VisionTask: Identifiable {
     }
 
     public func regionOfInterest(_ regionOfInterest: CGRect) -> VisionTask {
-        (request as? VNImageBasedRequest)?.regionOfInterest = regionOfInterest
+        request.regionOfInterest = regionOfInterest
         return self
     }
 

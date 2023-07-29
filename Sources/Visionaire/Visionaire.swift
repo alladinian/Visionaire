@@ -18,7 +18,7 @@ public final class Visionaire: ObservableObject {
         let solidImage = CIImage(color: .red).cropped(to: smallRect)
         Task {
             do {
-                let _ = try await performTasks(tasks, onImage: solidImage)
+                let _ = try await performTasks(tasks, on: solidImage)
                 debugPrint("[Visionaire] Warmed up...")
             } catch {
                 debugPrint(error)
@@ -26,6 +26,18 @@ public final class Visionaire: ObservableObject {
         }
     }
 }
+
+protocol VisionInputSource {}
+
+extension CGImage: VisionInputSource {}
+extension CIImage: VisionInputSource {}
+extension CVPixelBuffer: VisionInputSource {}
+
+@available(macOS 11.0, iOS 14.0, *)
+extension CMSampleBuffer: VisionInputSource {}
+
+extension Data: VisionInputSource {}
+extension URL: VisionInputSource {}
 
 //MARK: - Image Handlers
 extension Visionaire {
@@ -88,26 +100,14 @@ extension Visionaire {
 //MARK: - Task Execution
 extension Visionaire {
 
-    //MARK: Multiple tasks
-
-    public func performTasks(_ tasks: [VisionTask],
-                             ciContext context: CIContext? = nil,
-                             onImage image: CIImage,
-                             regionOfInterest: CGRect? = nil,
-                             preferBackgroundProcessing: Bool? = nil,
-                             usesCPUOnly: Bool? = nil
-    ) async throws -> [VisionTaskResult] {
-
-        await MainActor.run {
-            isProcessing = true
-        }
-
-        var taskResults = [VisionTaskResult]()
-
-        let requests = tasks.map { task in
+    private func setupRequestsForTasks(_ tasks: [VisionTask],
+                                       regionOfInterest: CGRect? = nil,
+                                       preferBackgroundProcessing: Bool? = nil,
+                                       usesCPUOnly: Bool? = nil) -> [VNImageBasedRequest] {
+        tasks.map { task in
             let request = task.request
 
-            if let request = request as? VNImageBasedRequest, let regionOfInterest {
+            if let regionOfInterest {
                 request.regionOfInterest = regionOfInterest
             }
 
@@ -121,12 +121,28 @@ extension Visionaire {
 
             return request
         }
+    }
+
+    //MARK: Multiple tasks
+
+    public func performTasks(_ tasks: [VisionTask],
+                             ciContext context: CIContext? = nil,
+                             on imageSource: CIImage,
+                             regionOfInterest: CGRect? = nil,
+                             preferBackgroundProcessing: Bool? = nil,
+                             usesCPUOnly: Bool? = nil
+    ) async throws -> [VisionTaskResult] {
+
+        await MainActor.run {
+            isProcessing = true
+        }
+
+        let requests = setupRequestsForTasks(tasks, regionOfInterest: regionOfInterest, preferBackgroundProcessing: preferBackgroundProcessing, usesCPUOnly: usesCPUOnly)
+        let taskResults: [VisionTaskResult]
 
         do {
-            try imageHandler(for: image, context: context).perform(requests)
-            for request in requests {
-                taskResults.append(VisionTaskResult(request: request, error: nil))
-            }
+            try imageHandler(for: imageSource, context: context).perform(requests)
+            taskResults = requests.map(VisionTaskResult.init)
             await MainActor.run {
                 isProcessing = false
             }
@@ -144,15 +160,14 @@ extension Visionaire {
 
     public func performTask(_ task: VisionTask,
                             ciContext context: CIContext? = nil,
-                            onImage image: CIImage,
+                            on imageSource: CIImage,
                             regionOfInterest: CGRect? = nil,
-                            revision: Int? = nil,
                             preferBackgroundProcessing: Bool? = nil,
                             usesCPUOnly: Bool? = nil
     ) async throws -> VisionTaskResult {
         guard let result = try await performTasks([task],
                                                   ciContext: context,
-                                                  onImage: image,
+                                                  on: imageSource,
                                                   regionOfInterest: regionOfInterest,
                                                   preferBackgroundProcessing: preferBackgroundProcessing,
                                                   usesCPUOnly: usesCPUOnly
@@ -169,17 +184,12 @@ extension Visionaire {
 extension Visionaire {
 
     private func multiObservationHandler<T>(_ task: VisionTask, image: CIImage) async throws -> [T] {
-        let result = try await performTask(task, onImage: image)
-
-        if let error = result.error {
-            throw error
-        }
-
+        let result = try await performTask(task, on: image)
         return result.observations.compactMap { $0 as? T }
     }
 
     private func singleObservationHandler<T>(_ task: VisionTask, image: CIImage) async throws -> T {
-        let result = try await performTask(task, onImage: image)
+        let result = try await performTask(task, on: image)
         guard let observation = result.observations.first, let first = observation as? T else {
             throw VisionaireError.noObservations
         }

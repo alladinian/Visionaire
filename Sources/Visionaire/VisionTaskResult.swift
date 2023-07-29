@@ -12,11 +12,9 @@ import Vision
 public struct VisionTaskResult {
     public let request: VNRequest
     public let observations: [VNObservation]
-    public let error: Error?
 
-    init(request: VNRequest, error: Error?) {
+    init(_ request: VNRequest) {
         self.request      = request
         self.observations = request.results ?? []
-        self.error        = error
     }
 }
