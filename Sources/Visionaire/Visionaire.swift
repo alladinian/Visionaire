@@ -33,10 +33,8 @@ public protocol VisionImageSource {
     func VNImageHandler(orientation: CGImagePropertyOrientation?, context: CIContext?) -> VNImageRequestHandler
 }
 
-extension VisionImageSource {
-    public func optionsForContext(_ context: CIContext?) -> [VNImageOption : Any] {
-        [.ciContext: context ?? kVisionaireContext]
-    }
+private func optionsForContext(_ context: CIContext?) -> [VNImageOption : Any] {
+    [.ciContext: context ?? kVisionaireContext]
 }
 
 extension CGImage: VisionImageSource {
