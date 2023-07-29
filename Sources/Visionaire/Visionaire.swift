@@ -98,17 +98,16 @@ extension URL: VisionImageSource {
     }
 }
 
-//MARK: - Task Execution
+//MARK: - Request Execution
 extension Visionaire {
 
-    //MARK: Multiple tasks
+    //MARK: Multiple Requests
 
-    public func performTasks(_ tasks: [VisionTask], ciContext context: CIContext? = nil, on imageSource: VisionImageSource, orientation: CGImagePropertyOrientation? = nil) async throws -> [VisionTaskResult] {
+    public func performRequests(_ requests: [VNRequest], ciContext context: CIContext? = nil, on imageSource: VisionImageSource, orientation: CGImagePropertyOrientation? = nil) async throws -> [VisionTaskResult] {
         await MainActor.run {
             isProcessing = true
         }
 
-        let requests = tasks.map { $0.request }
         let taskResults: [VisionTaskResult]
 
         do {
@@ -125,6 +124,25 @@ extension Visionaire {
         }
 
         return taskResults
+    }
+
+    //MARK: Single Request
+    public func performRequest(_ request: VNRequest, ciContext context: CIContext? = nil, on imageSource: VisionImageSource, orientation: CGImagePropertyOrientation? = nil) async throws -> VisionTaskResult {
+        guard let result = try await performRequests([request], ciContext: context, on: imageSource, orientation: orientation).first else {
+            throw VisionaireError.noResult
+        }
+        return result
+    }
+
+}
+
+//MARK: - Task Execution
+extension Visionaire {
+
+    //MARK: Multiple tasks
+
+    public func performTasks(_ tasks: [VisionTask], ciContext context: CIContext? = nil, on imageSource: VisionImageSource, orientation: CGImagePropertyOrientation? = nil) async throws -> [VisionTaskResult] {
+        try await performRequests(tasks.map(\.request), ciContext: context, on: imageSource, orientation: orientation)
     }
 
     //MARK: Single Task
