@@ -103,48 +103,18 @@ extension URL: VisionImageSource {
 //MARK: - Task Execution
 extension Visionaire {
 
-    private func setupRequestsForTasks(_ tasks: [VisionTask],
-                                       regionOfInterest: CGRect? = nil,
-                                       preferBackgroundProcessing: Bool? = nil,
-                                       usesCPUOnly: Bool? = nil) -> [VNImageBasedRequest] {
-        tasks.map { task in
-            let request = task.request
-
-            if let regionOfInterest {
-                request.regionOfInterest = regionOfInterest
-            }
-
-            if let preferBackgroundProcessing {
-                request.preferBackgroundProcessing = preferBackgroundProcessing
-            }
-
-            if let usesCPUOnly {
-                request.usesCPUOnly = usesCPUOnly
-            }
-
-            return request
-        }
-    }
-
     //MARK: Multiple tasks
 
-    public func performTasks(_ tasks: [VisionTask],
-                             ciContext context: CIContext? = nil,
-                             on imageSource: VisionImageSource,
-                             regionOfInterest: CGRect? = nil,
-                             preferBackgroundProcessing: Bool? = nil,
-                             usesCPUOnly: Bool? = nil
-    ) async throws -> [VisionTaskResult] {
-
+    public func performTasks(_ tasks: [VisionTask], ciContext context: CIContext? = nil, on imageSource: VisionImageSource, orientation: CGImagePropertyOrientation? = nil) async throws -> [VisionTaskResult] {
         await MainActor.run {
             isProcessing = true
         }
 
-        let requests = setupRequestsForTasks(tasks, regionOfInterest: regionOfInterest, preferBackgroundProcessing: preferBackgroundProcessing, usesCPUOnly: usesCPUOnly)
+        let requests = tasks.map { $0.request }
         let taskResults: [VisionTaskResult]
 
         do {
-            try imageSource.VNImageHandler(orientation: nil, context: context).perform(requests)
+            try imageSource.VNImageHandler(orientation: orientation, context: context).perform(requests)
             taskResults = requests.map(VisionTaskResult.init)
             await MainActor.run {
                 isProcessing = false
@@ -161,20 +131,8 @@ extension Visionaire {
 
     //MARK: Single Task
 
-    public func performTask(_ task: VisionTask,
-                            ciContext context: CIContext? = nil,
-                            on imageSource: VisionImageSource,
-                            regionOfInterest: CGRect? = nil,
-                            preferBackgroundProcessing: Bool? = nil,
-                            usesCPUOnly: Bool? = nil
-    ) async throws -> VisionTaskResult {
-        guard let result = try await performTasks([task],
-                                                  ciContext: context,
-                                                  on: imageSource,
-                                                  regionOfInterest: regionOfInterest,
-                                                  preferBackgroundProcessing: preferBackgroundProcessing,
-                                                  usesCPUOnly: usesCPUOnly
-        ).first else {
+    public func performTask(_ task: VisionTask, ciContext context: CIContext? = nil, on imageSource: VisionImageSource, orientation: CGImagePropertyOrientation? = nil) async throws -> VisionTaskResult {
+        guard let result = try await performTasks([task], ciContext: context, on: imageSource, orientation: orientation).first else {
             throw VisionaireError.noResult
         }
         return result
