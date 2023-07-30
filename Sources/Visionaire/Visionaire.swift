@@ -18,82 +18,11 @@ public final class Visionaire: ObservableObject {
         let solidImage = CIImage(color: .red).cropped(to: smallRect)
         Task {
             do {
-                let _ = try await performTasks(tasks, on: solidImage)
+                let _ = try await perform(tasks, on: solidImage)
                 debugPrint("[Visionaire] Warmed up...")
             } catch {
                 debugPrint(error)
             }
-        }
-    }
-}
-
-//MARK: - Image Handlers
-
-public protocol VisionImageSource {
-    func VNImageHandler(orientation: CGImagePropertyOrientation?, context: CIContext?) -> VNImageRequestHandler
-}
-
-private func optionsForContext(_ context: CIContext?) -> [VNImageOption : Any] {
-    [.ciContext: context ?? kVisionaireContext]
-}
-
-extension CGImage: VisionImageSource {
-    public func VNImageHandler(orientation: CGImagePropertyOrientation? = nil, context: CIContext?) -> VNImageRequestHandler {
-        if let orientation {
-            return VNImageRequestHandler(cgImage: self, orientation: orientation, options: optionsForContext(context))
-        } else {
-            return VNImageRequestHandler(cgImage: self, options: optionsForContext(context))
-        }
-    }
-}
-
-extension CIImage: VisionImageSource {
-    public func VNImageHandler(orientation: CGImagePropertyOrientation? = nil, context: CIContext? = nil) -> VNImageRequestHandler {
-        if let orientation {
-            return VNImageRequestHandler(ciImage: self, orientation: orientation, options: optionsForContext(context))
-        } else {
-            return VNImageRequestHandler(ciImage: self, options: optionsForContext(context))
-        }
-    }
-}
-
-extension CVPixelBuffer: VisionImageSource {
-    public func VNImageHandler(orientation: CGImagePropertyOrientation? = nil, context: CIContext? = nil) -> VNImageRequestHandler {
-        if let orientation {
-            return VNImageRequestHandler(cvPixelBuffer: self, orientation: orientation, options: optionsForContext(context))
-        } else {
-            return VNImageRequestHandler(cvPixelBuffer: self, options: optionsForContext(context))
-        }
-    }
-}
-
-@available(macOS 11.0, iOS 14.0, *)
-extension CMSampleBuffer: VisionImageSource {
-    public func VNImageHandler(orientation: CGImagePropertyOrientation? = nil, context: CIContext? = nil) -> VNImageRequestHandler {
-        if let orientation {
-            return VNImageRequestHandler(cmSampleBuffer: self, orientation: orientation, options: optionsForContext(context))
-        } else {
-            return VNImageRequestHandler(cmSampleBuffer: self, options: optionsForContext(context))
-        }
-    }
-}
-
-extension Data: VisionImageSource {
-    public func VNImageHandler(orientation: CGImagePropertyOrientation? = nil, context: CIContext? = nil) -> VNImageRequestHandler {
-        if let orientation {
-            return VNImageRequestHandler(data: self, orientation: orientation, options: optionsForContext(context))
-        } else {
-            return VNImageRequestHandler(data: self, options: optionsForContext(context))
-        }
-    }
-}
-
-extension URL: VisionImageSource {
-    public func VNImageHandler(orientation: CGImagePropertyOrientation? = nil, context: CIContext? = nil) -> VNImageRequestHandler {
-        if let orientation {
-            return VNImageRequestHandler(url: self, orientation: orientation, options: optionsForContext(context))
-        } else {
-            return VNImageRequestHandler(url: self, options: optionsForContext(context))
         }
     }
 }
@@ -103,7 +32,10 @@ extension Visionaire {
 
     //MARK: Multiple Requests
 
-    public func performRequests(_ requests: [VNRequest], ciContext context: CIContext? = nil, on imageSource: VisionImageSource, orientation: CGImagePropertyOrientation? = nil) async throws -> [VisionTaskResult] {
+    public func perform(_ requests: [VNRequest],
+                        ciContext context: CIContext? = nil,
+                        on imageSource: VisionImageSource,
+                        orientation: CGImagePropertyOrientation? = nil) async throws -> [VisionTaskResult] {
         await MainActor.run {
             isProcessing = true
         }
@@ -127,8 +59,11 @@ extension Visionaire {
     }
 
     //MARK: Single Request
-    public func performRequest(_ request: VNRequest, ciContext context: CIContext? = nil, on imageSource: VisionImageSource, orientation: CGImagePropertyOrientation? = nil) async throws -> VisionTaskResult {
-        guard let result = try await performRequests([request], ciContext: context, on: imageSource, orientation: orientation).first else {
+    public func perform(_ request: VNRequest,
+                        ciContext context: CIContext? = nil,
+                        on imageSource: VisionImageSource,
+                        orientation: CGImagePropertyOrientation? = nil) async throws -> VisionTaskResult {
+        guard let result = try await perform([request], ciContext: context, on: imageSource, orientation: orientation).first else {
             throw VisionaireError.noResult
         }
         return result
@@ -141,14 +76,20 @@ extension Visionaire {
 
     //MARK: Multiple tasks
 
-    public func performTasks(_ tasks: [VisionTask], ciContext context: CIContext? = nil, on imageSource: VisionImageSource, orientation: CGImagePropertyOrientation? = nil) async throws -> [VisionTaskResult] {
-        try await performRequests(tasks.map(\.request), ciContext: context, on: imageSource, orientation: orientation)
+    public func perform(_ tasks: [VisionTask],
+                        ciContext context: CIContext? = nil,
+                        on imageSource: VisionImageSource,
+                        orientation: CGImagePropertyOrientation? = nil) async throws -> [VisionTaskResult] {
+        try await perform(tasks.map(\.request), ciContext: context, on: imageSource, orientation: orientation)
     }
 
     //MARK: Single Task
 
-    public func performTask(_ task: VisionTask, ciContext context: CIContext? = nil, on imageSource: VisionImageSource, orientation: CGImagePropertyOrientation? = nil) async throws -> VisionTaskResult {
-        guard let result = try await performTasks([task], ciContext: context, on: imageSource, orientation: orientation).first else {
+    public func perform(_ task: VisionTask,
+                        ciContext context: CIContext? = nil,
+                        on imageSource: VisionImageSource,
+                        orientation: CGImagePropertyOrientation? = nil) async throws -> VisionTaskResult {
+        guard let result = try await perform([task], ciContext: context, on: imageSource, orientation: orientation).first else {
             throw VisionaireError.noResult
         }
         return result
@@ -161,12 +102,12 @@ extension Visionaire {
 extension Visionaire {
 
     private func multiObservationHandler<T>(_ task: VisionTask, imageSource: VisionImageSource) async throws -> [T] {
-        let result = try await performTask(task, on: imageSource)
+        let result = try await perform(task, on: imageSource)
         return result.observations.compactMap { $0 as? T }
     }
 
     private func singleObservationHandler<T>(_ task: VisionTask, imageSource: VisionImageSource) async throws -> T {
-        let result = try await performTask(task, on: imageSource)
+        let result = try await perform(task, on: imageSource)
         guard let observation = result.observations.first, let first = observation as? T else {
             throw VisionaireError.noObservations
         }
