@@ -19,20 +19,25 @@ public enum VisionTaskType: CaseIterable, Identifiable {
          faceLandmarkDetection,
          faceCaptureQuality,
          humanRectanglesDetection,
-         rectanglesDetection
+         rectanglesDetection,
+         rectanglesTracking,
+         objectTracking,
+         animalDetection,
+         imageClassification
 
     @available(iOS 14.0, macOS 11.0, *)
-    case humanBodyPoseDetection
-    
+    case humanBodyPoseDetection,
+         humanHandPoseDetection
+
     @available(iOS 15.0, macOS 12.0, *)
     case personSegmentation,
          documentSegmentation
     
     public static var allCases: [VisionTaskType] = {
-        var tasks: [VisionTaskType] = [.horizonDetection, .attentionSaliency, .objectnessSaliency, .faceDetection, .faceLandmarkDetection, .faceCaptureQuality, .humanRectanglesDetection, .rectanglesDetection]
+        var tasks: [VisionTaskType] = [.horizonDetection, .attentionSaliency, .objectnessSaliency, .faceDetection, .faceLandmarkDetection, .faceCaptureQuality, .humanRectanglesDetection, .rectanglesDetection, .rectanglesTracking, .objectTracking, .animalDetection, .imageClassification]
 
         if #available(iOS 14.0, macOS 11.0, *) {
-            tasks.append(contentsOf: [.humanBodyPoseDetection])
+            tasks.append(contentsOf: [.humanBodyPoseDetection, .humanHandPoseDetection])
         }
 
         if #available(iOS 15.0, macOS 12.0, *) {
@@ -66,6 +71,16 @@ public enum VisionTaskType: CaseIterable, Identifiable {
             return "Rectangles Detection"
         case .humanBodyPoseDetection:
             return "Human Body Pose Detection"
+        case .humanHandPoseDetection:
+            return "Human Hand Pose Detection"
+        case .rectanglesTracking:
+            return "Rectangles Tracking"
+        case .objectTracking:
+            return "Object Tracking"
+        case .animalDetection:
+            return "Animal Detection"
+        case .imageClassification:
+            return "Classify Image"
         }
     }
     
@@ -138,7 +153,7 @@ public struct VisionTask: Identifiable {
 
     @available(iOS 15.0, macOS 12.0, *)
     public static func humanRectanglesDetection(upperBodyOnly: Bool) -> VisionTask {
-        let request = VNDetectHumanRectanglesRequest()
+        let request           = VNDetectHumanRectanglesRequest()
         request.upperBodyOnly = upperBodyOnly
         return VisionTask(taskType: .humanRectanglesDetection, request: request)
     }
@@ -155,9 +170,10 @@ public struct VisionTask: Identifiable {
     }
 
     @available(iOS 15.0, macOS 12.0, *)
-    public static func personSegmentation(qualityLevel: VNGeneratePersonSegmentationRequest.QualityLevel) -> VisionTask {
-        let request = VNGeneratePersonSegmentationRequest()
-        request.qualityLevel = qualityLevel
+    public static func personSegmentation(qualityLevel: VNGeneratePersonSegmentationRequest.QualityLevel, outputPixelFormat: OSType = kCVPixelFormatType_OneComponent8) -> VisionTask {
+        let request               = VNGeneratePersonSegmentationRequest()
+        request.qualityLevel      = qualityLevel
+        request.outputPixelFormat = outputPixelFormat
         return VisionTask(taskType: .personSegmentation, request: request)
     }
 
@@ -210,9 +226,55 @@ public struct VisionTask: Identifiable {
         return VisionTask(taskType: .rectanglesDetection, request: request)
     }
 
+    /*----------------------------------------------------------------------------------------------------------------*/
+
     @available(iOS 14.0, macOS 11.0, *)
     public static var humanBodyPoseDetection: VisionTask {
         VisionTask(taskType: .humanBodyPoseDetection, request: VNDetectHumanBodyPoseRequest())
+    }
+
+    /*----------------------------------------------------------------------------------------------------------------*/
+
+    @available(iOS 14.0, macOS 11.0, *)
+    public static var humanHandPoseDetection: VisionTask {
+        VisionTask(taskType: .humanHandPoseDetection, request: VNDetectHumanHandPoseRequest())
+    }
+
+    @available(iOS 14.0, macOS 11.0, *)
+    public static func humanHandPoseDetection(maximumHandCount: Int) -> VisionTask {
+        let request              = VNDetectHumanHandPoseRequest()
+        request.maximumHandCount = maximumHandCount
+        return VisionTask(taskType: .humanHandPoseDetection, request: request)
+    }
+
+    /*----------------------------------------------------------------------------------------------------------------*/
+
+    public static func rectanglesTracking(observation: VNRectangleObservation, trackingLevel: VNRequestTrackingLevel, isLastFrame: Bool) -> VisionTask {
+        let request           = VNTrackRectangleRequest(rectangleObservation: observation)
+        request.trackingLevel = trackingLevel
+        request.isLastFrame   = isLastFrame
+        return VisionTask(taskType: .rectanglesTracking, request: request)
+    }
+
+    /*----------------------------------------------------------------------------------------------------------------*/
+
+    public static func objectTracking(observation: VNDetectedObjectObservation, trackingLevel: VNRequestTrackingLevel, isLastFrame: Bool) -> VisionTask {
+        let request           = VNTrackObjectRequest(detectedObjectObservation: observation)
+        request.trackingLevel = trackingLevel
+        request.isLastFrame   = isLastFrame
+        return VisionTask(taskType: .rectanglesTracking, request: request)
+    }
+
+    /*----------------------------------------------------------------------------------------------------------------*/
+
+    public static var animalDetection: VisionTask {
+        VisionTask(taskType: .animalDetection, request: VNRecognizeAnimalsRequest())
+    }
+
+    /*----------------------------------------------------------------------------------------------------------------*/
+
+    public static var imageClassification: VisionTask {
+        VisionTask(taskType: .imageClassification, request: VNClassifyImageRequest())
     }
 
 }
