@@ -158,4 +158,8 @@ extension Visionaire {
         try multiObservationHandler(.humanBodyPoseDetection, imageSource: imageSource)
     }
 
+    public func imageClassification(imageSource: VisionImageSource) throws -> [VNClassificationObservation] {
+        try multiObservationHandler(.imageClassification, imageSource: imageSource)
+    }
+
 }

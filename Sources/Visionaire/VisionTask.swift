@@ -27,7 +27,8 @@ public enum VisionTaskType: CaseIterable, Identifiable {
 
     @available(iOS 14.0, macOS 11.0, *)
     case humanBodyPoseDetection,
-         humanHandPoseDetection
+         humanHandPoseDetection,
+         opticalFlow
 
     @available(iOS 15.0, macOS 12.0, *)
     case personSegmentation,
@@ -37,7 +38,7 @@ public enum VisionTaskType: CaseIterable, Identifiable {
         var tasks: [VisionTaskType] = [.horizonDetection, .attentionSaliency, .objectnessSaliency, .faceDetection, .faceLandmarkDetection, .faceCaptureQuality, .humanRectanglesDetection, .rectanglesDetection, .rectanglesTracking, .objectTracking, .animalDetection, .imageClassification]
 
         if #available(iOS 14.0, macOS 11.0, *) {
-            tasks.append(contentsOf: [.humanBodyPoseDetection, .humanHandPoseDetection])
+            tasks.append(contentsOf: [.humanBodyPoseDetection, .humanHandPoseDetection, .opticalFlow])
         }
 
         if #available(iOS 15.0, macOS 12.0, *) {
@@ -81,6 +82,8 @@ public enum VisionTaskType: CaseIterable, Identifiable {
             return "Animal Detection"
         case .imageClassification:
             return "Classify Image"
+        case .opticalFlow:
+            return "Optical Flow"
         }
     }
     
@@ -275,6 +278,25 @@ public struct VisionTask: Identifiable {
 
     public static var imageClassification: VisionTask {
         VisionTask(taskType: .imageClassification, request: VNClassifyImageRequest())
+    }
+
+    /*----------------------------------------------------------------------------------------------------------------*/
+
+    @available(iOS 14.0, macOS 11.0, *)
+    public static func opticalFlow(targetedImage: VisionImageSource, computationAccuracy: VNGenerateOpticalFlowRequest.ComputationAccuracy, outputPixelFormat: OSType) -> VisionTask {
+        let request: VNGenerateOpticalFlowRequest = targetedImage.VNTargetedImageRequest(orientation: nil, context: nil)
+        request.computationAccuracy               = computationAccuracy
+        request.outputPixelFormat                 = outputPixelFormat
+        return VisionTask(taskType: .opticalFlow, request: request)
+    }
+
+    @available(iOS 16.0, macOS 13.0, *)
+    public static func opticalFlow(targetedImage: VisionImageSource, computationAccuracy: VNGenerateOpticalFlowRequest.ComputationAccuracy, outputPixelFormat: OSType, keepNetworkOutput: Bool) -> VisionTask {
+        let request: VNGenerateOpticalFlowRequest = targetedImage.VNTargetedImageRequest(orientation: nil, context: nil)
+        request.computationAccuracy               = computationAccuracy
+        request.outputPixelFormat                 = outputPixelFormat
+        request.keepNetworkOutput                 = keepNetworkOutput
+        return VisionTask(taskType: .opticalFlow, request: request)
     }
 
 }
