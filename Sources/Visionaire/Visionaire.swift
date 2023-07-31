@@ -34,14 +34,8 @@ extension Visionaire {
                         ciContext context: CIContext? = nil,
                         on imageSource: VisionImageSource,
                         orientation: CGImagePropertyOrientation? = nil) throws -> [VisionTaskResult] {
-        let taskResults: [VisionTaskResult]
-        do {
-            try imageSource.VNImageHandler(orientation: orientation, context: context).perform(requests)
-            taskResults = requests.map(VisionTaskResult.init)
-        } catch {
-            throw error
-        }
-        return taskResults
+        try imageSource.VNImageHandler(orientation: orientation, context: context).perform(requests)
+        return requests.map(VisionTaskResult.init)
     }
 
     //MARK: Single Request
