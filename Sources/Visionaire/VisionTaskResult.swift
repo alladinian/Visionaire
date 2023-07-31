@@ -10,11 +10,13 @@ import Vision
 
 //MARK: - Task Result Wrapper
 public struct VisionTaskResult {
+    public let taskType: VisionTaskType
     public let request: VNRequest
     public let observations: [VNObservation]
 
-    init(_ request: VNRequest) {
-        self.request      = request
-        self.observations = request.results ?? []
+    init(_ task: VisionTask) {
+        self.taskType     = task.taskType
+        self.request      = task.request
+        self.observations = task.request.results ?? []
     }
 }

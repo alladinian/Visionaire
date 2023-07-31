@@ -30,19 +30,21 @@ public final class Visionaire: ObservableObject {
 //MARK: - Request Execution
 extension Visionaire {
     //MARK: Multiple Requests
+    @discardableResult
     public func perform(_ requests: [VNRequest],
                         ciContext context: CIContext? = nil,
                         on imageSource: VisionImageSource,
-                        orientation: CGImagePropertyOrientation? = nil) throws -> [VisionTaskResult] {
+                        orientation: CGImagePropertyOrientation? = nil) throws -> [VNRequest] {
         try imageSource.VNImageHandler(orientation: orientation, context: context).perform(requests)
-        return requests.map(VisionTaskResult.init)
+        return requests
     }
 
     //MARK: Single Request
+    @discardableResult
     public func perform(_ request: VNRequest,
                         ciContext context: CIContext? = nil,
                         on imageSource: VisionImageSource,
-                        orientation: CGImagePropertyOrientation? = nil) throws -> VisionTaskResult {
+                        orientation: CGImagePropertyOrientation? = nil) throws -> VNRequest {
         guard let result = try perform([request], ciContext: context, on: imageSource, orientation: orientation).first else {
             throw VisionaireError.noResult
         }
@@ -53,14 +55,17 @@ extension Visionaire {
 //MARK: - Task Execution
 extension Visionaire {
     //MARK: Multiple tasks
+    @discardableResult
     public func perform(_ tasks: [VisionTask],
                         ciContext context: CIContext? = nil,
                         on imageSource: VisionImageSource,
                         orientation: CGImagePropertyOrientation? = nil) throws -> [VisionTaskResult] {
         try perform(tasks.map(\.request), ciContext: context, on: imageSource, orientation: orientation)
+        return tasks.map(VisionTaskResult.init)
     }
 
     //MARK: Single Task
+    @discardableResult
     public func perform(_ task: VisionTask,
                         ciContext context: CIContext? = nil,
                         on imageSource: VisionImageSource,
@@ -145,6 +150,11 @@ extension Visionaire {
     @available(iOS 15.0, macOS 12.0, *)
     public func humanRectanglesDetection(imageSource: VisionImageSource) throws -> [VNHumanObservation] {
         try multiObservationHandler(.humanRectanglesDetection, imageSource: imageSource)
+    }
+
+    @available(iOS 15.0, macOS 12.0, *)
+    public func humanRectanglesDetection(imageSource: VisionImageSource, upperBodyOnly: Bool) throws -> [VNHumanObservation] {
+        try multiObservationHandler(.humanRectanglesDetection(upperBodyOnly: upperBodyOnly), imageSource: imageSource)
     }
 
     public func rectanglesDetection(imageSource: VisionImageSource,

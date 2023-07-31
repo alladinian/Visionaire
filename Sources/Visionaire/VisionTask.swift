@@ -19,7 +19,7 @@ public struct VisionTask: Identifiable {
     }
 
     public let request: VNImageBasedRequest
-    
+
     private init(taskType: VisionTaskType, request: VNImageBasedRequest) {
         self.taskType = taskType
         self.request = request
@@ -44,6 +44,13 @@ public struct VisionTask: Identifiable {
     public func revision(_ revision: Int) -> VisionTask {
         if type(of: request).supportedRevisions.contains(revision) {
             request.revision = revision
+        }
+        return self
+    }
+
+    public func latestRevision() -> VisionTask {
+        if let last = type(of: request).supportedRevisions.last {
+            request.revision = last
         }
         return self
     }
@@ -102,7 +109,8 @@ public struct VisionTask: Identifiable {
     }
 
     @available(iOS 15.0, macOS 12.0, *)
-    public static func personSegmentation(qualityLevel: VNGeneratePersonSegmentationRequest.QualityLevel, outputPixelFormat: OSType = kCVPixelFormatType_OneComponent8) -> VisionTask {
+    public static func personSegmentation(qualityLevel: VNGeneratePersonSegmentationRequest.QualityLevel,
+                                          outputPixelFormat: OSType = kCVPixelFormatType_OneComponent8) -> VisionTask {
         let request               = VNGeneratePersonSegmentationRequest()
         request.qualityLevel      = qualityLevel
         request.outputPixelFormat = outputPixelFormat
@@ -181,7 +189,9 @@ public struct VisionTask: Identifiable {
 
     //MARK: - Rectangles Tracking
 
-    public static func rectanglesTracking(observation: VNRectangleObservation, trackingLevel: VNRequestTrackingLevel? = nil, isLastFrame: Bool? = nil) -> VisionTask {
+    public static func rectanglesTracking(observation: VNRectangleObservation,
+                                          trackingLevel: VNRequestTrackingLevel? = nil,
+                                          isLastFrame: Bool? = nil) -> VisionTask {
         let request = VNTrackRectangleRequest(rectangleObservation: observation)
         if let trackingLevel {
             request.trackingLevel = trackingLevel
@@ -194,7 +204,9 @@ public struct VisionTask: Identifiable {
 
     //MARK: - Object Tracking
 
-    public static func objectTracking(observation: VNDetectedObjectObservation, trackingLevel: VNRequestTrackingLevel? = nil, isLastFrame: Bool? = nil) -> VisionTask {
+    public static func objectTracking(observation: VNDetectedObjectObservation,
+                                      trackingLevel: VNRequestTrackingLevel? = nil,
+                                      isLastFrame: Bool? = nil) -> VisionTask {
         let request = VNTrackObjectRequest(detectedObjectObservation: observation)
         if let trackingLevel {
             request.trackingLevel = trackingLevel
@@ -220,7 +232,9 @@ public struct VisionTask: Identifiable {
     //MARK: - Optical Flow
 
     @available(iOS 14.0, macOS 11.0, *)
-    public static func opticalFlow(targetedImage: VisionImageSource, computationAccuracy: VNGenerateOpticalFlowRequest.ComputationAccuracy? = nil, outputPixelFormat: OSType? = nil) -> VisionTask {
+    public static func opticalFlow(targetedImage: VisionImageSource,
+                                   computationAccuracy: VNGenerateOpticalFlowRequest.ComputationAccuracy? = nil,
+                                   outputPixelFormat: OSType? = nil) -> VisionTask {
         let request: VNGenerateOpticalFlowRequest = targetedImage.VNTargetedImageRequest(orientation: nil, context: nil)
         if let computationAccuracy {
             request.computationAccuracy = computationAccuracy
@@ -232,7 +246,10 @@ public struct VisionTask: Identifiable {
     }
 
     @available(iOS 16.0, macOS 13.0, *)
-    public static func opticalFlow(targetedImage: VisionImageSource, computationAccuracy: VNGenerateOpticalFlowRequest.ComputationAccuracy? = nil, outputPixelFormat: OSType? = nil, keepNetworkOutput: Bool? = nil) -> VisionTask {
+    public static func opticalFlow(targetedImage: VisionImageSource,
+                                   computationAccuracy: VNGenerateOpticalFlowRequest.ComputationAccuracy? = nil,
+                                   outputPixelFormat: OSType? = nil,
+                                   keepNetworkOutput: Bool? = nil) -> VisionTask {
         let request: VNGenerateOpticalFlowRequest = targetedImage.VNTargetedImageRequest(orientation: nil, context: nil)
         if let computationAccuracy {
             request.computationAccuracy = computationAccuracy
