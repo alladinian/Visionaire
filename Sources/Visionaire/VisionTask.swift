@@ -61,7 +61,7 @@ public enum VisionTaskType: CaseIterable, Identifiable {
         if #available(iOS 15.0, macOS 12.0, *) {
             tasks.append(contentsOf: [
                 .personSegmentation,
-                    .documentSegmentation
+                .documentSegmentation
             ])
         }
 
@@ -130,6 +130,8 @@ public struct VisionTask: Identifiable {
         request.cancel()
     }
 
+    //MARK: - General Options
+
     public func preferBackgroundProcessing(_ preferBackgroundProcessing: Bool) -> VisionTask {
         request.preferBackgroundProcessing = preferBackgroundProcessing
         return self
@@ -152,9 +154,13 @@ public struct VisionTask: Identifiable {
         return self
     }
 
+    //MARK: - Horizon Detection
+
     public static var horizonDetection: VisionTask {
         VisionTask(taskType: .horizonDetection, request: VNDetectHorizonRequest())
     }
+
+    //MARK: - Saliency
 
     public static var attentionSaliency: VisionTask {
         VisionTask(taskType: .attentionSaliency, request: VNGenerateAttentionBasedSaliencyImageRequest())
@@ -164,15 +170,19 @@ public struct VisionTask: Identifiable {
         VisionTask(taskType: .objectnessSaliency, request: VNGenerateObjectnessBasedSaliencyImageRequest())
     }
 
+    //MARK: - Face Detection
+
     public static var faceDetection: VisionTask {
         VisionTask(taskType: .faceDetection, request: VNDetectFaceRectanglesRequest())
     }
+
+    //MARK: - Face Landmark Detection
 
     public static var faceLandmarkDetection: VisionTask {
         VisionTask(taskType: .faceLandmarkDetection, request: VNDetectFaceLandmarksRequest())
     }
 
-    /*----------------------------------------------------------------------------------------------------------------*/
+    //MARK: - Human Rectangles Detection
 
     @available(iOS 15.0, macOS 12.0, *)
     public static func humanRectanglesDetection(upperBodyOnly: Bool) -> VisionTask {
@@ -185,7 +195,7 @@ public struct VisionTask: Identifiable {
         VisionTask(taskType: .humanRectanglesDetection, request: VNDetectHumanRectanglesRequest())
     }
 
-    /*----------------------------------------------------------------------------------------------------------------*/
+    //MARK: - Person Segmentation
     
     @available(iOS 15.0, macOS 12.0, *)
     public static var personSegmentation: VisionTask {
@@ -200,20 +210,20 @@ public struct VisionTask: Identifiable {
         return VisionTask(taskType: .personSegmentation, request: request)
     }
 
-    /*----------------------------------------------------------------------------------------------------------------*/
+    //MARK: - Face Capture Quality
     
     public static var faceCaptureQuality: VisionTask {
         VisionTask(taskType: .faceCaptureQuality, request: VNDetectFaceCaptureQualityRequest())
     }
 
-    /*----------------------------------------------------------------------------------------------------------------*/
+    //MARK: - Document Segmentation
     
     @available(iOS 15.0, macOS 12.0, *)
     public static var documentSegmentation: VisionTask {
         VisionTask(taskType: .documentSegmentation, request: VNDetectDocumentSegmentationRequest())
     }
 
-    /*----------------------------------------------------------------------------------------------------------------*/
+    //MARK: - Rectangles Detection
 
     public static var rectanglesDetection: VisionTask {
         VisionTask(taskType: .rectanglesDetection, request: VNDetectRectanglesRequest())
@@ -249,14 +259,14 @@ public struct VisionTask: Identifiable {
         return VisionTask(taskType: .rectanglesDetection, request: request)
     }
 
-    /*----------------------------------------------------------------------------------------------------------------*/
+    //MARK: - Human Body Detection
 
     @available(iOS 14.0, macOS 11.0, *)
     public static var humanBodyPoseDetection: VisionTask {
         VisionTask(taskType: .humanBodyPoseDetection, request: VNDetectHumanBodyPoseRequest())
     }
 
-    /*----------------------------------------------------------------------------------------------------------------*/
+    //MARK: - Human Hand Pose Detection
 
     @available(iOS 14.0, macOS 11.0, *)
     public static var humanHandPoseDetection: VisionTask {
@@ -270,7 +280,7 @@ public struct VisionTask: Identifiable {
         return VisionTask(taskType: .humanHandPoseDetection, request: request)
     }
 
-    /*----------------------------------------------------------------------------------------------------------------*/
+    //MARK: - Rectangles Tracking
 
     public static func rectanglesTracking(observation: VNRectangleObservation, trackingLevel: VNRequestTrackingLevel? = nil, isLastFrame: Bool? = nil) -> VisionTask {
         let request = VNTrackRectangleRequest(rectangleObservation: observation)
@@ -283,7 +293,7 @@ public struct VisionTask: Identifiable {
         return VisionTask(taskType: .rectanglesTracking, request: request)
     }
 
-    /*----------------------------------------------------------------------------------------------------------------*/
+    //MARK: - Object Tracking
 
     public static func objectTracking(observation: VNDetectedObjectObservation, trackingLevel: VNRequestTrackingLevel? = nil, isLastFrame: Bool? = nil) -> VisionTask {
         let request = VNTrackObjectRequest(detectedObjectObservation: observation)
@@ -296,19 +306,19 @@ public struct VisionTask: Identifiable {
         return VisionTask(taskType: .rectanglesTracking, request: request)
     }
 
-    /*----------------------------------------------------------------------------------------------------------------*/
+    //MARK: - Animal Detection
 
     public static var animalDetection: VisionTask {
         VisionTask(taskType: .animalDetection, request: VNRecognizeAnimalsRequest())
     }
 
-    /*----------------------------------------------------------------------------------------------------------------*/
+    //MARK: - Image Classification
 
     public static var imageClassification: VisionTask {
         VisionTask(taskType: .imageClassification, request: VNClassifyImageRequest())
     }
 
-    /*----------------------------------------------------------------------------------------------------------------*/
+    //MARK: - Optical Flow
 
     @available(iOS 14.0, macOS 11.0, *)
     public static func opticalFlow(targetedImage: VisionImageSource, computationAccuracy: VNGenerateOpticalFlowRequest.ComputationAccuracy? = nil, outputPixelFormat: OSType? = nil) -> VisionTask {
