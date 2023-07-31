@@ -252,19 +252,27 @@ public struct VisionTask: Identifiable {
 
     /*----------------------------------------------------------------------------------------------------------------*/
 
-    public static func rectanglesTracking(observation: VNRectangleObservation, trackingLevel: VNRequestTrackingLevel, isLastFrame: Bool) -> VisionTask {
-        let request           = VNTrackRectangleRequest(rectangleObservation: observation)
-        request.trackingLevel = trackingLevel
-        request.isLastFrame   = isLastFrame
+    public static func rectanglesTracking(observation: VNRectangleObservation, trackingLevel: VNRequestTrackingLevel? = nil, isLastFrame: Bool? = nil) -> VisionTask {
+        let request = VNTrackRectangleRequest(rectangleObservation: observation)
+        if let trackingLevel {
+            request.trackingLevel = trackingLevel
+        }
+        if let isLastFrame {
+            request.isLastFrame = isLastFrame
+        }
         return VisionTask(taskType: .rectanglesTracking, request: request)
     }
 
     /*----------------------------------------------------------------------------------------------------------------*/
 
-    public static func objectTracking(observation: VNDetectedObjectObservation, trackingLevel: VNRequestTrackingLevel, isLastFrame: Bool) -> VisionTask {
-        let request           = VNTrackObjectRequest(detectedObjectObservation: observation)
-        request.trackingLevel = trackingLevel
-        request.isLastFrame   = isLastFrame
+    public static func objectTracking(observation: VNDetectedObjectObservation, trackingLevel: VNRequestTrackingLevel? = nil, isLastFrame: Bool? = nil) -> VisionTask {
+        let request = VNTrackObjectRequest(detectedObjectObservation: observation)
+        if let trackingLevel {
+            request.trackingLevel = trackingLevel
+        }
+        if let isLastFrame {
+            request.isLastFrame = isLastFrame
+        }
         return VisionTask(taskType: .rectanglesTracking, request: request)
     }
 
@@ -283,19 +291,29 @@ public struct VisionTask: Identifiable {
     /*----------------------------------------------------------------------------------------------------------------*/
 
     @available(iOS 14.0, macOS 11.0, *)
-    public static func opticalFlow(targetedImage: VisionImageSource, computationAccuracy: VNGenerateOpticalFlowRequest.ComputationAccuracy, outputPixelFormat: OSType) -> VisionTask {
+    public static func opticalFlow(targetedImage: VisionImageSource, computationAccuracy: VNGenerateOpticalFlowRequest.ComputationAccuracy? = nil, outputPixelFormat: OSType? = nil) -> VisionTask {
         let request: VNGenerateOpticalFlowRequest = targetedImage.VNTargetedImageRequest(orientation: nil, context: nil)
-        request.computationAccuracy               = computationAccuracy
-        request.outputPixelFormat                 = outputPixelFormat
+        if let computationAccuracy {
+            request.computationAccuracy = computationAccuracy
+        }
+        if let outputPixelFormat {
+            request.outputPixelFormat = outputPixelFormat
+        }
         return VisionTask(taskType: .opticalFlow, request: request)
     }
 
     @available(iOS 16.0, macOS 13.0, *)
-    public static func opticalFlow(targetedImage: VisionImageSource, computationAccuracy: VNGenerateOpticalFlowRequest.ComputationAccuracy, outputPixelFormat: OSType, keepNetworkOutput: Bool) -> VisionTask {
+    public static func opticalFlow(targetedImage: VisionImageSource, computationAccuracy: VNGenerateOpticalFlowRequest.ComputationAccuracy? = nil, outputPixelFormat: OSType? = nil, keepNetworkOutput: Bool? = nil) -> VisionTask {
         let request: VNGenerateOpticalFlowRequest = targetedImage.VNTargetedImageRequest(orientation: nil, context: nil)
-        request.computationAccuracy               = computationAccuracy
-        request.outputPixelFormat                 = outputPixelFormat
-        request.keepNetworkOutput                 = keepNetworkOutput
+        if let computationAccuracy {
+            request.computationAccuracy = computationAccuracy
+        }
+        if let outputPixelFormat {
+            request.outputPixelFormat = outputPixelFormat
+        }
+        if let keepNetworkOutput {
+            request.keepNetworkOutput = keepNetworkOutput
+        }
         return VisionTask(taskType: .opticalFlow, request: request)
     }
 
