@@ -97,12 +97,21 @@ extension Visionaire {
         try singleObservationHandler(.horizonDetection, imageSource: imageSource)
     }
 
-    public func saliencyAnalysis(mode: SaliencyMode, imageSource: VisionImageSource) throws -> [VNSaliencyImageObservation] {
-        try multiObservationHandler(mode.task, imageSource: imageSource)
+    public func attentionSaliencyAnalysis(imageSource: VisionImageSource) throws -> [VNSaliencyImageObservation] {
+        try multiObservationHandler(.attentionSaliency, imageSource: imageSource)
     }
 
-    public func saliencyAnalysis(mode: SaliencyMode, imageSource: VisionImageSource) throws -> [VNRectangleObservation] {
-        let saliency: [VNSaliencyImageObservation] = try multiObservationHandler(mode.task, imageSource: imageSource)
+    public func attentionSaliencyAnalysis(imageSource: VisionImageSource) throws -> [VNRectangleObservation] {
+        let saliency: [VNSaliencyImageObservation] = try multiObservationHandler(.attentionSaliency, imageSource: imageSource)
+        return saliency.flatMap { $0.salientObjects ?? [] }
+    }
+
+    public func objectnessSaliencyAnalysis(imageSource: VisionImageSource) throws -> [VNSaliencyImageObservation] {
+        try multiObservationHandler(.objectnessSaliency, imageSource: imageSource)
+    }
+
+    public func objectnessSaliencyAnalysis(imageSource: VisionImageSource) throws -> [VNRectangleObservation] {
+        let saliency: [VNSaliencyImageObservation] = try multiObservationHandler(.objectnessSaliency, imageSource: imageSource)
         return saliency.flatMap { $0.salientObjects ?? [] }
     }
 
