@@ -35,14 +35,34 @@ public enum VisionTaskType: CaseIterable, Identifiable {
          documentSegmentation
     
     public static var allCases: [VisionTaskType] = {
-        var tasks: [VisionTaskType] = [.horizonDetection, .attentionSaliency, .objectnessSaliency, .faceDetection, .faceLandmarkDetection, .faceCaptureQuality, .humanRectanglesDetection, .rectanglesDetection, .rectanglesTracking, .objectTracking, .animalDetection, .imageClassification]
+        var tasks: [VisionTaskType] = [
+            .horizonDetection,
+            .attentionSaliency,
+            .objectnessSaliency,
+            .faceDetection,
+            .faceLandmarkDetection,
+            .faceCaptureQuality,
+            .humanRectanglesDetection,
+            .rectanglesDetection,
+            .rectanglesTracking,
+            .objectTracking,
+            .animalDetection,
+            .imageClassification
+        ]
 
         if #available(iOS 14.0, macOS 11.0, *) {
-            tasks.append(contentsOf: [.humanBodyPoseDetection, .humanHandPoseDetection, .opticalFlow])
+            tasks.append(contentsOf: [
+                .humanBodyPoseDetection,
+                .humanHandPoseDetection,
+                .opticalFlow
+            ])
         }
 
         if #available(iOS 15.0, macOS 12.0, *) {
-            tasks.append(contentsOf: [.personSegmentation, .documentSegmentation])
+            tasks.append(contentsOf: [
+                .personSegmentation,
+                    .documentSegmentation
+            ])
         }
 
         return tasks
