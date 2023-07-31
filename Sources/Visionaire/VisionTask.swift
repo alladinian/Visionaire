@@ -90,15 +90,15 @@ public struct VisionTask: Identifiable {
 
     //MARK: - Human Rectangles Detection
 
+    public static var humanRectanglesDetection: VisionTask {
+        VisionTask(taskType: .humanRectanglesDetection, request: VNDetectHumanRectanglesRequest())
+    }
+
     @available(iOS 15.0, macOS 12.0, *)
     public static func humanRectanglesDetection(upperBodyOnly: Bool) -> VisionTask {
         let request           = VNDetectHumanRectanglesRequest()
         request.upperBodyOnly = upperBodyOnly
         return VisionTask(taskType: .humanRectanglesDetection, request: request)
-    }
-
-    public static var humanRectanglesDetection: VisionTask {
-        VisionTask(taskType: .humanRectanglesDetection, request: VNDetectHumanRectanglesRequest())
     }
 
     //MARK: - Person Segmentation
@@ -109,11 +109,15 @@ public struct VisionTask: Identifiable {
     }
 
     @available(iOS 15.0, macOS 12.0, *)
-    public static func personSegmentation(qualityLevel: VNGeneratePersonSegmentationRequest.QualityLevel,
-                                          outputPixelFormat: OSType = kCVPixelFormatType_OneComponent8) -> VisionTask {
-        let request               = VNGeneratePersonSegmentationRequest()
-        request.qualityLevel      = qualityLevel
-        request.outputPixelFormat = outputPixelFormat
+    public static func personSegmentation(qualityLevel: VNGeneratePersonSegmentationRequest.QualityLevel? = nil,
+                                          outputPixelFormat: OSType? = nil) -> VisionTask {
+        let request = VNGeneratePersonSegmentationRequest()
+        if let qualityLevel {
+            request.qualityLevel = qualityLevel
+        }
+        if let outputPixelFormat {
+            request.outputPixelFormat = outputPixelFormat
+        }
         return VisionTask(taskType: .personSegmentation, request: request)
     }
 
@@ -261,6 +265,50 @@ public struct VisionTask: Identifiable {
             request.keepNetworkOutput = keepNetworkOutput
         }
         return VisionTask(taskType: .opticalFlow, request: request)
+    }
+
+    //MARK: - Contours
+    @available(iOS 14.0, macOS 11.0, *)
+    public static var contoursDetection: VisionTask {
+        VisionTask(taskType: .contoursDetection, request: VNDetectContoursRequest())
+    }
+
+    @available(iOS 14.0, macOS 11.0, *)
+    public static func contoursDetection(contrastAdjustment: Float? = nil,
+                                         detectsDarkOnLight: Bool? = nil,
+                                         maximumImageDimension: Int? = nil) -> VisionTask {
+        let request = VNDetectContoursRequest()
+        if let contrastAdjustment {
+            request.contrastAdjustment = contrastAdjustment
+        }
+        if let detectsDarkOnLight {
+            request.detectsDarkOnLight = detectsDarkOnLight
+        }
+        if let maximumImageDimension {
+            request.maximumImageDimension = maximumImageDimension
+        }
+        return VisionTask(taskType: .contoursDetection, request: request)
+    }
+
+    @available(iOS 15.0, macOS 12.0, *)
+    public static func contoursDetection(contrastAdjustment: Float? = nil,
+                                         contrastPivot: NSNumber? = nil,
+                                         detectsDarkOnLight: Bool? = nil,
+                                         maximumImageDimension: Int? = nil) -> VisionTask {
+        let request = VNDetectContoursRequest()
+        if let contrastAdjustment {
+            request.contrastAdjustment = contrastAdjustment
+        }
+        if let contrastPivot {
+            request.contrastPivot = contrastPivot
+        }
+        if let detectsDarkOnLight {
+            request.detectsDarkOnLight = detectsDarkOnLight
+        }
+        if let maximumImageDimension {
+            request.maximumImageDimension = maximumImageDimension
+        }
+        return VisionTask(taskType: .contoursDetection, request: request)
     }
 
 }

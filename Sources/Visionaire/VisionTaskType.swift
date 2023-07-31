@@ -27,7 +27,8 @@ public enum VisionTaskType: CaseIterable, Identifiable {
     @available(iOS 14.0, macOS 11.0, *)
     case humanBodyPoseDetection,
          humanHandPoseDetection,
-         opticalFlow
+         opticalFlow,
+         contoursDetection
 
     @available(iOS 15.0, macOS 12.0, *)
     case personSegmentation,
@@ -53,7 +54,8 @@ public enum VisionTaskType: CaseIterable, Identifiable {
             tasks.append(contentsOf: [
                 .humanBodyPoseDetection,
                 .humanHandPoseDetection,
-                .opticalFlow
+                .opticalFlow,
+                .contoursDetection
             ])
         }
 
@@ -103,6 +105,8 @@ public enum VisionTaskType: CaseIterable, Identifiable {
             return "Classify Image"
         case .opticalFlow:
             return "Optical Flow"
+        case .contoursDetection:
+            return "Contours Detection"
         }
     }
 

@@ -99,6 +99,14 @@ public extension View {
                 .flipped(isFlipped)
         )
     }
+
+    @available(iOS 14.0, macOS 11.0, *)
+    func visualizeContours(_ observations: [VNContoursObservation], isFlipped: Bool = true, _ styleClosure: @escaping (VNContoursObservationShape) -> some View) -> some View {
+        overlay(
+            styleClosure(VNContoursObservationShape(observations: observations))
+                .flipped(isFlipped)
+        )
+    }
 }
 
 /// A Shape constructed from `VNRectangleObservation` objects
@@ -113,6 +121,21 @@ public struct VNRectangleObservationShape: Shape {
                 }
                 path.addLines(points)
                 path.closeSubpath()
+            }
+        }
+    }
+}
+
+@available(iOS 14.0, macOS 11.0, *)
+public struct VNContoursObservationShape: Shape {
+    let observations: [VNContoursObservation]
+
+    public func path(in rect: CGRect) -> Path {
+        Path { path in
+            for observation in observations {
+                let normalizedPath = observation.normalizedPath
+                let transform = CGAffineTransform(scaleX: rect.width, y: rect.height)
+                path.addPath(Path(normalizedPath), transform: transform)
             }
         }
     }
@@ -231,3 +254,4 @@ public struct VNFaceObservationShape: Shape {
         }
     }
 }
+

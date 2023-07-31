@@ -7,9 +7,7 @@ public final class Visionaire: ObservableObject {
 
     public static let shared = Visionaire()
 
-    public init() {
-
-    }
+    public init() {}
 
     @Published public var isProcessing: Bool = false
 
@@ -179,6 +177,11 @@ extension Visionaire {
 
     public func imageClassification(imageSource: VisionImageSource) throws -> [VNClassificationObservation] {
         try multiObservationHandler(.imageClassification, imageSource: imageSource)
+    }
+
+    @available(iOS 14.0, macOS 11.0, *)
+    public func contoursDetection(imageSource: VisionImageSource) throws -> [VNContoursObservation] {
+        try multiObservationHandler(.contoursDetection, imageSource: imageSource)
     }
 
 }
