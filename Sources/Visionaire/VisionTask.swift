@@ -311,4 +311,33 @@ public struct VisionTask: Identifiable {
         return VisionTask(taskType: .contoursDetection, request: request)
     }
 
+    //MARK: - Animal Body Pose Detection
+    @available(iOS 17.0, macOS 14.0, *)
+    public static var animalBodyPoseDetection: VisionTask {
+        VisionTask(taskType: .animalBodyPoseDetection, request: VNDetectAnimalBodyPoseRequest())
+    }
+
+    //MARK: - Barcode Detection
+    public static var barcodeDetection: VisionTask {
+        VisionTask(taskType: .barcodeDetection, request: VNDetectBarcodesRequest())
+    }
+
+    @available(iOS 17.0, macOS 14.0, *)
+    public static func barcodeDetection(coalesceCompositeSymbologies: Bool) -> VisionTask {
+        let request = VNDetectBarcodesRequest()
+        request.coalesceCompositeSymbologies = coalesceCompositeSymbologies
+        return VisionTask(taskType: .barcodeDetection, request: request)
+    }
+
+    //MARK: - Text Rectangles Detection
+    public static var textRectanglesDetection: VisionTask {
+        VisionTask(taskType: .textRectanglesDetection, request: VNDetectTextRectanglesRequest())
+    }
+
+    public static func textRectanglesDetection(reportCharacterBoxes: Bool) -> VisionTask {
+        let request = VNDetectTextRectanglesRequest()
+        request.reportCharacterBoxes = reportCharacterBoxes
+        return VisionTask(taskType: .textRectanglesDetection, request: request)
+    }
+
 }

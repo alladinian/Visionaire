@@ -9,31 +9,51 @@ import Foundation
 
 public enum VisionTaskType: CaseIterable, Identifiable {
 
-    public var id: VisionTaskType { self }
+    public var id: Self { self }
 
+    //MARK: - Detection
     case horizonDetection,
-         attentionSaliency,
-         objectnessSaliency,
          faceDetection,
          faceLandmarkDetection,
-         faceCaptureQuality,
          humanRectanglesDetection,
          rectanglesDetection,
-         rectanglesTracking,
-         objectTracking,
-         animalDetection,
-         imageClassification
+         barcodeDetection,
+         textRectanglesDetection,
+         animalDetection
 
     @available(iOS 14.0, macOS 11.0, *)
     case humanBodyPoseDetection,
          humanHandPoseDetection,
-         opticalFlow,
          contoursDetection
 
+    @available(iOS 17.0, macOS 14.0, *)
+    case animalBodyPoseDetection
+
+    //MARK: - Saliency
+    case attentionSaliency,
+         objectnessSaliency
+
+    //MARK: - Misc
+    case faceCaptureQuality
+
+    @available(iOS 14.0, macOS 11.0, *)
+    case opticalFlow
+
+    //MARK: - Tracking
+    case rectanglesTracking,
+         objectTracking
+
+    //MARK: - Classification
+    case imageClassification
+
+    //MARK: - Segmentation
     @available(iOS 15.0, macOS 12.0, *)
     case personSegmentation,
          documentSegmentation
 
+    /*----------------------------------------------------------------------------------------------------------------*/
+
+    //MARK: - CaseIterable
     public static var allCases: [VisionTaskType] = {
         var tasks: [VisionTaskType] = [
             .horizonDetection,
@@ -47,7 +67,9 @@ public enum VisionTaskType: CaseIterable, Identifiable {
             .rectanglesTracking,
             .objectTracking,
             .animalDetection,
-            .imageClassification
+            .imageClassification,
+            .barcodeDetection,
+            .textRectanglesDetection
         ]
 
         if #available(iOS 14.0, macOS 11.0, *) {
@@ -66,9 +88,16 @@ public enum VisionTaskType: CaseIterable, Identifiable {
             ])
         }
 
+        if #available(iOS 17.0, macOS 14.0, *) {
+            tasks.append(contentsOf: [
+                .animalBodyPoseDetection
+            ])
+        }
+
         return tasks
     }()
 
+    //MARK: - Description
     public var title: String {
         switch self {
         case .horizonDetection:
@@ -107,6 +136,12 @@ public enum VisionTaskType: CaseIterable, Identifiable {
             return "Optical Flow"
         case .contoursDetection:
             return "Contours Detection"
+        case .animalBodyPoseDetection:
+            return "Animal Body Pose Detection"
+        case .barcodeDetection:
+            return "Barcode Detection"
+        case .textRectanglesDetection:
+            return "Text Rectangles Detection"
         }
     }
 
