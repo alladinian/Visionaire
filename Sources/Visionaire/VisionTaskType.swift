@@ -24,7 +24,8 @@ public enum VisionTaskType: CaseIterable, Identifiable {
     @available(iOS 14.0, macOS 11.0, *)
     case humanBodyPoseDetection,
          humanHandPoseDetection,
-         contoursDetection
+         contoursDetection,
+         trajectoriesDetection
 
     @available(iOS 17.0, macOS 14.0, *)
     case animalBodyPoseDetection
@@ -34,13 +35,16 @@ public enum VisionTaskType: CaseIterable, Identifiable {
          objectnessSaliency
 
     //MARK: - Misc
-    case faceCaptureQuality
+    case faceCaptureQuality,
+         translationalImageRegistration,
+         homographicImageRegistration,
+         textRecognition
 
     @available(iOS 14.0, macOS 11.0, *)
-    case opticalFlow
+    case opticalFlowGeneration
 
     //MARK: - Tracking
-    case rectanglesTracking,
+    case rectangleTracking,
          objectTracking
 
     //MARK: - Classification
@@ -64,20 +68,24 @@ public enum VisionTaskType: CaseIterable, Identifiable {
             .faceCaptureQuality,
             .humanRectanglesDetection,
             .rectanglesDetection,
-            .rectanglesTracking,
+            .rectangleTracking,
             .objectTracking,
             .animalDetection,
             .imageClassification,
             .barcodeDetection,
-            .textRectanglesDetection
+            .textRectanglesDetection,
+            .textRecognition,
+            .translationalImageRegistration,
+            .homographicImageRegistration
         ]
 
         if #available(iOS 14.0, macOS 11.0, *) {
             tasks.append(contentsOf: [
                 .humanBodyPoseDetection,
                 .humanHandPoseDetection,
-                .opticalFlow,
-                .contoursDetection
+                .opticalFlowGeneration,
+                .contoursDetection,
+                .trajectoriesDetection
             ])
         }
 
@@ -124,24 +132,32 @@ public enum VisionTaskType: CaseIterable, Identifiable {
             return "Human Body Pose Detection"
         case .humanHandPoseDetection:
             return "Human Hand Pose Detection"
-        case .rectanglesTracking:
-            return "Rectangles Tracking"
+        case .rectangleTracking:
+            return "Rectangle Tracking"
         case .objectTracking:
             return "Object Tracking"
         case .animalDetection:
             return "Animal Detection"
         case .imageClassification:
             return "Classify Image"
-        case .opticalFlow:
-            return "Optical Flow"
+        case .opticalFlowGeneration:
+            return "Optical Flow Generation"
         case .contoursDetection:
             return "Contours Detection"
+        case .trajectoriesDetection:
+            return "Trajectories Detection"
         case .animalBodyPoseDetection:
             return "Animal Body Pose Detection"
         case .barcodeDetection:
             return "Barcode Detection"
         case .textRectanglesDetection:
             return "Text Rectangles Detection"
+        case .textRecognition:
+            return "Text Recognition"
+        case .homographicImageRegistration:
+            return "Homographic Image Registration"
+        case .translationalImageRegistration:
+            return "Translational Image Registration"
         }
     }
 

@@ -203,7 +203,7 @@ public struct VisionTask: Identifiable {
         if let isLastFrame {
             request.isLastFrame = isLastFrame
         }
-        return VisionTask(taskType: .rectanglesTracking, request: request)
+        return VisionTask(taskType: .rectangleTracking, request: request)
     }
 
     //MARK: - Object Tracking
@@ -218,7 +218,7 @@ public struct VisionTask: Identifiable {
         if let isLastFrame {
             request.isLastFrame = isLastFrame
         }
-        return VisionTask(taskType: .rectanglesTracking, request: request)
+        return VisionTask(taskType: .objectTracking, request: request)
     }
 
     //MARK: - Animal Detection
@@ -246,7 +246,7 @@ public struct VisionTask: Identifiable {
         if let outputPixelFormat {
             request.outputPixelFormat = outputPixelFormat
         }
-        return VisionTask(taskType: .opticalFlow, request: request)
+        return VisionTask(taskType: .opticalFlowGeneration, request: request)
     }
 
     @available(iOS 16.0, macOS 13.0, *)
@@ -264,7 +264,7 @@ public struct VisionTask: Identifiable {
         if let keepNetworkOutput {
             request.keepNetworkOutput = keepNetworkOutput
         }
-        return VisionTask(taskType: .opticalFlow, request: request)
+        return VisionTask(taskType: .opticalFlowGeneration, request: request)
     }
 
     //MARK: - Contours
@@ -312,22 +312,22 @@ public struct VisionTask: Identifiable {
     }
 
     //MARK: - Animal Body Pose Detection
-    @available(iOS 17.0, macOS 14.0, *)
-    public static var animalBodyPoseDetection: VisionTask {
-        VisionTask(taskType: .animalBodyPoseDetection, request: VNDetectAnimalBodyPoseRequest())
-    }
+//    @available(iOS 17.0, macOS 14.0, *)
+//    public static var animalBodyPoseDetection: VisionTask {
+//        VisionTask(taskType: .animalBodyPoseDetection, request: VNDetectAnimalBodyPoseRequest())
+//    }
 
     //MARK: - Barcode Detection
     public static var barcodeDetection: VisionTask {
         VisionTask(taskType: .barcodeDetection, request: VNDetectBarcodesRequest())
     }
 
-    @available(iOS 17.0, macOS 14.0, *)
-    public static func barcodeDetection(coalesceCompositeSymbologies: Bool) -> VisionTask {
-        let request = VNDetectBarcodesRequest()
-        request.coalesceCompositeSymbologies = coalesceCompositeSymbologies
-        return VisionTask(taskType: .barcodeDetection, request: request)
-    }
+//    @available(iOS 17.0, macOS 14.0, *)
+//    public static func barcodeDetection(coalesceCompositeSymbologies: Bool) -> VisionTask {
+//        let request = VNDetectBarcodesRequest()
+//        request.coalesceCompositeSymbologies = coalesceCompositeSymbologies
+//        return VisionTask(taskType: .barcodeDetection, request: request)
+//    }
 
     //MARK: - Text Rectangles Detection
     public static var textRectanglesDetection: VisionTask {
@@ -338,6 +338,70 @@ public struct VisionTask: Identifiable {
         let request = VNDetectTextRectanglesRequest()
         request.reportCharacterBoxes = reportCharacterBoxes
         return VisionTask(taskType: .textRectanglesDetection, request: request)
+    }
+
+    //MARK: - Text Recognition
+    public var textRecognition: VisionTask {
+        VisionTask(taskType: .textRecognition, request: VNRecognizeTextRequest())
+    }
+
+    public func textRecognition(minimumTextHeight: Float? = nil,
+                                recognitionLevel: VNRequestTextRecognitionLevel? = nil,
+                                recognitionLanguages: [String]? = nil,
+                                usesLanguageCorrection: Bool? = nil,
+                                customWords: [String]? = nil) -> VisionTask {
+        let request = VNRecognizeTextRequest()
+        if let minimumTextHeight {
+            request.minimumTextHeight = minimumTextHeight
+        }
+        if let recognitionLevel {
+            request.recognitionLevel = recognitionLevel
+        }
+        if let usesLanguageCorrection {
+            request.usesLanguageCorrection = usesLanguageCorrection
+        }
+        if let customWords {
+            request.customWords = customWords
+        }
+        return VisionTask(taskType: .textRecognition, request: request)
+    }
+
+    @available(iOS 16.0, macOS 13.0, *)
+    public func textRecognition(minimumTextHeight: Float? = nil,
+                                recognitionLevel: VNRequestTextRecognitionLevel? = nil,
+                                automaticallyDetectsLanguage: Bool? = nil,
+                                recognitionLanguages: [String]? = nil,
+                                usesLanguageCorrection: Bool? = nil,
+                                customWords: [String]? = nil) -> VisionTask {
+        let request = VNRecognizeTextRequest()
+        if let minimumTextHeight {
+            request.minimumTextHeight = minimumTextHeight
+        }
+        if let recognitionLevel {
+            request.recognitionLevel = recognitionLevel
+        }
+        if let automaticallyDetectsLanguage {
+            request.automaticallyDetectsLanguage = automaticallyDetectsLanguage
+        }
+        if let usesLanguageCorrection {
+            request.usesLanguageCorrection = usesLanguageCorrection
+        }
+        if let customWords {
+            request.customWords = customWords
+        }
+        return VisionTask(taskType: .textRecognition, request: request)
+    }
+
+    //MARK: - Homographic Registration
+    public func homographicImageRegistration(targetedImage: VisionImageSource) -> VisionTask {
+        let request: VNHomographicImageRegistrationRequest = targetedImage.VNTargetedImageRequest(orientation: nil, context: nil)
+        return VisionTask(taskType: .homographicImageRegistration, request: request)
+    }
+
+    //MARK: - Translational Registration
+    public func translationalImageRegistration(targetedImage: VisionImageSource) -> VisionTask {
+        let request: VNTranslationalImageRegistrationRequest = targetedImage.VNTargetedImageRequest(orientation: nil, context: nil)
+        return VisionTask(taskType: .translationalImageRegistration, request: request)
     }
 
 }
