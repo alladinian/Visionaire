@@ -232,7 +232,41 @@ public struct VisionTask: Identifiable {
         VisionTask(taskType: .animalDetection, request: VNRecognizeAnimalsRequest())
     }
 
-    #warning("Trajectories missing")
+    //MARK: - Trajectories
+
+    @available(iOS 14.0, macOS 11.0, *)
+    public static func trajectoriesDetection(frameAnalysisSpacing: CMTime,
+                                             trajectoryLength: Int,
+                                             objectMinimumNormalizedRadius: Float? = nil,
+                                             objectMaximumNormalizedRadius: Float? = nil) -> VisionTask {
+        let request = VNDetectTrajectoriesRequest(frameAnalysisSpacing: frameAnalysisSpacing, trajectoryLength: trajectoryLength)
+        if let objectMinimumNormalizedRadius {
+            request.objectMinimumNormalizedRadius = objectMinimumNormalizedRadius
+        }
+        if let objectMaximumNormalizedRadius {
+            request.objectMaximumNormalizedRadius = objectMaximumNormalizedRadius
+        }
+        return VisionTask(taskType: .trajectoriesDetection, request: request)
+    }
+
+    @available(iOS 15.0, macOS 12.0, *)
+    public static func trajectoriesDetection(frameAnalysisSpacing: CMTime,
+                                             trajectoryLength: Int,
+                                             targetFrameTime: CMTime? = nil,
+                                             objectMinimumNormalizedRadius: Float? = nil,
+                                             objectMaximumNormalizedRadius: Float? = nil) -> VisionTask {
+        let request = VNDetectTrajectoriesRequest(frameAnalysisSpacing: frameAnalysisSpacing, trajectoryLength: trajectoryLength)
+        if let targetFrameTime {
+            request.targetFrameTime = targetFrameTime
+        }
+        if let objectMinimumNormalizedRadius {
+            request.objectMinimumNormalizedRadius = objectMinimumNormalizedRadius
+        }
+        if let objectMaximumNormalizedRadius {
+            request.objectMaximumNormalizedRadius = objectMaximumNormalizedRadius
+        }
+        return VisionTask(taskType: .trajectoriesDetection, request: request)
+    }
 
     //MARK: - Contours
     @available(iOS 14.0, macOS 11.0, *)
