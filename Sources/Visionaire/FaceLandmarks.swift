@@ -41,57 +41,57 @@ public extension VNFaceLandmarks2D {
     func regionsFor(landmarks: FaceLandmarks) -> [VNFaceLandmarkRegion2D] {
 
         if landmarks == .constellation {
-            return [self.allPoints ?? nil].compactMap { $0 }
+            return [allPoints ?? nil].compactMap { $0 }
         }
 
-        var regions = [VNFaceLandmarkRegion2D?]()
+        var regions: [VNFaceLandmarkRegion2D?] = []
 
         if landmarks.contains(.contour) {
-            regions.append(self.faceContour)
+            regions.append(faceContour)
         }
 
         if landmarks.contains(.leftEye) {
-            regions.append(self.leftEye)
+            regions.append(leftEye)
         }
 
         if landmarks.contains(.rightEye) {
-            regions.append(self.rightEye)
+            regions.append(rightEye)
         }
 
         if landmarks.contains(.leftEyebrow) {
-            regions.append(self.leftEyebrow)
+            regions.append(leftEyebrow)
         }
 
         if landmarks.contains(.rightEyebrow) {
-            regions.append(self.rightEyebrow)
+            regions.append(rightEyebrow)
         }
 
         if landmarks.contains(.nose) {
-            regions.append(self.nose)
+            regions.append(nose)
         }
 
         if landmarks.contains(.noseCrest) {
-            regions.append(self.noseCrest)
+            regions.append(noseCrest)
         }
 
         if landmarks.contains(.medianLine) {
-            regions.append(self.medianLine)
+            regions.append(medianLine)
         }
 
         if landmarks.contains(.outerLips) {
-            regions.append(self.outerLips)
+            regions.append(outerLips)
         }
 
         if landmarks.contains(.innerLips) {
-            regions.append(self.innerLips)
+            regions.append(innerLips)
         }
 
         if landmarks.contains(.leftPupil) {
-            regions.append(self.leftPupil)
+            regions.append(leftPupil)
         }
 
         if landmarks.contains(.rightPupil) {
-            regions.append(self.rightPupil)
+            regions.append(rightPupil)
         }
 
         return regions.compactMap { $0 }

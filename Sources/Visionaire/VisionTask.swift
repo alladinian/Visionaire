@@ -60,49 +60,19 @@ public struct VisionTask: Identifiable {
         return self
     }
 
-    //MARK: - Horizon Detection
-
-    public static var horizonDetection: VisionTask {
-        VisionTask(taskType: .horizonDetection, request: VNDetectHorizonRequest())
+    //MARK: - Feature Print Generation
+    public static var featurePrintGeneration: VisionTask {
+        VisionTask(taskType: .featurePrintGeneration, request: VNGenerateImageFeaturePrintRequest())
     }
 
-    //MARK: - Saliency
-
-    public static var attentionSaliency: VisionTask {
-        VisionTask(taskType: .attentionSaliency, request: VNGenerateAttentionBasedSaliencyImageRequest())
-    }
-
-    public static var objectnessSaliency: VisionTask {
-        VisionTask(taskType: .objectnessSaliency, request: VNGenerateObjectnessBasedSaliencyImageRequest())
-    }
-
-    //MARK: - Face Detection
-
-    public static var faceDetection: VisionTask {
-        VisionTask(taskType: .faceDetection, request: VNDetectFaceRectanglesRequest())
-    }
-
-    //MARK: - Face Landmark Detection
-
-    public static var faceLandmarkDetection: VisionTask {
-        VisionTask(taskType: .faceLandmarkDetection, request: VNDetectFaceLandmarksRequest())
-    }
-
-    //MARK: - Human Rectangles Detection
-
-    public static var humanRectanglesDetection: VisionTask {
-        VisionTask(taskType: .humanRectanglesDetection, request: VNDetectHumanRectanglesRequest())
-    }
-
-    @available(iOS 15.0, macOS 12.0, *)
-    public static func humanRectanglesDetection(upperBodyOnly: Bool) -> VisionTask {
-        let request           = VNDetectHumanRectanglesRequest()
-        request.upperBodyOnly = upperBodyOnly
-        return VisionTask(taskType: .humanRectanglesDetection, request: request)
+    public static func featurePrintGeneration(imageCropAndScaleOption: VNImageCropAndScaleOption) -> VisionTask {
+        let request                     = VNGenerateImageFeaturePrintRequest()
+        request.imageCropAndScaleOption = imageCropAndScaleOption
+        return VisionTask(taskType: .featurePrintGeneration, request: request)
     }
 
     //MARK: - Person Segmentation
-    
+
     @available(iOS 15.0, macOS 12.0, *)
     public static var personSegmentation: VisionTask {
         VisionTask(taskType: .personSegmentation, request: VNGeneratePersonSegmentationRequest())
@@ -121,17 +91,51 @@ public struct VisionTask: Identifiable {
         return VisionTask(taskType: .personSegmentation, request: request)
     }
 
-    //MARK: - Face Capture Quality
-    
-    public static var faceCaptureQuality: VisionTask {
-        VisionTask(taskType: .faceCaptureQuality, request: VNDetectFaceCaptureQualityRequest())
-    }
-
     //MARK: - Document Segmentation
-    
+
     @available(iOS 15.0, macOS 12.0, *)
     public static var documentSegmentation: VisionTask {
         VisionTask(taskType: .documentSegmentation, request: VNDetectDocumentSegmentationRequest())
+    }
+
+    //MARK: - Saliency
+
+    public static var attentionSaliency: VisionTask {
+        VisionTask(taskType: .attentionSaliency, request: VNGenerateAttentionBasedSaliencyImageRequest())
+    }
+
+    public static var objectnessSaliency: VisionTask {
+        VisionTask(taskType: .objectnessSaliency, request: VNGenerateObjectnessBasedSaliencyImageRequest())
+    }
+
+    //MARK: - Rectangles Tracking
+
+    public static func rectanglesTracking(observation: VNRectangleObservation,
+                                          trackingLevel: VNRequestTrackingLevel? = nil,
+                                          isLastFrame: Bool? = nil) -> VisionTask {
+        let request = VNTrackRectangleRequest(rectangleObservation: observation)
+        if let trackingLevel {
+            request.trackingLevel = trackingLevel
+        }
+        if let isLastFrame {
+            request.isLastFrame = isLastFrame
+        }
+        return VisionTask(taskType: .rectangleTracking, request: request)
+    }
+
+    //MARK: - Object Tracking
+
+    public static func objectTracking(observation: VNDetectedObjectObservation,
+                                      trackingLevel: VNRequestTrackingLevel? = nil,
+                                      isLastFrame: Bool? = nil) -> VisionTask {
+        let request = VNTrackObjectRequest(detectedObjectObservation: observation)
+        if let trackingLevel {
+            request.trackingLevel = trackingLevel
+        }
+        if let isLastFrame {
+            request.isLastFrame = isLastFrame
+        }
+        return VisionTask(taskType: .objectTracking, request: request)
     }
 
     //MARK: - Rectangles Detection
@@ -170,6 +174,37 @@ public struct VisionTask: Identifiable {
         return VisionTask(taskType: .rectanglesDetection, request: request)
     }
 
+    //MARK: - Face Capture Quality
+
+    public static var faceCaptureQuality: VisionTask {
+        VisionTask(taskType: .faceCaptureQuality, request: VNDetectFaceCaptureQualityRequest())
+    }
+
+    //MARK: - Face Landmark Detection
+
+    public static var faceLandmarkDetection: VisionTask {
+        VisionTask(taskType: .faceLandmarkDetection, request: VNDetectFaceLandmarksRequest())
+    }
+
+    //MARK: - Face Detection
+
+    public static var faceDetection: VisionTask {
+        VisionTask(taskType: .faceDetection, request: VNDetectFaceRectanglesRequest())
+    }
+
+    //MARK: - Human Rectangles Detection
+
+    public static var humanRectanglesDetection: VisionTask {
+        VisionTask(taskType: .humanRectanglesDetection, request: VNDetectHumanRectanglesRequest())
+    }
+
+    @available(iOS 15.0, macOS 12.0, *)
+    public static func humanRectanglesDetection(upperBodyOnly: Bool) -> VisionTask {
+        let request           = VNDetectHumanRectanglesRequest()
+        request.upperBodyOnly = upperBodyOnly
+        return VisionTask(taskType: .humanRectanglesDetection, request: request)
+    }
+
     //MARK: - Human Body Detection
 
     @available(iOS 14.0, macOS 11.0, *)
@@ -191,81 +226,13 @@ public struct VisionTask: Identifiable {
         return VisionTask(taskType: .humanHandPoseDetection, request: request)
     }
 
-    //MARK: - Rectangles Tracking
-
-    public static func rectanglesTracking(observation: VNRectangleObservation,
-                                          trackingLevel: VNRequestTrackingLevel? = nil,
-                                          isLastFrame: Bool? = nil) -> VisionTask {
-        let request = VNTrackRectangleRequest(rectangleObservation: observation)
-        if let trackingLevel {
-            request.trackingLevel = trackingLevel
-        }
-        if let isLastFrame {
-            request.isLastFrame = isLastFrame
-        }
-        return VisionTask(taskType: .rectangleTracking, request: request)
-    }
-
-    //MARK: - Object Tracking
-
-    public static func objectTracking(observation: VNDetectedObjectObservation,
-                                      trackingLevel: VNRequestTrackingLevel? = nil,
-                                      isLastFrame: Bool? = nil) -> VisionTask {
-        let request = VNTrackObjectRequest(detectedObjectObservation: observation)
-        if let trackingLevel {
-            request.trackingLevel = trackingLevel
-        }
-        if let isLastFrame {
-            request.isLastFrame = isLastFrame
-        }
-        return VisionTask(taskType: .objectTracking, request: request)
-    }
-
     //MARK: - Animal Detection
 
     public static var animalDetection: VisionTask {
         VisionTask(taskType: .animalDetection, request: VNRecognizeAnimalsRequest())
     }
 
-    //MARK: - Image Classification
-
-    public static var imageClassification: VisionTask {
-        VisionTask(taskType: .imageClassification, request: VNClassifyImageRequest())
-    }
-
-    //MARK: - Optical Flow
-
-    @available(iOS 14.0, macOS 11.0, *)
-    public static func opticalFlow(targetedImage: VisionImageSource,
-                                   computationAccuracy: VNGenerateOpticalFlowRequest.ComputationAccuracy? = nil,
-                                   outputPixelFormat: OSType? = nil) -> VisionTask {
-        let request: VNGenerateOpticalFlowRequest = targetedImage.VNTargetedImageRequest(orientation: nil, context: nil)
-        if let computationAccuracy {
-            request.computationAccuracy = computationAccuracy
-        }
-        if let outputPixelFormat {
-            request.outputPixelFormat = outputPixelFormat
-        }
-        return VisionTask(taskType: .opticalFlowGeneration, request: request)
-    }
-
-    @available(iOS 16.0, macOS 13.0, *)
-    public static func opticalFlow(targetedImage: VisionImageSource,
-                                   computationAccuracy: VNGenerateOpticalFlowRequest.ComputationAccuracy? = nil,
-                                   outputPixelFormat: OSType? = nil,
-                                   keepNetworkOutput: Bool? = nil) -> VisionTask {
-        let request: VNGenerateOpticalFlowRequest = targetedImage.VNTargetedImageRequest(orientation: nil, context: nil)
-        if let computationAccuracy {
-            request.computationAccuracy = computationAccuracy
-        }
-        if let outputPixelFormat {
-            request.outputPixelFormat = outputPixelFormat
-        }
-        if let keepNetworkOutput {
-            request.keepNetworkOutput = keepNetworkOutput
-        }
-        return VisionTask(taskType: .opticalFlowGeneration, request: request)
-    }
+    #warning("Trajectories missing")
 
     //MARK: - Contours
     @available(iOS 14.0, macOS 11.0, *)
@@ -311,23 +278,51 @@ public struct VisionTask: Identifiable {
         return VisionTask(taskType: .contoursDetection, request: request)
     }
 
-    //MARK: - Animal Body Pose Detection
-//    @available(iOS 17.0, macOS 14.0, *)
-//    public static var animalBodyPoseDetection: VisionTask {
-//        VisionTask(taskType: .animalBodyPoseDetection, request: VNDetectAnimalBodyPoseRequest())
-//    }
+    //MARK: - Optical Flow
+
+    @available(iOS 14.0, macOS 11.0, *)
+    public static func opticalFlow(targetedImage: VisionImageSource,
+                                   computationAccuracy: VNGenerateOpticalFlowRequest.ComputationAccuracy? = nil,
+                                   outputPixelFormat: OSType? = nil) -> VisionTask {
+        let request: VNGenerateOpticalFlowRequest = targetedImage.VNTargetedImageRequest(orientation: nil, context: nil)
+        if let computationAccuracy {
+            request.computationAccuracy = computationAccuracy
+        }
+        if let outputPixelFormat {
+            request.outputPixelFormat = outputPixelFormat
+        }
+        return VisionTask(taskType: .opticalFlowGeneration, request: request)
+    }
+
+    @available(iOS 16.0, macOS 13.0, *)
+    public static func opticalFlow(targetedImage: VisionImageSource,
+                                   computationAccuracy: VNGenerateOpticalFlowRequest.ComputationAccuracy? = nil,
+                                   outputPixelFormat: OSType? = nil,
+                                   keepNetworkOutput: Bool? = nil) -> VisionTask {
+        let request: VNGenerateOpticalFlowRequest = targetedImage.VNTargetedImageRequest(orientation: nil, context: nil)
+        if let computationAccuracy {
+            request.computationAccuracy = computationAccuracy
+        }
+        if let outputPixelFormat {
+            request.outputPixelFormat = outputPixelFormat
+        }
+        if let keepNetworkOutput {
+            request.keepNetworkOutput = keepNetworkOutput
+        }
+        return VisionTask(taskType: .opticalFlowGeneration, request: request)
+    }
 
     //MARK: - Barcode Detection
     public static var barcodeDetection: VisionTask {
         VisionTask(taskType: .barcodeDetection, request: VNDetectBarcodesRequest())
     }
 
-//    @available(iOS 17.0, macOS 14.0, *)
-//    public static func barcodeDetection(coalesceCompositeSymbologies: Bool) -> VisionTask {
-//        let request = VNDetectBarcodesRequest()
-//        request.coalesceCompositeSymbologies = coalesceCompositeSymbologies
-//        return VisionTask(taskType: .barcodeDetection, request: request)
-//    }
+    //    @available(iOS 17.0, macOS 14.0, *)
+    //    public static func barcodeDetection(coalesceCompositeSymbologies: Bool) -> VisionTask {
+    //        let request = VNDetectBarcodesRequest()
+    //        request.coalesceCompositeSymbologies = coalesceCompositeSymbologies
+    //        return VisionTask(taskType: .barcodeDetection, request: request)
+    //    }
 
     //MARK: - Text Rectangles Detection
     public static var textRectanglesDetection: VisionTask {
@@ -392,10 +387,16 @@ public struct VisionTask: Identifiable {
         return VisionTask(taskType: .textRecognition, request: request)
     }
 
-    //MARK: - Homographic Registration
-    public func homographicImageRegistration(targetedImage: VisionImageSource) -> VisionTask {
-        let request: VNHomographicImageRegistrationRequest = targetedImage.VNTargetedImageRequest(orientation: nil, context: nil)
-        return VisionTask(taskType: .homographicImageRegistration, request: request)
+    //MARK: - Horizon Detection
+
+    public static var horizonDetection: VisionTask {
+        VisionTask(taskType: .horizonDetection, request: VNDetectHorizonRequest())
+    }
+
+    //MARK: - Image Classification
+
+    public static var imageClassification: VisionTask {
+        VisionTask(taskType: .imageClassification, request: VNClassifyImageRequest())
     }
 
     //MARK: - Translational Registration
@@ -403,5 +404,17 @@ public struct VisionTask: Identifiable {
         let request: VNTranslationalImageRegistrationRequest = targetedImage.VNTargetedImageRequest(orientation: nil, context: nil)
         return VisionTask(taskType: .translationalImageRegistration, request: request)
     }
+
+    //MARK: - Homographic Registration
+    public func homographicImageRegistration(targetedImage: VisionImageSource) -> VisionTask {
+        let request: VNHomographicImageRegistrationRequest = targetedImage.VNTargetedImageRequest(orientation: nil, context: nil)
+        return VisionTask(taskType: .homographicImageRegistration, request: request)
+    }
+
+    //MARK: - Animal Body Pose Detection
+//    @available(iOS 17.0, macOS 14.0, *)
+//    public static var animalBodyPoseDetection: VisionTask {
+//        VisionTask(taskType: .animalBodyPoseDetection, request: VNDetectAnimalBodyPoseRequest())
+//    }
 
 }
