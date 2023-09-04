@@ -38,7 +38,8 @@ public enum VisionTaskType: CaseIterable, Identifiable {
     case faceCaptureQuality,
          translationalImageRegistration,
          homographicImageRegistration,
-         textRecognition
+         textRecognition,
+         featurePrintGeneration
 
     @available(iOS 14.0, macOS 11.0, *)
     case opticalFlowGeneration
@@ -75,6 +76,7 @@ public enum VisionTaskType: CaseIterable, Identifiable {
             .barcodeDetection,
             .textRectanglesDetection,
             .textRecognition,
+            .featurePrintGeneration,
             .translationalImageRegistration,
             .homographicImageRegistration
         ]
@@ -140,6 +142,8 @@ public enum VisionTaskType: CaseIterable, Identifiable {
             return "Animal Detection"
         case .imageClassification:
             return "Classify Image"
+        case .featurePrintGeneration:
+            return "Feature Print Generation"
         case .opticalFlowGeneration:
             return "Optical Flow Generation"
         case .contoursDetection:

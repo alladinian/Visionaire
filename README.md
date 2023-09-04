@@ -5,9 +5,9 @@ Streamlined, ergonomic APIs around Apple's Vision framework
 
 ## Supported Vision Tasks
 
-| **Task**                                   | **Vision API**                                | **Visionaire Task**            | **iOS** | **macOS** |
+| **Task**                                   | **Vision API**                                | **Visionaire Task**             | **iOS** | **macOS** |
 | ------------------------------------------ | --------------------------------------------- | ------------------------------- | -------:| ---------:|
-| **Feature Print**                          | VNGenerateImageFeaturePrintRequest            |                                 |    13.0 |     10.15 |
+| **Generate Feature Print**                 | VNGenerateImageFeaturePrintRequest            | .featurePrintGeneration         |    13.0 |     10.15 |
 | **Person Segmentation**                    | VNGeneratePersonSegmentationRequest           | .personSegmentation             |    15.0 |      12.0 |
 | **Document Segmentation**                  | VNDetectDocumentSegmentationRequest           | .documentSegmentation           |    15.0 |      12.0 |
 | **Attention Based Saliency**               | VNGenerateAttentionBasedSaliencyImageRequest  | .attentionSaliency              |    13.0 |     10.15 |
@@ -32,12 +32,12 @@ Streamlined, ergonomic APIs around Apple's Vision framework
 | **Classify Image**                         | VNClassifyImageRequest                        | .imageClassification            |    13.0 |     10.15 |
 | **Translational Image Registration**       | VNTranslationalImageRegistrationRequest       | .translationalImageRegistration |    11.0 |     10.13 |
 | **Homographic Image Registration**         | VNHomographicImageRegistrationRequest         | .homographicImageRegistration   |    11.0 |     10.13 |
-| **Detect Human Body Pose (3D)**            | VNDetectHumanBodyPose3DRequest                |                                 |    17.0 |      14.0 |
-| **Detect Animal Body Pose**                | VNDetectAnimalBodyPoseRequest                 |                                 |    17.0 |      14.0 |
-| **Track Optical Flow**                     | VNTrackOpticalFlowRequest                     |                                 |    17.0 |      14.0 |
-| **Track Translational Image Registration** | VNTrackTranslationalImageRegistrationRequest  |                                 |    17.0 |      14.0 |
-| **Track Homographic Image Registration**   | VNTrackHomographicImageRegistrationRequest    |                                 |    17.0 |      14.0 |
-| **Generate Foreground Instance Mask**      | VNGenerateForegroundInstanceMaskRequest       |                                 |    17.0 |      14.0 |
+| **Detect Human Body Pose (3D)**            | VNDetectHumanBodyPose3DRequest                | n/a                             |    17.0 |      14.0 |
+| **Detect Animal Body Pose**                | VNDetectAnimalBodyPoseRequest                 | n/a                             |    17.0 |      14.0 |
+| **Track Optical Flow**                     | VNTrackOpticalFlowRequest                     | n/a                             |    17.0 |      14.0 |
+| **Track Translational Image Registration** | VNTrackTranslationalImageRegistrationRequest  | n/a                             |    17.0 |      14.0 |
+| **Track Homographic Image Registration**   | VNTrackHomographicImageRegistrationRequest    | n/a                             |    17.0 |      14.0 |
+| **Generate Foreground Instance Mask**      | VNGenerateForegroundInstanceMaskRequest       | n/a                             |    17.0 |      14.0 |
 
 
 ## Supported Image Sources
@@ -81,6 +81,31 @@ Task {
         let observation = result.observations.first as? VNHorizonObservation
         let angle       = observation?.angle
         // Do something with the horizon angle
+    } catch {
+        print(error)
+    }
+}
+```
+
+### Multiple task execution (task-based apis):
+
+```swift
+Task {
+    do {
+        let image   = /* any supported image source, such as CGImage, CIImage, CVPixelBuffer, CMSampleBuffer, Data or URL */
+        let results = try Visionaire.shared.perform([.horizonDetection, .faceDetection], on: image)
+        for result in results {
+            switch result.taskType {
+            case .horizonDetection:
+                let horizon = result.observations.first as? VNHorizonObservation
+                // Do something with the horizon observation
+            case .faceDetection:
+                let faceObservations = result.observations as? [VNFaceObservation]
+                // Do something with the face observations
+            default:
+                break
+            }
+        }   
     } catch {
         print(error)
     }
