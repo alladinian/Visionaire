@@ -7,6 +7,7 @@
 
 import Foundation
 import Vision
+import CoreImage
 
 public struct VisionTask: Identifiable {
 
@@ -434,14 +435,14 @@ public struct VisionTask: Identifiable {
     }
 
     //MARK: - Translational Registration
-    public func translationalImageRegistration(targetedImage: VisionImageSource) -> VisionTask {
-        let request: VNTranslationalImageRegistrationRequest = targetedImage.VNTargetedImageRequest(orientation: nil, context: nil)
+    public func translationalImageRegistration(targetedImage: VisionImageSource, orientation: CGImagePropertyOrientation? = nil, context: CIContext? = nil) -> VisionTask {
+        let request: VNTranslationalImageRegistrationRequest = targetedImage.VNTargetedImageRequest(orientation: orientation, context: context)
         return VisionTask(taskType: .translationalImageRegistration, request: request)
     }
 
     //MARK: - Homographic Registration
-    public func homographicImageRegistration(targetedImage: VisionImageSource) -> VisionTask {
-        let request: VNHomographicImageRegistrationRequest = targetedImage.VNTargetedImageRequest(orientation: nil, context: nil)
+    public func homographicImageRegistration(targetedImage: VisionImageSource, orientation: CGImagePropertyOrientation? = nil, context: CIContext? = nil) -> VisionTask {
+        let request: VNHomographicImageRegistrationRequest = targetedImage.VNTargetedImageRequest(orientation: orientation, context: context)
         return VisionTask(taskType: .homographicImageRegistration, request: request)
     }
 
