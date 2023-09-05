@@ -59,7 +59,7 @@ You can execute task on the `shared` Visionaire singleton or on your own instanc
 ### Single task execution (convenience apis):
 
 ```swift
-Task {
+DispatchQueue.global(qos: .userInitiated).async {
     do {
         let image   = /* any supported image source, such as CGImage, CIImage, CVPixelBuffer, CMSampleBuffer, Data or URL */
         let horizon = try Visionaire.shared.horizonDetection(imageSource: image) // The result is a `VNHorizonObservation`
@@ -74,7 +74,7 @@ Task {
 ### Single task execution (task-based apis):
 
 ```swift
-Task {
+DispatchQueue.global(qos: .userInitiated).async {
     do {
         let image       = /* any supported image source, such as CGImage, CIImage, CVPixelBuffer, CMSampleBuffer, Data or URL */
         let result      = try Visionaire.shared.perform(.horizonDetection, on: image) // The result is a `VisionTaskResult`
@@ -90,7 +90,7 @@ Task {
 ### Multiple task execution (task-based apis):
 
 ```swift
-Task {
+DispatchQueue.global(qos: .userInitiated).async {
     do {
         let image   = /* any supported image source, such as CGImage, CIImage, CVPixelBuffer, CMSampleBuffer, Data or URL */
         let results = try Visionaire.shared.perform([.horizonDetection, .faceDetection], on: image)

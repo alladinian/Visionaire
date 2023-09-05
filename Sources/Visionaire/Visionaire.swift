@@ -9,7 +9,8 @@ public final class Visionaire: ObservableObject {
 
     public init() {}
 
-    @Published public var isProcessing: Bool = false
+    @MainActor
+    @Published public private(set) var isProcessing: Bool = false
 
     public func warmup(tasks: [VisionTask]) {
         let smallRect  = CGRect(x: 0, y: 0, width: 64, height: 64)
@@ -33,7 +34,13 @@ extension Visionaire {
                         ciContext context: CIContext? = nil,
                         on imageSource: VisionImageSource,
                         orientation: CGImagePropertyOrientation? = nil) throws -> [VNRequest] {
+        DispatchQueue.main.async { [weak self] in
+            self?.isProcessing = true
+        }
         try imageSource.VNImageHandler(orientation: orientation, context: context).perform(requests)
+        DispatchQueue.main.async { [weak self] in
+            self?.isProcessing = false
+        }
         return requests
     }
 
