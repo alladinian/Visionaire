@@ -116,18 +116,92 @@ DispatchQueue.global(qos: .userInitiated).async {
 }
 ```
 
-Of course, you can always perform `VNRequest`s as well if you like:
+
+## Task configuration
+
+All tasks can be configured with "modifier" style calls for common options.
+
+An example using all the available options:
 
 ```swift
-DispatchQueue.global(qos: .userInitiated).async {
-    do {
-        let image       = /* any supported image source, such as CGImage, CIImage, CVPixelBuffer, CMSampleBuffer, Data or URL */
-        let results     = try visionaire.perform([VNDetectHorizonRequest()], on: image) // The results are `[VNRequest]`
-        let observation = results.observations.first as? VNHorizonObservation
-        let angle       = observation?.angle
-        // Do something with the horizon angle
-    } catch {
-        print(error)
+let segmentation = VisionTask.personSegmentation(qualityLevel: .accurate)
+    .preferBackgroundProcessing(true)
+    .usesCPUOnly(false)
+    .regionOfInterest(CGRect(x: 0, y: 0, width: 0.5, height: 0.5))
+    .latestRevision() // You can also use .revision(n)
+
+let result = try Visionaire.shared.perform([.horizonDetection, segmentation], on: image) // The result is a `VisionTaskResult`
+```
+
+## SwiftUI Extensions
+
+There are also some SwiftUI extensions available in order to help you visualize results for quick evaluation.
+
+- Detected Object Observations
+
+```swift
+Image(myImage)
+    .resizable()
+    .aspectRatio(contentMode: .fit)
+    .drawObservations(detectedObjectObservations) {
+        Rectangle()
+            .stroke(Color.blue, lineWidth: 2)
     }
-}
+```
+
+- Rectangle Observations
+
+```swift
+Image(myImage)
+    .resizable()
+    .aspectRatio(contentMode: .fit)
+    .drawQuad(rectangleObservations) { shape in
+        shape
+            .stroke(Color.green, lineWidth: 2)
+    }
+```
+
+- Face Landmarks
+
+```swift
+Image(myImage)
+    .resizable()
+    .aspectRatio(contentMode: .fit)
+    .drawFaceLandmarks(faceObservations, landmarks: .all) { shape in
+        shape
+            .stroke(.red, style: .init(lineWidth: 2, lineJoin: .round))
+    }
+```
+
+- Person Segmentation Mask
+
+```swift
+Image(myImage)
+    .resizable()
+    .aspectRatio(contentMode: .fit)
+    .visualizePersonSegmentationMask(pixelBufferObservations)
+```
+
+- Human Body Pose
+
+```swift
+Image(myImage)
+    .resizable()
+    .aspectRatio(contentMode: .fit)
+    .visualizeHumanBodyPose(humanBodyPoseObservations) { shape in
+        shape
+            .fill(.green)
+    }
+```
+
+- Contours
+
+```swift
+Image(myImage)
+    .resizable()
+    .aspectRatio(contentMode: .fit)
+    .visualizeContours(contoursObservations) { shape in
+        shape
+            .stroke(.red, style: .init(lineWidth: 2, lineJoin: .round))
+    }
 ```
