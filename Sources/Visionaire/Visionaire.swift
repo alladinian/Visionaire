@@ -159,7 +159,9 @@ extension Visionaire {
                                   observation: VNRectangleObservation,
                                   trackingLevel: VNRequestTrackingLevel? = nil,
                                   isLastFrame: Bool? = nil) throws -> VNDetectedObjectObservation {
-        try singleObservationHandler(.rectangleTracking(observation: observation, trackingLevel: trackingLevel, isLastFrame: isLastFrame), imageSource: imageSource)
+        try singleObservationHandler(.rectangleTracking(observation: observation,
+                                                        trackingLevel: trackingLevel,
+                                                        isLastFrame: isLastFrame), imageSource: imageSource)
     }
 
     //MARK: - Object Tracking
@@ -168,7 +170,9 @@ extension Visionaire {
                                   observation: VNDetectedObjectObservation,
                                   trackingLevel: VNRequestTrackingLevel? = nil,
                                   isLastFrame: Bool? = nil) throws -> VNDetectedObjectObservation {
-        try singleObservationHandler(.objectTracking(observation: observation, trackingLevel: trackingLevel, isLastFrame: isLastFrame), imageSource: imageSource)
+        try singleObservationHandler(.objectTracking(observation: observation,
+                                                     trackingLevel: trackingLevel,
+                                                     isLastFrame: isLastFrame), imageSource: imageSource)
     }
 
     //MARK: - Rectangles Detection

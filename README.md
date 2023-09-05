@@ -56,6 +56,10 @@ It's an `ObservableObject` and reports processing through a published property c
 
 You can execute task on the `shared` Visionaire singleton or on your own instance (useful if you want to have separate processors reporting on their own).
 
+There are two sets of apis, convenience methods & task-based methods.
+
+Convenience methods have the benefit of returning typed results while tasks can be submitted en masse.
+
 ### Single task execution (convenience apis):
 
 ```swift
@@ -93,19 +97,35 @@ DispatchQueue.global(qos: .userInitiated).async {
 DispatchQueue.global(qos: .userInitiated).async {
     do {
         let image   = /* any supported image source, such as CGImage, CIImage, CVPixelBuffer, CMSampleBuffer, Data or URL */
-        let results = try Visionaire.shared.perform([.horizonDetection, .faceDetection], on: image)
+        let results = try Visionaire.shared.perform([.horizonDetection, .personSegmentation(qualityLevel: .accurate)], on: image)
         for result in results {
             switch result.taskType {
             case .horizonDetection:
                 let horizon = result.observations.first as? VNHorizonObservation
-                // Do something with the horizon observation
-            case .faceDetection:
-                let faceObservations = result.observations as? [VNFaceObservation]
-                // Do something with the face observations
+                // Do something with the observation
+            case .personSegmentation:
+                let segmentationObservations = result.observations as? [VNPixelBufferObservation]
+                // Do something with the observations
             default:
                 break
             }
         }   
+    } catch {
+        print(error)
+    }
+}
+```
+
+Of course, you can always perform `VNRequest`s as well if you like:
+
+```swift
+DispatchQueue.global(qos: .userInitiated).async {
+    do {
+        let image       = /* any supported image source, such as CGImage, CIImage, CVPixelBuffer, CMSampleBuffer, Data or URL */
+        let results     = try visionaire.perform([VNDetectHorizonRequest()], on: image) // The results are `[VNRequest]`
+        let observation = results.observations.first as? VNHorizonObservation
+        let angle       = observation?.angle
+        // Do something with the horizon angle
     } catch {
         print(error)
     }
