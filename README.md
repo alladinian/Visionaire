@@ -148,7 +148,7 @@ Image(myImage)
             .stroke(Color.blue, lineWidth: 2)
     }
 ```
-![image](https://github.com/alladinian/Visionaire/assets/156458/ac9e51e7-f3a5-488a-9bf1-0eda6cb89300)
+![image](https://github.com/alladinian/Visionaire/assets/156458/70b4a0dd-dcf7-4c15-8ccb-cd37910e6a35)
 
 **Rectangle Observations**
 
@@ -161,8 +161,7 @@ Image(myImage)
             .stroke(Color.green, lineWidth: 2)
     }
 ```
-![image](https://github.com/alladinian/Visionaire/assets/156458/491abeeb-e8bd-41e5-b6dd-83e3d4c677a2)
-
+![image](https://github.com/alladinian/Visionaire/assets/156458/9cc38998-e069-414b-8fae-bb5584ee48ec)
 
 **Face Landmarks**
 
@@ -179,7 +178,7 @@ Image(myImage)
             .stroke(.red, style: .init(lineWidth: 2, lineJoin: .round))
     }
 ```
-![image](https://github.com/alladinian/Visionaire/assets/156458/b508b681-bdd1-4968-9bf2-79ef4e46defa)
+![image](https://github.com/alladinian/Visionaire/assets/156458/f63e6646-a2ce-4f82-bcdd-1ef30160ddb6)
 
 **Person Segmentation Mask**
 
@@ -189,7 +188,7 @@ Image(myImage)
     .aspectRatio(contentMode: .fit)
     .visualizePersonSegmentationMask(pixelBufferObservations)
 ```
-![image](https://github.com/alladinian/Visionaire/assets/156458/62627723-a071-4f89-823e-927d06cc59e9)
+![image](https://github.com/alladinian/Visionaire/assets/156458/72536049-3547-4c89-994c-4b46aee4e295)
 
 **Human Body Pose**
 
@@ -202,7 +201,7 @@ Image(myImage)
             .fill(.red)
     }
 ```
-![image](https://github.com/alladinian/Visionaire/assets/156458/908d3c6d-4604-45c6-9599-6c68ead0ef57)
+![image](https://github.com/alladinian/Visionaire/assets/156458/dc56da48-ac80-4723-8403-dea660c73c20)
 
 **Contours**
 
@@ -215,5 +214,6 @@ Image(myImage)
             .stroke(.red, style: .init(lineWidth: 2, lineJoin: .round))
     }
 ```
-![image](https://github.com/alladinian/Visionaire/assets/156458/7cf4109b-bd59-44f7-bf6b-62a930fb4189)
+![image](https://github.com/alladinian/Visionaire/assets/156458/ee4d9e63-3e37-494e-94d4-63ae2c72dc0a)
+
 
