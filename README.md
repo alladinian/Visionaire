@@ -137,7 +137,7 @@ let result = try Visionaire.shared.perform([.horizonDetection, segmentation], on
 
 There are also some SwiftUI extensions available in order to help you visualize results for quick evaluation.
 
-- Detected Object Observations
+**Detected Object Observations**
 
 ```swift
 Image(myImage)
@@ -148,8 +148,9 @@ Image(myImage)
             .stroke(Color.blue, lineWidth: 2)
     }
 ```
+![image](https://github.com/alladinian/Visionaire/assets/156458/ac9e51e7-f3a5-488a-9bf1-0eda6cb89300)
 
-- Rectangle Observations
+**Rectangle Observations**
 
 ```swift
 Image(myImage)
@@ -160,8 +161,14 @@ Image(myImage)
             .stroke(Color.green, lineWidth: 2)
     }
 ```
+![image](https://github.com/alladinian/Visionaire/assets/156458/491abeeb-e8bd-41e5-b6dd-83e3d4c677a2)
 
-- Face Landmarks
+
+**Face Landmarks**
+
+Note: For Face Landmarks you can specify individual characteristics or groups for visualization. The available options are available through the `FaceLandmarks` OptionSet and they are:
+
+`constellation`, `contour`, `leftEye`, `rightEye`, `leftEyebrow`, `rightEyebrow`, `nose`, `noseCrest`, `medianLine`, `outerLips`, `innerLips`, `leftPupil`, `rightPupil`, `eyes`, `pupils`, `eyeBrows`, `lips` and `all`.
 
 ```swift
 Image(myImage)
@@ -172,8 +179,9 @@ Image(myImage)
             .stroke(.red, style: .init(lineWidth: 2, lineJoin: .round))
     }
 ```
+![image](https://github.com/alladinian/Visionaire/assets/156458/b508b681-bdd1-4968-9bf2-79ef4e46defa)
 
-- Person Segmentation Mask
+**Person Segmentation Mask**
 
 ```swift
 Image(myImage)
@@ -181,8 +189,9 @@ Image(myImage)
     .aspectRatio(contentMode: .fit)
     .visualizePersonSegmentationMask(pixelBufferObservations)
 ```
+![image](https://github.com/alladinian/Visionaire/assets/156458/62627723-a071-4f89-823e-927d06cc59e9)
 
-- Human Body Pose
+**Human Body Pose**
 
 ```swift
 Image(myImage)
@@ -190,11 +199,12 @@ Image(myImage)
     .aspectRatio(contentMode: .fit)
     .visualizeHumanBodyPose(humanBodyPoseObservations) { shape in
         shape
-            .fill(.green)
+            .fill(.red)
     }
 ```
+![image](https://github.com/alladinian/Visionaire/assets/156458/908d3c6d-4604-45c6-9599-6c68ead0ef57)
 
-- Contours
+**Contours**
 
 ```swift
 Image(myImage)
@@ -205,3 +215,5 @@ Image(myImage)
             .stroke(.red, style: .init(lineWidth: 2, lineJoin: .round))
     }
 ```
+![image](https://github.com/alladinian/Visionaire/assets/156458/7cf4109b-bd59-44f7-bf6b-62a930fb4189)
+
