@@ -62,6 +62,7 @@ public struct VisionTask: Identifiable {
     }
 
     //MARK: - Feature Print Generation
+
     public static var featurePrintGeneration: VisionTask {
         VisionTask(taskType: .featurePrintGeneration, request: VNGenerateImageFeaturePrintRequest())
     }
@@ -109,11 +110,11 @@ public struct VisionTask: Identifiable {
         VisionTask(taskType: .objectnessSaliency, request: VNGenerateObjectnessBasedSaliencyImageRequest())
     }
 
-    //MARK: - Rectangles Tracking
+    //MARK: - Rectangle Tracking
 
-    public static func rectanglesTracking(observation: VNRectangleObservation,
-                                          trackingLevel: VNRequestTrackingLevel? = nil,
-                                          isLastFrame: Bool? = nil) -> VisionTask {
+    public static func rectangleTracking(observation: VNRectangleObservation,
+                                         trackingLevel: VNRequestTrackingLevel? = nil,
+                                         isLastFrame: Bool? = nil) -> VisionTask {
         let request = VNTrackRectangleRequest(rectangleObservation: observation)
         if let trackingLevel {
             request.trackingLevel = trackingLevel
@@ -270,6 +271,7 @@ public struct VisionTask: Identifiable {
     }
 
     //MARK: - Contours
+
     @available(iOS 14.0, macOS 11.0, *)
     public static var contoursDetection: VisionTask {
         VisionTask(taskType: .contoursDetection, request: VNDetectContoursRequest())
@@ -371,15 +373,16 @@ public struct VisionTask: Identifiable {
     }
 
     //MARK: - Text Recognition
-    public var textRecognition: VisionTask {
+
+    public static var textRecognition: VisionTask {
         VisionTask(taskType: .textRecognition, request: VNRecognizeTextRequest())
     }
 
-    public func textRecognition(minimumTextHeight: Float? = nil,
-                                recognitionLevel: VNRequestTextRecognitionLevel? = nil,
-                                recognitionLanguages: [String]? = nil,
-                                usesLanguageCorrection: Bool? = nil,
-                                customWords: [String]? = nil) -> VisionTask {
+    public static func textRecognition(minimumTextHeight: Float? = nil,
+                                       recognitionLevel: VNRequestTextRecognitionLevel? = nil,
+                                       recognitionLanguages: [String]? = nil,
+                                       usesLanguageCorrection: Bool? = nil,
+                                       customWords: [String]? = nil) -> VisionTask {
         let request = VNRecognizeTextRequest()
         if let minimumTextHeight {
             request.minimumTextHeight = minimumTextHeight
@@ -397,12 +400,12 @@ public struct VisionTask: Identifiable {
     }
 
     @available(iOS 16.0, macOS 13.0, *)
-    public func textRecognition(minimumTextHeight: Float? = nil,
-                                recognitionLevel: VNRequestTextRecognitionLevel? = nil,
-                                automaticallyDetectsLanguage: Bool? = nil,
-                                recognitionLanguages: [String]? = nil,
-                                usesLanguageCorrection: Bool? = nil,
-                                customWords: [String]? = nil) -> VisionTask {
+    public static func textRecognition(minimumTextHeight: Float? = nil,
+                                       recognitionLevel: VNRequestTextRecognitionLevel? = nil,
+                                       automaticallyDetectsLanguage: Bool? = nil,
+                                       recognitionLanguages: [String]? = nil,
+                                       usesLanguageCorrection: Bool? = nil,
+                                       customWords: [String]? = nil) -> VisionTask {
         let request = VNRecognizeTextRequest()
         if let minimumTextHeight {
             request.minimumTextHeight = minimumTextHeight
@@ -435,13 +438,15 @@ public struct VisionTask: Identifiable {
     }
 
     //MARK: - Translational Registration
-    public func translationalImageRegistration(targetedImage: VisionImageSource, orientation: CGImagePropertyOrientation? = nil, context: CIContext? = nil) -> VisionTask {
+
+    public static func translationalImageRegistration(targetedImage: VisionImageSource, orientation: CGImagePropertyOrientation? = nil, context: CIContext? = nil) -> VisionTask {
         let request: VNTranslationalImageRegistrationRequest = targetedImage.VNTargetedImageRequest(orientation: orientation, context: context)
         return VisionTask(taskType: .translationalImageRegistration, request: request)
     }
 
     //MARK: - Homographic Registration
-    public func homographicImageRegistration(targetedImage: VisionImageSource, orientation: CGImagePropertyOrientation? = nil, context: CIContext? = nil) -> VisionTask {
+
+    public static func homographicImageRegistration(targetedImage: VisionImageSource, orientation: CGImagePropertyOrientation? = nil, context: CIContext? = nil) -> VisionTask {
         let request: VNHomographicImageRegistrationRequest = targetedImage.VNTargetedImageRequest(orientation: orientation, context: context)
         return VisionTask(taskType: .homographicImageRegistration, request: request)
     }

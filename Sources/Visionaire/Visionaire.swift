@@ -96,9 +96,37 @@ extension Visionaire {
 
 extension Visionaire {
 
-    public func horizonDetection(imageSource: VisionImageSource) throws -> VNHorizonObservation {
-        try singleObservationHandler(.horizonDetection, imageSource: imageSource)
+    //MARK: - Feature Print Generation
+
+    public func featurePrintGeneration(imageSource: VisionImageSource) throws -> [VNFeaturePrintObservation] {
+        try multiObservationHandler(.featurePrintGeneration, imageSource: imageSource)
     }
+
+    public func featurePrintGeneration(imageSource: VisionImageSource, imageCropAndScaleOption: VNImageCropAndScaleOption) throws -> [VNFeaturePrintObservation] {
+        try multiObservationHandler(.featurePrintGeneration(imageCropAndScaleOption: imageCropAndScaleOption), imageSource: imageSource)
+    }
+
+    //MARK: - Person Segmentation
+
+    @available(iOS 15.0, macOS 12.0, *)
+    public func personSegmentation(imageSource: VisionImageSource) throws -> [VNPixelBufferObservation] {
+        try multiObservationHandler(.personSegmentation, imageSource: imageSource)
+    }
+
+    @available(iOS 15.0, macOS 12.0, *)
+    public func personSegmentation(imageSource: VisionImageSource,
+                                   qualityLevel: VNGeneratePersonSegmentationRequest.QualityLevel? = nil,
+                                   outputPixelFormat: OSType? = nil) throws -> [VNPixelBufferObservation] {
+        try multiObservationHandler(.personSegmentation(qualityLevel: qualityLevel, outputPixelFormat: outputPixelFormat), imageSource: imageSource)
+    }
+
+    //MARK: - Document Segmentation
+    @available(iOS 15.0, macOS 12.0, *)
+    public func documentSegmentation(imageSource: VisionImageSource) throws -> [VNRectangleObservation] {
+        try multiObservationHandler(.documentSegmentation, imageSource: imageSource)
+    }
+
+    //MARK: - Saliency
 
     public func attentionSaliencyAnalysis(imageSource: VisionImageSource) throws -> [VNSaliencyImageObservation] {
         try multiObservationHandler(.attentionSaliency, imageSource: imageSource)
@@ -118,42 +146,25 @@ extension Visionaire {
         return saliency.flatMap { $0.salientObjects ?? [] }
     }
 
-    public func faceDetection(imageSource: VisionImageSource, regionOfInterest: CGRect? = nil, revision: Int? = nil) throws -> [VNFaceObservation] {
-        try multiObservationHandler(.faceDetection, imageSource: imageSource)
+    //MARK: - Rectangle Tracking
+
+    public func rectangleTracking(imageSource: VisionImageSource,
+                                  observation: VNRectangleObservation,
+                                  trackingLevel: VNRequestTrackingLevel? = nil,
+                                  isLastFrame: Bool? = nil) throws -> VNDetectedObjectObservation {
+        try singleObservationHandler(.rectangleTracking(observation: observation, trackingLevel: trackingLevel, isLastFrame: isLastFrame), imageSource: imageSource)
     }
 
-    public func faceLandmarkDetection(imageSource: VisionImageSource, regionOfInterest: CGRect? = nil, revision: Int? = nil) throws -> [VNFaceObservation] {
-        try multiObservationHandler(.faceLandmarkDetection, imageSource: imageSource)
+    //MARK: - Object Tracking
+
+    public func objectTracking(imageSource: VisionImageSource,
+                                  observation: VNDetectedObjectObservation,
+                                  trackingLevel: VNRequestTrackingLevel? = nil,
+                                  isLastFrame: Bool? = nil) throws -> VNDetectedObjectObservation {
+        try singleObservationHandler(.objectTracking(observation: observation, trackingLevel: trackingLevel, isLastFrame: isLastFrame), imageSource: imageSource)
     }
 
-    public func faceCaptureQualityDetection(imageSource: VisionImageSource, regionOfInterest: CGRect? = nil, revision: Int? = nil) throws -> [VNFaceObservation] {
-        try multiObservationHandler(.faceCaptureQuality, imageSource: imageSource)
-    }
-
-    @available(iOS 15.0, macOS 12.0, *)
-    public func personSegmentation(imageSource: VisionImageSource) throws -> [VNPixelBufferObservation] {
-        try multiObservationHandler(.personSegmentation, imageSource: imageSource)
-    }
-
-    @available(iOS 15.0, macOS 12.0, *)
-    public func personSegmentation(imageSource: VisionImageSource, qualityLevel: VNGeneratePersonSegmentationRequest.QualityLevel) throws -> [VNPixelBufferObservation] {
-        try multiObservationHandler(.personSegmentation(qualityLevel: qualityLevel), imageSource: imageSource)
-    }
-
-    @available(iOS 15.0, macOS 12.0, *)
-    public func documentSegmentation(imageSource: VisionImageSource) throws -> [VNRectangleObservation] {
-        try multiObservationHandler(.documentSegmentation, imageSource: imageSource)
-    }
-
-    @available(iOS 15.0, macOS 12.0, *)
-    public func humanRectanglesDetection(imageSource: VisionImageSource) throws -> [VNHumanObservation] {
-        try multiObservationHandler(.humanRectanglesDetection, imageSource: imageSource)
-    }
-
-    @available(iOS 15.0, macOS 12.0, *)
-    public func humanRectanglesDetection(imageSource: VisionImageSource, upperBodyOnly: Bool) throws -> [VNHumanObservation] {
-        try multiObservationHandler(.humanRectanglesDetection(upperBodyOnly: upperBodyOnly), imageSource: imageSource)
-    }
+    //MARK: - Rectangles Detection
 
     public func rectanglesDetection(imageSource: VisionImageSource,
                                     minimumAspectRatio: VNAspectRatio? = nil,
@@ -170,18 +181,222 @@ extension Visionaire {
                                                          maximumObservations: maximumObservations), imageSource: imageSource)
     }
 
+
+    //MARK: - Face Capture Quality
+
+    public func faceCaptureQualityDetection(imageSource: VisionImageSource, regionOfInterest: CGRect? = nil, revision: Int? = nil) throws -> [VNFaceObservation] {
+        try multiObservationHandler(.faceCaptureQuality, imageSource: imageSource)
+    }
+
+    //MARK: - Face Landmark Detection
+
+    public func faceLandmarkDetection(imageSource: VisionImageSource, regionOfInterest: CGRect? = nil, revision: Int? = nil) throws -> [VNFaceObservation] {
+        try multiObservationHandler(.faceLandmarkDetection, imageSource: imageSource)
+    }
+
+    //MARK: - Face Detection
+
+    public func faceDetection(imageSource: VisionImageSource, regionOfInterest: CGRect? = nil, revision: Int? = nil) throws -> [VNFaceObservation] {
+        try multiObservationHandler(.faceDetection, imageSource: imageSource)
+    }
+
+    //MARK: - Human Rectangles Detection
+
+    @available(iOS 15.0, macOS 12.0, *)
+    public func humanRectanglesDetection(imageSource: VisionImageSource) throws -> [VNHumanObservation] {
+        try multiObservationHandler(.humanRectanglesDetection, imageSource: imageSource)
+    }
+
+    @available(iOS 15.0, macOS 12.0, *)
+    public func humanRectanglesDetection(imageSource: VisionImageSource, upperBodyOnly: Bool) throws -> [VNHumanObservation] {
+        try multiObservationHandler(.humanRectanglesDetection(upperBodyOnly: upperBodyOnly), imageSource: imageSource)
+    }
+
+    //MARK: - Human Body Detection
+
     @available(iOS 14.0, macOS 11.0, *)
     public func humanBodyPoseDetection(imageSource: VisionImageSource) throws -> [VNHumanBodyPoseObservation] {
         try multiObservationHandler(.humanBodyPoseDetection, imageSource: imageSource)
     }
 
-    public func imageClassification(imageSource: VisionImageSource) throws -> [VNClassificationObservation] {
-        try multiObservationHandler(.imageClassification, imageSource: imageSource)
+    //MARK: - Human Hand Pose Detection
+
+    @available(iOS 14.0, macOS 11.0, *)
+    public func humanHandPoseDetection(imageSource: VisionImageSource, maximumHandCount: Int) throws -> [VNHumanHandPoseObservation] {
+        try multiObservationHandler(.humanHandPoseDetection(maximumHandCount: maximumHandCount), imageSource: imageSource)
     }
+
+    //MARK: - Animal Detection
+
+    public func animalDetection(imageSource: VisionImageSource) throws -> [VNRecognizedObjectObservation] {
+        try multiObservationHandler(.animalDetection, imageSource: imageSource)
+    }
+
+    //MARK: - Trajectories
+
+    @available(iOS 14.0, macOS 11.0, *)
+    public func trajectoriesDetection(imageSource: VisionImageSource,
+                                      frameAnalysisSpacing: CMTime,
+                                      trajectoryLength: Int,
+                                      objectMinimumNormalizedRadius: Float? = nil,
+                                      objectMaximumNormalizedRadius: Float? = nil) throws -> [VNTrajectoryObservation] {
+        try multiObservationHandler(.trajectoriesDetection(frameAnalysisSpacing: frameAnalysisSpacing,
+                                                           trajectoryLength: trajectoryLength,
+                                                           objectMinimumNormalizedRadius: objectMinimumNormalizedRadius,
+                                                           objectMaximumNormalizedRadius: objectMaximumNormalizedRadius), imageSource: imageSource)
+    }
+
+    @available(iOS 15.0, macOS 12.0, *)
+    public func trajectoriesDetection(imageSource: VisionImageSource,
+                                      frameAnalysisSpacing: CMTime,
+                                      trajectoryLength: Int,
+                                      targetFrameTime: CMTime? = nil,
+                                      objectMinimumNormalizedRadius: Float? = nil,
+                                      objectMaximumNormalizedRadius: Float? = nil) throws -> [VNTrajectoryObservation] {
+        try multiObservationHandler(.trajectoriesDetection(frameAnalysisSpacing: frameAnalysisSpacing,
+                                                           trajectoryLength: trajectoryLength,
+                                                           targetFrameTime: targetFrameTime,
+                                                           objectMinimumNormalizedRadius: objectMinimumNormalizedRadius,
+                                                           objectMaximumNormalizedRadius: objectMaximumNormalizedRadius), imageSource: imageSource)
+    }
+
+    //MARK: - Contours
 
     @available(iOS 14.0, macOS 11.0, *)
     public func contoursDetection(imageSource: VisionImageSource) throws -> [VNContoursObservation] {
         try multiObservationHandler(.contoursDetection, imageSource: imageSource)
     }
+
+    //MARK: - Contours
+
+    @available(iOS 14.0, macOS 11.0, *)
+    public func contoursDetection(imageSource: VisionImageSource,
+                                  contrastAdjustment: Float? = nil,
+                                  detectsDarkOnLight: Bool? = nil,
+                                  maximumImageDimension: Int? = nil) throws -> [VNContoursObservation] {
+        try multiObservationHandler(.contoursDetection(contrastAdjustment: contrastAdjustment,
+                                                       detectsDarkOnLight: detectsDarkOnLight,
+                                                       maximumImageDimension: maximumImageDimension), imageSource: imageSource)
+    }
+
+    @available(iOS 15.0, macOS 12.0, *)
+    public func contoursDetection(imageSource: VisionImageSource,
+                                  contrastAdjustment: Float? = nil,
+                                  contrastPivot: NSNumber? = nil,
+                                  detectsDarkOnLight: Bool? = nil,
+                                  maximumImageDimension: Int? = nil) throws -> [VNContoursObservation] {
+        try multiObservationHandler(.contoursDetection(contrastAdjustment: contrastAdjustment,
+                                                       contrastPivot: contrastPivot,
+                                                       detectsDarkOnLight: detectsDarkOnLight,
+                                                       maximumImageDimension: maximumImageDimension), imageSource: imageSource)
+    }
+
+    //MARK: - Optical Flow
+
+    @available(iOS 14.0, macOS 11.0, *)
+    public func opticalFlow(imageSource: VisionImageSource,
+                            targetedImage: VisionImageSource,
+                            computationAccuracy: VNGenerateOpticalFlowRequest.ComputationAccuracy? = nil,
+                            outputPixelFormat: OSType? = nil) throws -> [VNPixelBufferObservation] {
+        try multiObservationHandler(.opticalFlow(targetedImage: targetedImage,
+                                                 computationAccuracy: computationAccuracy,
+                                                 outputPixelFormat: outputPixelFormat), imageSource: imageSource)
+    }
+
+    @available(iOS 16.0, macOS 13.0, *)
+    public func opticalFlow(imageSource: VisionImageSource,
+                            targetedImage: VisionImageSource,
+                            computationAccuracy: VNGenerateOpticalFlowRequest.ComputationAccuracy? = nil,
+                            outputPixelFormat: OSType? = nil,
+                            keepNetworkOutput: Bool? = nil) throws -> [VNPixelBufferObservation] {
+        try multiObservationHandler(.opticalFlow(targetedImage: targetedImage,
+                                                 computationAccuracy: computationAccuracy,
+                                                 outputPixelFormat: outputPixelFormat,
+                                                 keepNetworkOutput: keepNetworkOutput), imageSource: imageSource)
+    }
+
+    //MARK: - Barcode Detection
+
+    public func barcodeDetection(imageSource: VisionImageSource) throws -> [VNBarcodeObservation] {
+        try multiObservationHandler(.barcodeDetection, imageSource: imageSource)
+    }
+
+    //MARK: - Text Rectangles Detection
+
+    public func textRectanglesDetection(imageSource: VisionImageSource) throws -> [VNTextObservation] {
+        try multiObservationHandler(.textRectanglesDetection, imageSource: imageSource)
+    }
+
+    public func textRectanglesDetection(imageSource: VisionImageSource, reportCharacterBoxes: Bool) throws -> [VNTextObservation] {
+        try multiObservationHandler(.textRectanglesDetection(reportCharacterBoxes: reportCharacterBoxes), imageSource: imageSource)
+    }
+
+    //MARK: - Text Recognition
+
+    public func textRecognition(imageSource: VisionImageSource) throws -> [VNRecognizedTextObservation] {
+        try multiObservationHandler(.textRecognition, imageSource: imageSource)
+    }
+
+    public func textRecognition(imageSource: VisionImageSource,
+                                minimumTextHeight: Float? = nil,
+                                recognitionLevel: VNRequestTextRecognitionLevel? = nil,
+                                recognitionLanguages: [String]? = nil,
+                                usesLanguageCorrection: Bool? = nil,
+                                customWords: [String]? = nil) throws -> [VNRecognizedTextObservation] {
+        try multiObservationHandler(.textRecognition(minimumTextHeight: minimumTextHeight,
+                                                     recognitionLevel: recognitionLevel,
+                                                     recognitionLanguages: recognitionLanguages,
+                                                     usesLanguageCorrection: usesLanguageCorrection,
+                                                     customWords: customWords), imageSource: imageSource)
+    }
+
+    @available(iOS 16.0, macOS 13.0, *)
+    public func textRecognition(imageSource: VisionImageSource,
+                                minimumTextHeight: Float? = nil,
+                                recognitionLevel: VNRequestTextRecognitionLevel? = nil,
+                                automaticallyDetectsLanguage: Bool? = nil,
+                                recognitionLanguages: [String]? = nil,
+                                usesLanguageCorrection: Bool? = nil,
+                                customWords: [String]? = nil) throws -> [VNRecognizedTextObservation] {
+        try multiObservationHandler(.textRecognition(minimumTextHeight: minimumTextHeight,
+                                                     recognitionLevel: recognitionLevel,
+                                                     automaticallyDetectsLanguage: automaticallyDetectsLanguage,
+                                                     recognitionLanguages: recognitionLanguages,
+                                                     usesLanguageCorrection: usesLanguageCorrection,
+                                                     customWords: customWords), imageSource: imageSource)
+    }
+
+    //MARK: - Horizon Detection
+
+    public func horizonDetection(imageSource: VisionImageSource) throws -> VNHorizonObservation {
+        try singleObservationHandler(.horizonDetection, imageSource: imageSource)
+    }
+
+    //MARK: - Image Classification
+
+    public func imageClassification(imageSource: VisionImageSource) throws -> [VNClassificationObservation] {
+        try multiObservationHandler(.imageClassification, imageSource: imageSource)
+    }
+
+    //MARK: - Translational Registration
+    public  func translationalImageRegistration(imageSource: VisionImageSource,
+                                                targetedImage: VisionImageSource,
+                                                orientation: CGImagePropertyOrientation? = nil,
+                                                context: CIContext? = nil) throws -> [VNImageTranslationAlignmentObservation] {
+        try multiObservationHandler(.translationalImageRegistration(targetedImage: targetedImage,
+                                                                    orientation: orientation,
+                                                                    context: context), imageSource: imageSource)
+    }
+
+    //MARK: - Homographic Registration
+    public  func homographicImageRegistration(imageSource: VisionImageSource,
+                                                targetedImage: VisionImageSource,
+                                                orientation: CGImagePropertyOrientation? = nil,
+                                                context: CIContext? = nil) throws -> [VNImageHomographicAlignmentObservation] {
+        try multiObservationHandler(.homographicImageRegistration(targetedImage: targetedImage,
+                                                                  orientation: orientation,
+                                                                  context: context), imageSource: imageSource)
+    }
+
 
 }
