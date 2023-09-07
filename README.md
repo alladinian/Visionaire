@@ -21,7 +21,7 @@ Some of its features include:
 - **SwiftUI extensions** for helping you **rapidly visualize results** (great for evaluation).
 
 ## Installation
-`Visionaire` is provided as a Swift Package. You can add it to your project 
+`Visionaire` is provided as a Swift Package. You can add it to your project via [this repository's address](https://github.com/alladinian/Visionaire).
 
 ## Supported Vision Tasks
 
