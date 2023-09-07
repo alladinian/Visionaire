@@ -1,9 +1,35 @@
-# Visionaire
+# Visionaire 
 
-Streamlined, ergonomic APIs around Apple's Vision framework
+>Streamlined, ergonomic APIs around Apple's Vision framework
 
+![Swift](https://img.shields.io/badge/Swift-5.8+-ec775c?style=flat)
+![iOS](https://img.shields.io/badge/iOS-13+-549bf5?style=flat)
+![macOS](https://img.shields.io/badge/macOS-10.15+-549bf5?style=flat)
+![Swift Package Manager](https://img.shields.io/badge/Swift_Package_Manager-Compatible-347d39?style=flat)
+
+
+The main goal of `Visionaire` is to reduce ceremony and provide a consice set of APIs for Vision tasks.
+
+Some of its features include:
+
+- **Centralized list of all tasks**, available via the `VisionTaskType` enum (with platform availability checks).
+- **Automatic image handling** for all supported image sources.
+- **Convenience APIs for all tasks**, along with all available parameters for each task (with platform availability checks).
+- Support for **multiple task execution**, maintaining task type information in the results.
+- Support for raw `VNRequest`s.
+- All calls are **synchronous** (just like the original calls) - **no extra 'magic', assumptions or hidden juggling**.
+- **SwiftUI extensions** for helping you **rapidly visualize results** (great for evaluation).
+
+## Installation
+`Visionaire` is provided as a Swift Package. You can add it to your project 
 
 ## Supported Vision Tasks
+
+**All** Vision tasks are supported (up until **iOS 16** & **macOS 13**, which are the latest production releases).
+<details>
+<summary>
+Expand to see a detailed list of all available tasks
+</summary>
 
 | **Task**                                   | **Vision API**                                | **Visionaire Task**             | **iOS** | **macOS** |
 | ------------------------------------------ | --------------------------------------------- | ------------------------------- | -------:| ---------:|
@@ -38,15 +64,15 @@ Streamlined, ergonomic APIs around Apple's Vision framework
 | **Track Translational Image Registration** | VNTrackTranslationalImageRegistrationRequest  | n/a                             |    17.0 |      14.0 |
 | **Track Homographic Image Registration**   | VNTrackHomographicImageRegistrationRequest    | n/a                             |    17.0 |      14.0 |
 | **Generate Foreground Instance Mask**      | VNGenerateForegroundInstanceMaskRequest       | n/a                             |    17.0 |      14.0 |
-
+</details>
 
 ## Supported Image Sources
-- CGImage
-- CIImage
-- CVPixelBuffer
-- CMSampleBuffer
-- Data
-- URL
+- `CGImage`
+- `CIImage`
+- `CVPixelBuffer`
+- `CMSampleBuffer`
+- `Data`
+- `URL`
 
 ## Examples
 
@@ -54,9 +80,9 @@ The main class for interfacing is called `Visionaire`.
 
 It's an `ObservableObject` and reports processing through a published property called `isProcessing`.
 
-You can execute task on the `shared` Visionaire singleton or on your own instance (useful if you want to have separate processors reporting on their own).
+You can execute tasks on the `shared` Visionaire singleton or on your own instance (useful if you want to have separate processors reporting on their own).
 
-There are two sets of apis, convenience methods & task-based methods.
+There are two sets of apis: convenience methods & task-based methods.
 
 Convenience methods have the benefit of returning typed results while tasks can be submitted en masse.
 
