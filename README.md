@@ -105,41 +105,40 @@ DispatchQueue.global(qos: .userInitiated).async {
 ### Custom CoreML model (convenience apis):
 
 ```swift
-	
-	// Create an instance of your model
-    let yolo: MLModel = {
-        // Tell Core ML to use the Neural Engine if available.
-        let config = MLModelConfiguration()
-        config.computeUnits = .all
-        // Load your custom model
-        let yolo = try! yolo(configuration: config)
-        return yolo.model
-    }()
+// Create an instance of your model
+let yolo: MLModel = {
+    // Tell Core ML to use the Neural Engine if available.
+    let config = MLModelConfiguration()
+    config.computeUnits = .all
+    // Load your custom model
+    let yolo = try! yolo(configuration: config)
+    return yolo.model
+}()
     
-    // Optionally create a feature provider to setup custom model attributes
-    class YoloFeatureProvider: MLFeatureProvider {
-        var values: [String : MLFeatureValue] {
-            [
-                "iouThreshold": MLFeatureValue(double: 0.45),
-                "confidenceThreshold": MLFeatureValue(double: 0.25)
-            ]
-        }
-
-        var featureNames: Set<String> {
-            Set(values.keys)
-        }
-
-        func featureValue(for featureName: String) -> MLFeatureValue? {
-            values[featureName]
-        }
+// Optionally create a feature provider to setup custom model attributes
+class YoloFeatureProvider: MLFeatureProvider {
+    var values: [String : MLFeatureValue] {
+        [
+            "iouThreshold": MLFeatureValue(double: 0.45),
+            "confidenceThreshold": MLFeatureValue(double: 0.25)
+        ]
     }
-    
-    // Perform the task
-	let detectedObjectObservations = try visionaire.customRecognition(imageSource: image,
-                                                                            model: try! VNCoreMLModel(for: yolo),
-                                                            inputImageFeatureName: "image",
-                                                                featureProvider: YoloFeatureProvider(),
-                                                        imageCropAndScaleOption: .scaleFill)
+
+    var featureNames: Set<String> {
+        Set(values.keys)
+    }
+
+    func featureValue(for featureName: String) -> MLFeatureValue? {
+        values[featureName]
+    }
+}
+
+// Perform the task
+let detectedObjectObservations = try visionaire.customRecognition(imageSource: image,
+                                                                        model: try! VNCoreMLModel(for: yolo),
+                                                        inputImageFeatureName: "image",
+                                                            featureProvider: YoloFeatureProvider(),
+                                                    imageCropAndScaleOption: .scaleFill)
 ```
 
 
