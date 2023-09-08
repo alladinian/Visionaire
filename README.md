@@ -1,9 +1,35 @@
-# Visionaire
+# Visionaire 
 
-Streamlined, ergonomic APIs around Apple's Vision framework
+>Streamlined, ergonomic APIs around Apple's Vision framework
 
+![Swift](https://img.shields.io/badge/Swift-5.8+-ec775c?style=flat)
+![iOS](https://img.shields.io/badge/iOS-13+-549bf5?style=flat)
+![macOS](https://img.shields.io/badge/macOS-10.15+-549bf5?style=flat)
+![Swift Package Manager](https://img.shields.io/badge/Swift_Package_Manager-Compatible-347d39?style=flat)
+
+
+The main goal of `Visionaire` is to reduce ceremony and provide a consice set of APIs for Vision tasks.
+
+Some of its features include:
+
+- **Centralized list of all tasks**, available via the `VisionTaskType` enum (with platform availability checks).
+- **Automatic image handling** for all supported image sources.
+- **Convenience APIs for all tasks**, along with all available parameters for each task (with platform availability checks).
+- Support for **multiple task execution**, maintaining task type information in the results.
+- Support for raw `VNRequest`s.
+- All calls are **synchronous** (just like the original calls) - **no extra 'magic', assumptions or hidden juggling**.
+- **SwiftUI extensions** for helping you **rapidly visualize results** (great for evaluation).
+
+## Installation
+`Visionaire` is provided as a Swift Package. You can add it to your project via [this repository's address](https://github.com/alladinian/Visionaire).
 
 ## Supported Vision Tasks
+
+**All** Vision tasks are supported (up until **iOS 16** & **macOS 13**, which are the latest production releases).
+<details>
+<summary>
+Expand to see a detailed list of all available tasks
+</summary>
 
 | **Task**                                   | **Vision API**                                | **Visionaire Task**             | **iOS** | **macOS** |
 | ------------------------------------------ | --------------------------------------------- | ------------------------------- | -------:| ---------:|
@@ -38,15 +64,15 @@ Streamlined, ergonomic APIs around Apple's Vision framework
 | **Track Translational Image Registration** | VNTrackTranslationalImageRegistrationRequest  | n/a                             |    17.0 |      14.0 |
 | **Track Homographic Image Registration**   | VNTrackHomographicImageRegistrationRequest    | n/a                             |    17.0 |      14.0 |
 | **Generate Foreground Instance Mask**      | VNGenerateForegroundInstanceMaskRequest       | n/a                             |    17.0 |      14.0 |
-
+</details>
 
 ## Supported Image Sources
-- CGImage
-- CIImage
-- CVPixelBuffer
-- CMSampleBuffer
-- Data
-- URL
+- `CGImage`
+- `CIImage`
+- `CVPixelBuffer`
+- `CMSampleBuffer`
+- `Data`
+- `URL`
 
 ## Examples
 
@@ -54,9 +80,9 @@ The main class for interfacing is called `Visionaire`.
 
 It's an `ObservableObject` and reports processing through a published property called `isProcessing`.
 
-You can execute task on the `shared` Visionaire singleton or on your own instance (useful if you want to have separate processors reporting on their own).
+You can execute tasks on the `shared` Visionaire singleton or on your own instance (useful if you want to have separate processors reporting on their own).
 
-There are two sets of apis, convenience methods & task-based methods.
+There are two sets of apis: convenience methods & task-based methods.
 
 Convenience methods have the benefit of returning typed results while tasks can be submitted en masse.
 
@@ -148,7 +174,7 @@ Image(myImage)
             .stroke(Color.blue, lineWidth: 2)
     }
 ```
-![image](https://github.com/alladinian/Visionaire/assets/156458/ac9e51e7-f3a5-488a-9bf1-0eda6cb89300)
+![image](https://github.com/alladinian/Visionaire/assets/156458/70b4a0dd-dcf7-4c15-8ccb-cd37910e6a35)
 
 **Rectangle Observations**
 
@@ -161,8 +187,7 @@ Image(myImage)
             .stroke(Color.green, lineWidth: 2)
     }
 ```
-![image](https://github.com/alladinian/Visionaire/assets/156458/491abeeb-e8bd-41e5-b6dd-83e3d4c677a2)
-
+![image](https://github.com/alladinian/Visionaire/assets/156458/9cc38998-e069-414b-8fae-bb5584ee48ec)
 
 **Face Landmarks**
 
@@ -179,7 +204,7 @@ Image(myImage)
             .stroke(.red, style: .init(lineWidth: 2, lineJoin: .round))
     }
 ```
-![image](https://github.com/alladinian/Visionaire/assets/156458/b508b681-bdd1-4968-9bf2-79ef4e46defa)
+![image](https://github.com/alladinian/Visionaire/assets/156458/f63e6646-a2ce-4f82-bcdd-1ef30160ddb6)
 
 **Person Segmentation Mask**
 
@@ -189,7 +214,7 @@ Image(myImage)
     .aspectRatio(contentMode: .fit)
     .visualizePersonSegmentationMask(pixelBufferObservations)
 ```
-![image](https://github.com/alladinian/Visionaire/assets/156458/62627723-a071-4f89-823e-927d06cc59e9)
+![image](https://github.com/alladinian/Visionaire/assets/156458/72536049-3547-4c89-994c-4b46aee4e295)
 
 **Human Body Pose**
 
@@ -202,7 +227,7 @@ Image(myImage)
             .fill(.red)
     }
 ```
-![image](https://github.com/alladinian/Visionaire/assets/156458/908d3c6d-4604-45c6-9599-6c68ead0ef57)
+![image](https://github.com/alladinian/Visionaire/assets/156458/dc56da48-ac80-4723-8403-dea660c73c20)
 
 **Contours**
 
@@ -215,5 +240,6 @@ Image(myImage)
             .stroke(.red, style: .init(lineWidth: 2, lineJoin: .round))
     }
 ```
-![image](https://github.com/alladinian/Visionaire/assets/156458/7cf4109b-bd59-44f7-bf6b-62a930fb4189)
+![image](https://github.com/alladinian/Visionaire/assets/156458/ee4d9e63-3e37-494e-94d4-63ae2c72dc0a)
+
 
