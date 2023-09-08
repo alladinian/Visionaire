@@ -451,6 +451,35 @@ public struct VisionTask: Identifiable {
         return VisionTask(taskType: .homographicImageRegistration, request: request)
     }
 
+    //MARK: - Custom CoreML Models
+
+    private static func custom(model: VNCoreMLModel, type: VisionTaskType, inputImageFeatureName: String? = nil, featureProvider: MLFeatureProvider? = nil) -> VisionTask {
+        if let inputImageFeatureName {
+            model.inputImageFeatureName = inputImageFeatureName
+        }
+        if let featureProvider {
+            model.featureProvider = featureProvider
+        }
+        let request = VNCoreMLRequest(model: model)
+        return VisionTask(taskType: type, request: request)
+    }
+
+    public static func customClassification(model: VNCoreMLModel, inputImageFeatureName: String? = nil, featureProvider: MLFeatureProvider? = nil) -> VisionTask {
+        custom(model: model, type: .customClassification, inputImageFeatureName: inputImageFeatureName, featureProvider: featureProvider)
+    }
+
+    public static func customImageToImage(model: VNCoreMLModel, inputImageFeatureName: String? = nil, featureProvider: MLFeatureProvider? = nil) -> VisionTask {
+        custom(model: model, type: .customImageToImage, inputImageFeatureName: inputImageFeatureName, featureProvider: featureProvider)
+    }
+
+    public static func customRecognition(model: VNCoreMLModel, inputImageFeatureName: String? = nil, featureProvider: MLFeatureProvider? = nil) -> VisionTask {
+        custom(model: model, type: .customRecognition, inputImageFeatureName: inputImageFeatureName, featureProvider: featureProvider)
+    }
+
+    public static func customGeneric(model: VNCoreMLModel, inputImageFeatureName: String? = nil, featureProvider: MLFeatureProvider? = nil) -> VisionTask {
+        custom(model: model, type: .customGeneric, inputImageFeatureName: inputImageFeatureName, featureProvider: featureProvider)
+    }
+
     //MARK: - Animal Body Pose Detection
 //    @available(iOS 17.0, macOS 14.0, *)
 //    public static var animalBodyPoseDetection: VisionTask {
