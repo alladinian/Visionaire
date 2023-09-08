@@ -137,8 +137,8 @@ class YoloFeatureProvider: MLFeatureProvider {
 let detectedObjectObservations = try visionaire.customRecognition(imageSource: image,
                                                                         model: try! VNCoreMLModel(for: yolo),
                                                         inputImageFeatureName: "image",
-                                                            featureProvider: YoloFeatureProvider(),
-                                                    imageCropAndScaleOption: .scaleFill)
+                                                              featureProvider: YoloFeatureProvider(),
+                                                      imageCropAndScaleOption: .scaleFill)
 ```
 
 
