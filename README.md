@@ -15,6 +15,7 @@ Some of its features include:
 - **Centralized list of all tasks**, available via the `VisionTaskType` enum (with platform availability checks).
 - **Automatic image handling** for all supported image sources.
 - **Convenience APIs for all tasks**, along with all available parameters for each task (with platform availability checks).
+- Support for **custom CoreML models** (Classification, Image-To-Image, Object Recognition, Generic `VNCoreMLFeatureValueObservation`s).
 - Support for **multiple task execution**, maintaining task type information in the results.
 - Support for raw `VNRequest`s.
 - All calls are **synchronous** (just like the original calls) - **no extra 'magic', assumptions or hidden juggling**.
@@ -100,6 +101,47 @@ DispatchQueue.global(qos: .userInitiated).async {
     }
 }
 ```
+
+### Custom CoreML model (convenience apis):
+
+```swift
+	
+	// Create an instance of your model
+    let yolo: MLModel = {
+        // Tell Core ML to use the Neural Engine if available.
+        let config = MLModelConfiguration()
+        config.computeUnits = .all
+        // Load your custom model
+        let yolo = try! yolo(configuration: config)
+        return yolo.model
+    }()
+    
+    // Optionally create a feature provider to setup custom model attributes
+    class YoloFeatureProvider: MLFeatureProvider {
+        var values: [String : MLFeatureValue] {
+            [
+                "iouThreshold": MLFeatureValue(double: 0.45),
+                "confidenceThreshold": MLFeatureValue(double: 0.25)
+            ]
+        }
+
+        var featureNames: Set<String> {
+            Set(values.keys)
+        }
+
+        func featureValue(for featureName: String) -> MLFeatureValue? {
+            values[featureName]
+        }
+    }
+    
+    // Perform the task
+	let detectedObjectObservations = try visionaire.customRecognition(imageSource: image,
+                                                                            model: try! VNCoreMLModel(for: yolo),
+                                                            inputImageFeatureName: "image",
+                                                                featureProvider: YoloFeatureProvider(),
+                                                        imageCropAndScaleOption: .scaleFill)
+```
+
 
 ### Single task execution (task-based apis):
 

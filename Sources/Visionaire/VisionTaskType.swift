@@ -56,6 +56,13 @@ public enum VisionTaskType: CaseIterable, Identifiable {
     case personSegmentation,
          documentSegmentation
 
+    //MARK: - Custom CoreMLModel
+    case customClassification,
+         customImageToImage,
+         customRecognition,
+         customGeneric
+
+
     /*----------------------------------------------------------------------------------------------------------------*/
 
     //MARK: - CaseIterable
@@ -78,7 +85,11 @@ public enum VisionTaskType: CaseIterable, Identifiable {
             .textRecognition,
             .featurePrintGeneration,
             .translationalImageRegistration,
-            .homographicImageRegistration
+            .homographicImageRegistration,
+            .customClassification,
+            .customImageToImage,
+            .customRecognition,
+            .customGeneric
         ]
 
         if #available(iOS 14.0, macOS 11.0, *) {
@@ -162,6 +173,14 @@ public enum VisionTaskType: CaseIterable, Identifiable {
             return "Homographic Image Registration"
         case .translationalImageRegistration:
             return "Translational Image Registration"
+        case .customClassification:
+            return "Custom Classification CoreML Model"
+        case .customImageToImage:
+            return "Custom Image-To-Image CoreML Model"
+        case .customRecognition:
+            return "Custom Object Recognition CoreML Model"
+        case .customGeneric:
+            return "Custom CoreML Model"
         }
     }
 
