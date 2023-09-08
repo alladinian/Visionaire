@@ -414,32 +414,48 @@ extension Visionaire {
     public func customClassification(imageSource: VisionImageSource,
                                      model: VNCoreMLModel,
                                      inputImageFeatureName: String? = nil,
-                                     featureProvider: MLFeatureProvider? = nil) throws -> [VNClassificationObservation] {
-        try multiObservationHandler(.customClassification(model: model, inputImageFeatureName: inputImageFeatureName, featureProvider: featureProvider),
+                                     featureProvider: MLFeatureProvider? = nil,
+                                     imageCropAndScaleOption: VNImageCropAndScaleOption? = nil) throws -> [VNClassificationObservation] {
+        try multiObservationHandler(.customClassification(model: model,
+                                                          inputImageFeatureName: inputImageFeatureName,
+                                                          featureProvider: featureProvider,
+                                                          imageCropAndScaleOption: imageCropAndScaleOption),
                                     imageSource: imageSource)
     }
 
     public func customImageToImage(imageSource: VisionImageSource,
                                    model: VNCoreMLModel,
                                    inputImageFeatureName: String? = nil,
-                                   featureProvider: MLFeatureProvider? = nil) throws -> [VNPixelBufferObservation] {
-        try multiObservationHandler(.customImageToImage(model: model, inputImageFeatureName: inputImageFeatureName, featureProvider: featureProvider),
+                                   featureProvider: MLFeatureProvider? = nil,
+                                   imageCropAndScaleOption: VNImageCropAndScaleOption? = nil) throws -> [VNPixelBufferObservation] {
+        try multiObservationHandler(.customImageToImage(model: model,
+                                                        inputImageFeatureName: inputImageFeatureName,
+                                                        featureProvider: featureProvider,
+                                                        imageCropAndScaleOption: imageCropAndScaleOption),
                                     imageSource: imageSource)
     }
-    
+
     public func customRecognition(imageSource: VisionImageSource,
                                   model: VNCoreMLModel,
                                   inputImageFeatureName: String? = nil,
-                                  featureProvider: MLFeatureProvider? = nil) throws -> [VNRecognizedObjectObservation] {
-        try multiObservationHandler(.customRecognition(model: model, inputImageFeatureName: inputImageFeatureName, featureProvider: featureProvider),
+                                  featureProvider: MLFeatureProvider? = nil,
+                                  imageCropAndScaleOption: VNImageCropAndScaleOption? = nil) throws -> [VNRecognizedObjectObservation] {
+        try multiObservationHandler(.customRecognition(model: model,
+                                                       inputImageFeatureName: inputImageFeatureName,
+                                                       featureProvider: featureProvider,
+                                                       imageCropAndScaleOption: imageCropAndScaleOption),
                                     imageSource: imageSource)
     }
-    
+
     public func customGeneric(imageSource: VisionImageSource,
                               model: VNCoreMLModel,
                               inputImageFeatureName: String? = nil,
-                              featureProvider: MLFeatureProvider? = nil) throws -> [VNCoreMLFeatureValueObservation] {
-        try multiObservationHandler(.customGeneric(model: model, inputImageFeatureName: inputImageFeatureName, featureProvider: featureProvider),
+                              featureProvider: MLFeatureProvider? = nil,
+                              imageCropAndScaleOption: VNImageCropAndScaleOption? = nil) throws -> [VNCoreMLFeatureValueObservation] {
+        try multiObservationHandler(.customGeneric(model: model,
+                                                   inputImageFeatureName: inputImageFeatureName,
+                                                   featureProvider: featureProvider,
+                                                   imageCropAndScaleOption: imageCropAndScaleOption),
                                     imageSource: imageSource)
     }
 

@@ -453,7 +453,11 @@ public struct VisionTask: Identifiable {
 
     //MARK: - Custom CoreML Models
 
-    private static func custom(model: VNCoreMLModel, type: VisionTaskType, inputImageFeatureName: String? = nil, featureProvider: MLFeatureProvider? = nil) -> VisionTask {
+    private static func custom(model: VNCoreMLModel,
+                               type: VisionTaskType,
+                               inputImageFeatureName: String? = nil,
+                               featureProvider: MLFeatureProvider? = nil,
+                               imageCropAndScaleOption: VNImageCropAndScaleOption? = nil) -> VisionTask {
         if let inputImageFeatureName {
             model.inputImageFeatureName = inputImageFeatureName
         }
@@ -461,23 +465,38 @@ public struct VisionTask: Identifiable {
             model.featureProvider = featureProvider
         }
         let request = VNCoreMLRequest(model: model)
+        if let imageCropAndScaleOption {
+            request.imageCropAndScaleOption = imageCropAndScaleOption
+        }
         return VisionTask(taskType: type, request: request)
     }
 
-    public static func customClassification(model: VNCoreMLModel, inputImageFeatureName: String? = nil, featureProvider: MLFeatureProvider? = nil) -> VisionTask {
-        custom(model: model, type: .customClassification, inputImageFeatureName: inputImageFeatureName, featureProvider: featureProvider)
+    public static func customClassification(model: VNCoreMLModel,
+                                            inputImageFeatureName: String? = nil,
+                                            featureProvider: MLFeatureProvider? = nil,
+                                            imageCropAndScaleOption: VNImageCropAndScaleOption? = nil) -> VisionTask {
+        custom(model: model, type: .customClassification, inputImageFeatureName: inputImageFeatureName, featureProvider: featureProvider, imageCropAndScaleOption: imageCropAndScaleOption)
     }
 
-    public static func customImageToImage(model: VNCoreMLModel, inputImageFeatureName: String? = nil, featureProvider: MLFeatureProvider? = nil) -> VisionTask {
-        custom(model: model, type: .customImageToImage, inputImageFeatureName: inputImageFeatureName, featureProvider: featureProvider)
+    public static func customImageToImage(model: VNCoreMLModel,
+                                          inputImageFeatureName: String? = nil,
+                                          featureProvider: MLFeatureProvider? = nil,
+                                          imageCropAndScaleOption: VNImageCropAndScaleOption? = nil) -> VisionTask {
+        custom(model: model, type: .customImageToImage, inputImageFeatureName: inputImageFeatureName, featureProvider: featureProvider, imageCropAndScaleOption: imageCropAndScaleOption)
     }
 
-    public static func customRecognition(model: VNCoreMLModel, inputImageFeatureName: String? = nil, featureProvider: MLFeatureProvider? = nil) -> VisionTask {
-        custom(model: model, type: .customRecognition, inputImageFeatureName: inputImageFeatureName, featureProvider: featureProvider)
+    public static func customRecognition(model: VNCoreMLModel,
+                                         inputImageFeatureName: String? = nil,
+                                         featureProvider: MLFeatureProvider? = nil,
+                                         imageCropAndScaleOption: VNImageCropAndScaleOption? = nil) -> VisionTask {
+        custom(model: model, type: .customRecognition, inputImageFeatureName: inputImageFeatureName, featureProvider: featureProvider, imageCropAndScaleOption: imageCropAndScaleOption)
     }
 
-    public static func customGeneric(model: VNCoreMLModel, inputImageFeatureName: String? = nil, featureProvider: MLFeatureProvider? = nil) -> VisionTask {
-        custom(model: model, type: .customGeneric, inputImageFeatureName: inputImageFeatureName, featureProvider: featureProvider)
+    public static func customGeneric(model: VNCoreMLModel,
+                                     inputImageFeatureName: String? = nil,
+                                     featureProvider: MLFeatureProvider? = nil,
+                                     imageCropAndScaleOption: VNImageCropAndScaleOption? = nil) -> VisionTask {
+        custom(model: model, type: .customGeneric, inputImageFeatureName: inputImageFeatureName, featureProvider: featureProvider, imageCropAndScaleOption: imageCropAndScaleOption)
     }
 
     //MARK: - Animal Body Pose Detection
