@@ -5,10 +5,12 @@
 ![Swift](https://img.shields.io/badge/Swift-5.8+-ec775c?style=flat)
 ![iOS](https://img.shields.io/badge/iOS-13+-549bf5?style=flat)
 ![macOS](https://img.shields.io/badge/macOS-10.15+-549bf5?style=flat)
+![macCatalyst](https://img.shields.io/badge/macCatalyst-13.1+-549bf5?style=flat)
+![tvOS](https://img.shields.io/badge/tvOS-13+-549bf5?style=flat)
 ![Swift Package Manager](https://img.shields.io/badge/Swift_Package_Manager-Compatible-347d39?style=flat)
 
 
-The main goal of `Visionaire` is to reduce ceremony and provide a consice set of APIs for Vision tasks.
+The main goal of `Visionaire` is to reduce ceremony and provide a concise set of APIs for Vision tasks.
 
 Some of its features include:
 
@@ -26,45 +28,45 @@ Some of its features include:
 
 ## Supported Vision Tasks
 
-**All** Vision tasks are supported (up until **iOS 16** & **macOS 13**, which are the latest production releases).
+**All** Vision tasks are supported (including **iOS 17** & **macOS 14**, which are the latest production releases).
 <details>
 <summary>
 Expand to see a detailed list of all available tasks
 </summary>
 
-| **Task**                                   | **Vision API**                                | **Visionaire Task**             | **iOS** | **macOS** |
-| ------------------------------------------ | --------------------------------------------- | ------------------------------- | -------:| ---------:|
-| **Generate Feature Print**                 | VNGenerateImageFeaturePrintRequest            | .featurePrintGeneration         |    13.0 |     10.15 |
-| **Person Segmentation**                    | VNGeneratePersonSegmentationRequest           | .personSegmentation             |    15.0 |      12.0 |
-| **Document Segmentation**                  | VNDetectDocumentSegmentationRequest           | .documentSegmentation           |    15.0 |      12.0 |
-| **Attention Based Saliency**               | VNGenerateAttentionBasedSaliencyImageRequest  | .attentionSaliency              |    13.0 |     10.15 |
-| **Objectness Based Saliency**              | VNGenerateObjectnessBasedSaliencyImageRequest | .objectnessSaliency             |    13.0 |     10.15 |
-| **Track Rectangle**                        | VNTrackRectangleRequest                       | .rectangleTracking              |    11.0 |     10.13 |
-| **Track Object**                           | VNTrackObjectRequest                          | .objectTracking                 |    11.0 |     10.13 |
-| **Detect Rectangles**                      | VNDetectRectanglesRequest                     | .rectanglesDetection            |    11.0 |     10.13 |
-| **Detect Face Capture Quality**            | VNDetectFaceCaptureQualityRequest             | .faceCaptureQuality             |    13.0 |     10.15 |
-| **Detect Face Landmarks**                  | VNDetectFaceLandmarksRequest                  | .faceLandmarkDetection          |    11.0 |     10.13 |
-| **Detect Face Rectangles**                 | VNDetectFaceRectanglesRequest                 | .faceDetection                  |    11.0 |     10.13 |
-| **Detect Human Rectangles**                | VNDetectHumanRectanglesRequest                | .humanRectanglesDetection       |    13.0 |     10.15 |
-| **Detect Human Body Pose**                 | VNDetectHumanBodyPoseRequest                  | .humanBodyPoseDetection         |    14.0 |      11.0 |
-| **Detect Human Hand Pose**                 | VNDetectHumanHandPoseRequest                  | .humanHandPoseDetection         |    14.0 |      11.0 |
-| **Recognize Animals**                      | VNRecognizeAnimalsRequest                     | .animalDetection                |    13.0 |     10.15 |
-| **Detect Trajectories**                    | VNDetectTrajectoriesRequest                   | .trajectoriesDetection          |    14.0 |      11.0 |
-| **Detect Contours**                        | VNDetectContoursRequest                       | .contoursDetection              |    14.0 |      11.0 |
-| **Generate Optical Flow**                  | VNGenerateOpticalFlowRequest                  | .opticalFlowGeneration          |    14.0 |      11.0 |
-| **Detect Barcodes**                        | VNDetectBarcodesRequest                       | .barcodeDetection               |    11.0 |     10.13 |
-| **Detect Text Rectangles**                 | VNDetectTextRectanglesRequest                 | .textRectanglesDetection        |    11.0 |     10.13 |
-| **Recognize Text**                         | VNRecognizeTextRequest                        | .textRecognition                |    13.0 |     10.15 |
-| **Detect Horizon**                         | VNDetectHorizonRequest                        | .horizonDetection               |    11.0 |     10.13 |
-| **Classify Image**                         | VNClassifyImageRequest                        | .imageClassification            |    13.0 |     10.15 |
-| **Translational Image Registration**       | VNTranslationalImageRegistrationRequest       | .translationalImageRegistration |    11.0 |     10.13 |
-| **Homographic Image Registration**         | VNHomographicImageRegistrationRequest         | .homographicImageRegistration   |    11.0 |     10.13 |
-| **Detect Human Body Pose (3D)**            | VNDetectHumanBodyPose3DRequest                | n/a                             |    17.0 |      14.0 |
-| **Detect Animal Body Pose**                | VNDetectAnimalBodyPoseRequest                 | n/a                             |    17.0 |      14.0 |
-| **Track Optical Flow**                     | VNTrackOpticalFlowRequest                     | n/a                             |    17.0 |      14.0 |
-| **Track Translational Image Registration** | VNTrackTranslationalImageRegistrationRequest  | n/a                             |    17.0 |      14.0 |
-| **Track Homographic Image Registration**   | VNTrackHomographicImageRegistrationRequest    | n/a                             |    17.0 |      14.0 |
-| **Generate Foreground Instance Mask**      | VNGenerateForegroundInstanceMaskRequest       | n/a                             |    17.0 |      14.0 |
+| **Task**                                   | **Vision API**                                | **Visionaire Task**                      | **iOS** | **macOS** | **Mac Catalyst** | **tvOS** |
+| ------------------------------------------ | --------------------------------------------- | ---------------------------------------- | -------:| ---------:| ---------------: | -------: |
+| **Generate Feature Print**                 | VNGenerateImageFeaturePrintRequest            | .featurePrintGeneration                  |    13.0 |     10.15 |             13.1 |     13.0 |
+| **Person Segmentation**                    | VNGeneratePersonSegmentationRequest           | .personSegmentation                      |    15.0 |      12.0 |             15.0 |     15.0 |
+| **Document Segmentation**                  | VNDetectDocumentSegmentationRequest           | .documentSegmentation                    |    15.0 |      12.0 |             15.0 |     15.0 |
+| **Attention Based Saliency**               | VNGenerateAttentionBasedSaliencyImageRequest  | .attentionSaliency                       |    13.0 |     10.15 |             13.1 |     13.0 |
+| **Objectness Based Saliency**              | VNGenerateObjectnessBasedSaliencyImageRequest | .objectnessSaliency                      |    13.0 |     10.15 |             13.1 |     13.0 |
+| **Track Rectangle**                        | VNTrackRectangleRequest                       | .rectangleTracking                       |    11.0 |     10.13 |             13.1 |     11.0 |
+| **Track Object**                           | VNTrackObjectRequest                          | .objectTracking                          |    11.0 |     10.13 |             13.1 |     11.0 |
+| **Detect Rectangles**                      | VNDetectRectanglesRequest                     | .rectanglesDetection                     |    11.0 |     10.13 |             13.1 |     11.0 |
+| **Detect Face Capture Quality**            | VNDetectFaceCaptureQualityRequest             | .faceCaptureQuality                      |    13.0 |     10.15 |             13.1 |     13.0 |
+| **Detect Face Landmarks**                  | VNDetectFaceLandmarksRequest                  | .faceLandmarkDetection                   |    11.0 |     10.13 |             13.1 |     11.0 |
+| **Detect Face Rectangles**                 | VNDetectFaceRectanglesRequest                 | .faceDetection                           |    11.0 |     10.13 |             13.1 |     11.0 |
+| **Detect Human Rectangles**                | VNDetectHumanRectanglesRequest                | .humanRectanglesDetection                |    13.0 |     10.15 |             13.1 |     13.0 |
+| **Detect Human Body Pose**                 | VNDetectHumanBodyPoseRequest                  | .humanBodyPoseDetection                  |    14.0 |      11.0 |             14.0 |     14.0 |
+| **Detect Human Hand Pose**                 | VNDetectHumanHandPoseRequest                  | .humanHandPoseDetection                  |    14.0 |      11.0 |             14.0 |     14.0 |
+| **Recognize Animals**                      | VNRecognizeAnimalsRequest                     | .animalDetection                         |    13.0 |     10.15 |             13.1 |     13.0 |
+| **Detect Trajectories**                    | VNDetectTrajectoriesRequest                   | .trajectoriesDetection                   |    14.0 |      11.0 |             14.0 |     14.0 |
+| **Detect Contours**                        | VNDetectContoursRequest                       | .contoursDetection                       |    14.0 |      11.0 |             14.0 |     14.0 |
+| **Generate Optical Flow**                  | VNGenerateOpticalFlowRequest                  | .opticalFlowGeneration                   |    14.0 |      11.0 |             14.0 |     14.0 |
+| **Detect Barcodes**                        | VNDetectBarcodesRequest                       | .barcodeDetection                        |    11.0 |     10.13 |             13.1 |     11.0 |
+| **Detect Text Rectangles**                 | VNDetectTextRectanglesRequest                 | .textRectanglesDetection                 |    11.0 |     10.13 |             13.1 |     11.0 |
+| **Recognize Text**                         | VNRecognizeTextRequest                        | .textRecognition                         |    13.0 |     10.15 |             13.1 |     13.0 |
+| **Detect Horizon**                         | VNDetectHorizonRequest                        | .horizonDetection                        |    11.0 |     10.13 |             13.1 |     11.0 |
+| **Classify Image**                         | VNClassifyImageRequest                        | .imageClassification                     |    13.0 |     10.15 |             13.1 |     13.0 |
+| **Translational Image Registration**       | VNTranslationalImageRegistrationRequest       | .translationalImageRegistration          |    11.0 |     10.13 |             13.1 |     11.0 |
+| **Homographic Image Registration**         | VNHomographicImageRegistrationRequest         | .homographicImageRegistration            |    11.0 |     10.13 |             13.1 |     11.0 |
+| **Detect Human Body Pose (3D)**            | VNDetectHumanBodyPose3DRequest                | .humanBodyPoseDetection3D                |    17.0 |      14.0 |             17.0 |     17.0 |
+| **Detect Animal Body Pose**                | VNDetectAnimalBodyPoseRequest                 | .animalBodyPoseDetection                 |    17.0 |      14.0 |             17.0 |     17.0 |
+| **Track Optical Flow**                     | VNTrackOpticalFlowRequest                     | .opticalFlowTracking                     |    17.0 |      14.0 |             17.0 |     17.0 |
+| **Track Translational Image Registration** | VNTrackTranslationalImageRegistrationRequest  | .translationalImageRegistrationTracking  |    17.0 |      14.0 |             17.0 |     17.0 |
+| **Track Homographic Image Registration**   | VNTrackHomographicImageRegistrationRequest    | .homographicImageRegistrationTracking    |    17.0 |      14.0 |             17.0 |     17.0 |
+| **Generate Foreground Instance Mask**      | VNGenerateForegroundInstanceMaskRequest       | .foregroundInstanceMaskGeneration        |    17.0 |      14.0 |             17.0 |     17.0 |
 </details>
 
 ## Supported Image Sources
