@@ -401,7 +401,7 @@ public struct VisionTask: Identifiable {
         return VisionTask(taskType: .textRecognition, request: request)
     }
 
-    @available(iOS 16.0, macCatalyst 16.0, macOS 13.0, tvOS 16.0 *)
+    @available(iOS 16.0, macCatalyst 16.0, macOS 13.0, tvOS 16.0, *)
     public static func textRecognition(minimumTextHeight: Float? = nil,
                                        recognitionLevel: VNRequestTextRecognitionLevel? = nil,
                                        automaticallyDetectsLanguage: Bool? = nil,
@@ -535,7 +535,7 @@ public struct VisionTask: Identifiable {
         return VisionTask(taskType: .opticalFlowTracking, request: request)
     }
 
-    //MARK: - Track Optical Flow
+    //MARK: - Track Translational Image Registration
 
     @available(iOS 17.0, macCatalyst 17.0, macOS 14.0, tvOS 17.0, *)
     public static func translationalImageRegistrationTracking(frameAnalysisSpacing: CMTime) -> VisionTask {
@@ -543,7 +543,7 @@ public struct VisionTask: Identifiable {
         return VisionTask(taskType: .translationalImageRegistrationTracking, request: request)
     }
 
-    //MARK: - Track Optical Flow
+    //MARK: - Track Homographic Registration
 
     @available(iOS 17.0, macCatalyst 17.0, macOS 14.0, tvOS 17.0, *)
     public static func homographicImageRegistrationTracking(frameAnalysisSpacing: CMTime) -> VisionTask {

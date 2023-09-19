@@ -115,12 +115,12 @@ extension Visionaire {
 
     //MARK: - Person Segmentation
 
-    @available(iOS 15.0, macOS 12.0, *)
+    @available(iOS 15.0, macCatalyst 15.0, macOS 12.0, tvOS 15.0, *)
     public func personSegmentation(imageSource: VisionImageSource) throws -> [VNPixelBufferObservation] {
         try multiObservationHandler(.personSegmentation, imageSource: imageSource)
     }
 
-    @available(iOS 15.0, macOS 12.0, *)
+    @available(iOS 15.0, macCatalyst 15.0, macOS 12.0, tvOS 15.0, *)
     public func personSegmentation(imageSource: VisionImageSource,
                                    qualityLevel: VNGeneratePersonSegmentationRequest.QualityLevel? = nil,
                                    outputPixelFormat: OSType? = nil) throws -> [VNPixelBufferObservation] {
@@ -128,7 +128,8 @@ extension Visionaire {
     }
 
     //MARK: - Document Segmentation
-    @available(iOS 15.0, macOS 12.0, *)
+
+    @available(iOS 15.0, macCatalyst 15.0, macOS 12.0, tvOS 15.0, *)
     public func documentSegmentation(imageSource: VisionImageSource) throws -> [VNRectangleObservation] {
         try multiObservationHandler(.documentSegmentation, imageSource: imageSource)
     }
@@ -213,26 +214,26 @@ extension Visionaire {
 
     //MARK: - Human Rectangles Detection
 
-    @available(iOS 15.0, macOS 12.0, *)
+    @available(iOS 15.0, macCatalyst 15.0, macOS 12.0, tvOS 15.0, *)
     public func humanRectanglesDetection(imageSource: VisionImageSource) throws -> [VNHumanObservation] {
         try multiObservationHandler(.humanRectanglesDetection, imageSource: imageSource)
     }
 
-    @available(iOS 15.0, macOS 12.0, *)
+    @available(iOS 15.0, macCatalyst 15.0, macOS 12.0, tvOS 15.0, *)
     public func humanRectanglesDetection(imageSource: VisionImageSource, upperBodyOnly: Bool) throws -> [VNHumanObservation] {
         try multiObservationHandler(.humanRectanglesDetection(upperBodyOnly: upperBodyOnly), imageSource: imageSource)
     }
 
     //MARK: - Human Body Detection
 
-    @available(iOS 14.0, macOS 11.0, *)
+    @available(iOS 14.0, macCatalyst 14.0, macOS 11.0, tvOS 14.0, *)
     public func humanBodyPoseDetection(imageSource: VisionImageSource) throws -> [VNHumanBodyPoseObservation] {
         try multiObservationHandler(.humanBodyPoseDetection, imageSource: imageSource)
     }
 
     //MARK: - Human Hand Pose Detection
 
-    @available(iOS 14.0, macOS 11.0, *)
+    @available(iOS 14.0, macCatalyst 14.0, macOS 11.0, tvOS 14.0, *)
     public func humanHandPoseDetection(imageSource: VisionImageSource, maximumHandCount: Int) throws -> [VNHumanHandPoseObservation] {
         try multiObservationHandler(.humanHandPoseDetection(maximumHandCount: maximumHandCount), imageSource: imageSource)
     }
@@ -245,7 +246,7 @@ extension Visionaire {
 
     //MARK: - Trajectories
 
-    @available(iOS 14.0, macOS 11.0, *)
+    @available(iOS 14.0, macCatalyst 14.0, macOS 11.0, tvOS 14.0, *)
     public func trajectoriesDetection(imageSource: VisionImageSource,
                                       frameAnalysisSpacing: CMTime,
                                       trajectoryLength: Int,
@@ -257,7 +258,7 @@ extension Visionaire {
                                                            objectMaximumNormalizedRadius: objectMaximumNormalizedRadius), imageSource: imageSource)
     }
 
-    @available(iOS 15.0, macOS 12.0, *)
+    @available(iOS 15.0, macCatalyst 15.0, macOS 12.0, tvOS 15.0, *)
     public func trajectoriesDetection(imageSource: VisionImageSource,
                                       frameAnalysisSpacing: CMTime,
                                       trajectoryLength: Int,
@@ -273,14 +274,13 @@ extension Visionaire {
 
     //MARK: - Contours
 
-    @available(iOS 14.0, macOS 11.0, *)
+    @available(iOS 14.0, macCatalyst 14.0, macOS 11.0, tvOS 14.0, *)
     public func contoursDetection(imageSource: VisionImageSource) throws -> [VNContoursObservation] {
         try multiObservationHandler(.contoursDetection, imageSource: imageSource)
     }
 
-    //MARK: - Contours
 
-    @available(iOS 14.0, macOS 11.0, *)
+    @available(iOS 14.0, macCatalyst 14.0, macOS 11.0, tvOS 14.0, *)
     public func contoursDetection(imageSource: VisionImageSource,
                                   contrastAdjustment: Float? = nil,
                                   detectsDarkOnLight: Bool? = nil,
@@ -290,7 +290,7 @@ extension Visionaire {
                                                        maximumImageDimension: maximumImageDimension), imageSource: imageSource)
     }
 
-    @available(iOS 15.0, macOS 12.0, *)
+    @available(iOS 15.0, macCatalyst 15.0, macOS 12.0, tvOS 15.0, *)
     public func contoursDetection(imageSource: VisionImageSource,
                                   contrastAdjustment: Float? = nil,
                                   contrastPivot: NSNumber? = nil,
@@ -304,7 +304,7 @@ extension Visionaire {
 
     //MARK: - Optical Flow
 
-    @available(iOS 14.0, macOS 11.0, *)
+    @available(iOS 14.0, macCatalyst 14.0, macOS 11.0, tvOS 14.0, *)
     public func opticalFlow(imageSource: VisionImageSource,
                             targetedImage: VisionImageSource,
                             computationAccuracy: VNGenerateOpticalFlowRequest.ComputationAccuracy? = nil,
@@ -314,7 +314,7 @@ extension Visionaire {
                                                  outputPixelFormat: outputPixelFormat), imageSource: imageSource)
     }
 
-    @available(iOS 16.0, macOS 13.0, *)
+    @available(iOS 16.0, macCatalyst 16.0, macOS 13.0, tvOS 16.0, *)
     public func opticalFlow(imageSource: VisionImageSource,
                             targetedImage: VisionImageSource,
                             computationAccuracy: VNGenerateOpticalFlowRequest.ComputationAccuracy? = nil,
@@ -330,6 +330,11 @@ extension Visionaire {
 
     public func barcodeDetection(imageSource: VisionImageSource) throws -> [VNBarcodeObservation] {
         try multiObservationHandler(.barcodeDetection, imageSource: imageSource)
+    }
+
+    @available(iOS 17.0, macCatalyst 17.0, macOS 14.0, tvOS 17.0, *)
+    public func barcodeDetection(imageSource: VisionImageSource, coalesceCompositeSymbologies: Bool) throws -> [VNBarcodeObservation] {
+        try multiObservationHandler(.barcodeDetection(coalesceCompositeSymbologies: coalesceCompositeSymbologies), imageSource: imageSource)
     }
 
     //MARK: - Text Rectangles Detection
@@ -361,7 +366,7 @@ extension Visionaire {
                                                      customWords: customWords), imageSource: imageSource)
     }
 
-    @available(iOS 16.0, macOS 13.0, *)
+    @available(iOS 16.0, macCatalyst 16.0, macOS 13.0, tvOS 16.0, *)
     public func textRecognition(imageSource: VisionImageSource,
                                 minimumTextHeight: Float? = nil,
                                 recognitionLevel: VNRequestTextRecognitionLevel? = nil,
@@ -390,6 +395,7 @@ extension Visionaire {
     }
 
     //MARK: - Translational Registration
+
     public  func translationalImageRegistration(imageSource: VisionImageSource,
                                                 targetedImage: VisionImageSource,
                                                 orientation: CGImagePropertyOrientation? = nil,
@@ -400,6 +406,7 @@ extension Visionaire {
     }
 
     //MARK: - Homographic Registration
+
     public  func homographicImageRegistration(imageSource: VisionImageSource,
                                                 targetedImage: VisionImageSource,
                                                 orientation: CGImagePropertyOrientation? = nil,
@@ -457,6 +464,55 @@ extension Visionaire {
                                                    featureProvider: featureProvider,
                                                    imageCropAndScaleOption: imageCropAndScaleOption),
                                     imageSource: imageSource)
+    }
+
+    //MARK: - Human Body Pose Detection (3D)
+
+    @available(iOS 17.0, macCatalyst 17.0, macOS 14.0, tvOS 17.0, *)
+    public func humanBodyPoseDetection3D(imageSource: VisionImageSource) throws -> [VNHumanBodyPose3DObservation] {
+        try multiObservationHandler(.humanBodyPoseDetection3D, imageSource: imageSource)
+    }
+
+    //MARK: - Animal Body Pose Detection
+
+    @available(iOS 17.0, macCatalyst 17.0, macOS 14.0, tvOS 17.0, *)
+    public func animalBodyPoseDetection(imageSource: VisionImageSource) throws -> [VNAnimalBodyPoseObservation] {
+        try multiObservationHandler(.animalBodyPoseDetection, imageSource: imageSource)
+    }
+
+    //MARK: - Track Optical Flow
+
+    @available(iOS 17.0, macCatalyst 17.0, macOS 14.0, tvOS 17.0, *)
+    public func opticalFlowTracking(imageSource: VisionImageSource,
+                                    frameAnalysisSpacing: CMTime,
+                                    computationAccuracy: VNTrackOpticalFlowRequest.ComputationAccuracy? = nil,
+                                    outputPixelFormat: OSType? = nil,
+                                    keepNetworkOutput: Bool? = nil) throws -> [VNPixelBufferObservation] {
+        try multiObservationHandler(.opticalFlowTracking(frameAnalysisSpacing: frameAnalysisSpacing,
+                                                         computationAccuracy: computationAccuracy,
+                                                         outputPixelFormat: outputPixelFormat,
+                                                         keepNetworkOutput: keepNetworkOutput), imageSource: imageSource)
+    }
+
+    //MARK: - Track Translational Image Registration
+
+    @available(iOS 17.0, macCatalyst 17.0, macOS 14.0, tvOS 17.0, *)
+    public func translationalImageRegistrationTracking(imageSource: VisionImageSource, frameAnalysisSpacing: CMTime) throws -> [VNImageTranslationAlignmentObservation] {
+        try multiObservationHandler(.translationalImageRegistrationTracking(frameAnalysisSpacing: frameAnalysisSpacing), imageSource: imageSource)
+    }
+
+    //MARK: - Track Homographic Registration
+
+    @available(iOS 17.0, macCatalyst 17.0, macOS 14.0, tvOS 17.0, *)
+    public func homographicImageRegistrationTracking(imageSource: VisionImageSource, frameAnalysisSpacing: CMTime) throws -> [VNImageHomographicAlignmentObservation] {
+        try multiObservationHandler(.homographicImageRegistrationTracking(frameAnalysisSpacing: frameAnalysisSpacing), imageSource: imageSource)
+    }
+
+    //MARK: - Foreground Instance Mask
+
+    @available(iOS 17.0, macCatalyst 17.0, macOS 14.0, tvOS 17.0, *)
+    public func foregroundInstanceMaskGeneration(imageSource: VisionImageSource) throws -> [VNInstanceMaskObservation] {
+        try multiObservationHandler(.foregroundInstanceMaskGeneration, imageSource: imageSource)
     }
 
 }
