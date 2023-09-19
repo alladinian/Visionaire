@@ -75,12 +75,12 @@ public struct VisionTask: Identifiable {
 
     //MARK: - Person Segmentation
 
-    @available(iOS 15.0, macOS 12.0, *)
+    @available(iOS 15.0, macCatalyst 15.0, macOS 12.0, tvOS 15.0, *)
     public static var personSegmentation: VisionTask {
         VisionTask(taskType: .personSegmentation, request: VNGeneratePersonSegmentationRequest())
     }
 
-    @available(iOS 15.0, macOS 12.0, *)
+    @available(iOS 15.0, macCatalyst 15.0, macOS 12.0, tvOS 15.0, *)
     public static func personSegmentation(qualityLevel: VNGeneratePersonSegmentationRequest.QualityLevel? = nil,
                                           outputPixelFormat: OSType? = nil) -> VisionTask {
         let request = VNGeneratePersonSegmentationRequest()
@@ -95,7 +95,7 @@ public struct VisionTask: Identifiable {
 
     //MARK: - Document Segmentation
 
-    @available(iOS 15.0, macOS 12.0, *)
+    @available(iOS 15.0, macCatalyst 15.0, macOS 12.0, tvOS 15.0, *)
     public static var documentSegmentation: VisionTask {
         VisionTask(taskType: .documentSegmentation, request: VNDetectDocumentSegmentationRequest())
     }
@@ -200,7 +200,7 @@ public struct VisionTask: Identifiable {
         VisionTask(taskType: .humanRectanglesDetection, request: VNDetectHumanRectanglesRequest())
     }
 
-    @available(iOS 15.0, macOS 12.0, *)
+    @available(iOS 15.0, macCatalyst 15.0, macOS 12.0, tvOS 15.0, *)
     public static func humanRectanglesDetection(upperBodyOnly: Bool) -> VisionTask {
         let request           = VNDetectHumanRectanglesRequest()
         request.upperBodyOnly = upperBodyOnly
@@ -209,19 +209,19 @@ public struct VisionTask: Identifiable {
 
     //MARK: - Human Body Detection
 
-    @available(iOS 14.0, macOS 11.0, *)
+    @available(iOS 14.0, macCatalyst 14.0, macOS 11.0, tvOS 14.0, *)
     public static var humanBodyPoseDetection: VisionTask {
         VisionTask(taskType: .humanBodyPoseDetection, request: VNDetectHumanBodyPoseRequest())
     }
 
     //MARK: - Human Hand Pose Detection
 
-    @available(iOS 14.0, macOS 11.0, *)
+    @available(iOS 14.0, macCatalyst 14.0, macOS 11.0, tvOS 14.0, *)
     public static var humanHandPoseDetection: VisionTask {
         VisionTask(taskType: .humanHandPoseDetection, request: VNDetectHumanHandPoseRequest())
     }
 
-    @available(iOS 14.0, macOS 11.0, *)
+    @available(iOS 14.0, macCatalyst 14.0, macOS 11.0, tvOS 14.0, *)
     public static func humanHandPoseDetection(maximumHandCount: Int) -> VisionTask {
         let request              = VNDetectHumanHandPoseRequest()
         request.maximumHandCount = maximumHandCount
@@ -236,7 +236,7 @@ public struct VisionTask: Identifiable {
 
     //MARK: - Trajectories
 
-    @available(iOS 14.0, macOS 11.0, *)
+    @available(iOS 14.0, macCatalyst 14.0, macOS 11.0, tvOS 14.0, *)
     public static func trajectoriesDetection(frameAnalysisSpacing: CMTime,
                                              trajectoryLength: Int,
                                              objectMinimumNormalizedRadius: Float? = nil,
@@ -251,7 +251,7 @@ public struct VisionTask: Identifiable {
         return VisionTask(taskType: .trajectoriesDetection, request: request)
     }
 
-    @available(iOS 15.0, macOS 12.0, *)
+    @available(iOS 15.0, macCatalyst 15.0, macOS 12.0, tvOS 15.0, *)
     public static func trajectoriesDetection(frameAnalysisSpacing: CMTime,
                                              trajectoryLength: Int,
                                              targetFrameTime: CMTime? = nil,
@@ -272,12 +272,12 @@ public struct VisionTask: Identifiable {
 
     //MARK: - Contours
 
-    @available(iOS 14.0, macOS 11.0, *)
+    @available(iOS 14.0, macCatalyst 14.0, macOS 11.0, tvOS 14.0, *)
     public static var contoursDetection: VisionTask {
         VisionTask(taskType: .contoursDetection, request: VNDetectContoursRequest())
     }
 
-    @available(iOS 14.0, macOS 11.0, *)
+    @available(iOS 14.0, macCatalyst 14.0, macOS 11.0, tvOS 14.0, *)
     public static func contoursDetection(contrastAdjustment: Float? = nil,
                                          detectsDarkOnLight: Bool? = nil,
                                          maximumImageDimension: Int? = nil) -> VisionTask {
@@ -294,7 +294,7 @@ public struct VisionTask: Identifiable {
         return VisionTask(taskType: .contoursDetection, request: request)
     }
 
-    @available(iOS 15.0, macOS 12.0, *)
+    @available(iOS 15.0, macCatalyst 15.0, macOS 12.0, tvOS 15.0, *)
     public static func contoursDetection(contrastAdjustment: Float? = nil,
                                          contrastPivot: NSNumber? = nil,
                                          detectsDarkOnLight: Bool? = nil,
@@ -317,7 +317,7 @@ public struct VisionTask: Identifiable {
 
     //MARK: - Optical Flow
 
-    @available(iOS 14.0, macOS 11.0, *)
+    @available(iOS 14.0, macCatalyst 14.0, macOS 11.0, tvOS 14.0, *)
     public static func opticalFlow(targetedImage: VisionImageSource,
                                    computationAccuracy: VNGenerateOpticalFlowRequest.ComputationAccuracy? = nil,
                                    outputPixelFormat: OSType? = nil) -> VisionTask {
@@ -331,7 +331,7 @@ public struct VisionTask: Identifiable {
         return VisionTask(taskType: .opticalFlowGeneration, request: request)
     }
 
-    @available(iOS 16.0, macOS 13.0, *)
+    @available(iOS 16.0, macCatalyst 16.0, macOS 13.0, tvOS 16.0, *)
     public static func opticalFlow(targetedImage: VisionImageSource,
                                    computationAccuracy: VNGenerateOpticalFlowRequest.ComputationAccuracy? = nil,
                                    outputPixelFormat: OSType? = nil,
@@ -350,18 +350,20 @@ public struct VisionTask: Identifiable {
     }
 
     //MARK: - Barcode Detection
+
     public static var barcodeDetection: VisionTask {
         VisionTask(taskType: .barcodeDetection, request: VNDetectBarcodesRequest())
     }
 
-    //    @available(iOS 17.0, macOS 14.0, *)
-    //    public static func barcodeDetection(coalesceCompositeSymbologies: Bool) -> VisionTask {
-    //        let request = VNDetectBarcodesRequest()
-    //        request.coalesceCompositeSymbologies = coalesceCompositeSymbologies
-    //        return VisionTask(taskType: .barcodeDetection, request: request)
-    //    }
+    @available(iOS 17.0, macCatalyst 17.0, macOS 14.0, tvOS 17.0, *)
+    public static func barcodeDetection(coalesceCompositeSymbologies: Bool) -> VisionTask {
+        let request = VNDetectBarcodesRequest()
+        request.coalesceCompositeSymbologies = coalesceCompositeSymbologies
+        return VisionTask(taskType: .barcodeDetection, request: request)
+    }
 
     //MARK: - Text Rectangles Detection
+
     public static var textRectanglesDetection: VisionTask {
         VisionTask(taskType: .textRectanglesDetection, request: VNDetectTextRectanglesRequest())
     }
@@ -399,7 +401,7 @@ public struct VisionTask: Identifiable {
         return VisionTask(taskType: .textRecognition, request: request)
     }
 
-    @available(iOS 16.0, macOS 13.0, *)
+    @available(iOS 16.0, macCatalyst 16.0, macOS 13.0, tvOS 16.0 *)
     public static func textRecognition(minimumTextHeight: Float? = nil,
                                        recognitionLevel: VNRequestTextRecognitionLevel? = nil,
                                        automaticallyDetectsLanguage: Bool? = nil,
@@ -499,10 +501,61 @@ public struct VisionTask: Identifiable {
         custom(model: model, type: .customGeneric, inputImageFeatureName: inputImageFeatureName, featureProvider: featureProvider, imageCropAndScaleOption: imageCropAndScaleOption)
     }
 
+    //MARK: - Human Body Pose Detection (3D)
+
+    @available(iOS 17.0, macCatalyst 17.0, macOS 14.0, tvOS 17.0, *)
+    public static var humanBodyPoseDetection3D: VisionTask {
+        VisionTask(taskType: .humanBodyPoseDetection3D, request: VNDetectHumanBodyPose3DRequest())
+    }
+
     //MARK: - Animal Body Pose Detection
-//    @available(iOS 17.0, macOS 14.0, *)
-//    public static var animalBodyPoseDetection: VisionTask {
-//        VisionTask(taskType: .animalBodyPoseDetection, request: VNDetectAnimalBodyPoseRequest())
-//    }
+
+    @available(iOS 17.0, macCatalyst 17.0, macOS 14.0, tvOS 17.0, *)
+    public static var animalBodyPoseDetection: VisionTask {
+        VisionTask(taskType: .animalBodyPoseDetection, request: VNDetectAnimalBodyPoseRequest())
+    }
+
+    //MARK: - Track Optical Flow
+
+    @available(iOS 17.0, macCatalyst 17.0, macOS 14.0, tvOS 17.0, *)
+    public static func opticalFlowTracking(frameAnalysisSpacing: CMTime,
+                                           computationAccuracy: VNTrackOpticalFlowRequest.ComputationAccuracy? = nil,
+                                           outputPixelFormat: OSType? = nil,
+                                           keepNetworkOutput: Bool? = nil) -> VisionTask {
+        let request = VNTrackOpticalFlowRequest(frameAnalysisSpacing: frameAnalysisSpacing)
+        if let computationAccuracy {
+            request.computationAccuracy = computationAccuracy
+        }
+        if let outputPixelFormat {
+            request.outputPixelFormat = outputPixelFormat
+        }
+        if let keepNetworkOutput {
+            request.keepNetworkOutput = keepNetworkOutput
+        }
+        return VisionTask(taskType: .opticalFlowTracking, request: request)
+    }
+
+    //MARK: - Track Optical Flow
+
+    @available(iOS 17.0, macCatalyst 17.0, macOS 14.0, tvOS 17.0, *)
+    public static func translationalImageRegistrationTracking(frameAnalysisSpacing: CMTime) -> VisionTask {
+        let request = VNTrackTranslationalImageRegistrationRequest(frameAnalysisSpacing: frameAnalysisSpacing)
+        return VisionTask(taskType: .translationalImageRegistrationTracking, request: request)
+    }
+
+    //MARK: - Track Optical Flow
+
+    @available(iOS 17.0, macCatalyst 17.0, macOS 14.0, tvOS 17.0, *)
+    public static func homographicImageRegistrationTracking(frameAnalysisSpacing: CMTime) -> VisionTask {
+        let request = VNTrackHomographicImageRegistrationRequest(frameAnalysisSpacing: frameAnalysisSpacing)
+        return VisionTask(taskType: .homographicImageRegistrationTracking, request: request)
+    }
+
+    //MARK: - Foreground Instance Mask
+
+    @available(iOS 17.0, macCatalyst 17.0, macOS 14.0, tvOS 17.0, *)
+    public static var foregroundInstanceMaskGeneration: VisionTask {
+        VisionTask(taskType: .foregroundInstanceMaskGeneration, request: VNGenerateForegroundInstanceMaskRequest())
+    }
 
 }

@@ -11,7 +11,7 @@ public enum VisionTaskType: CaseIterable, Identifiable {
 
     public var id: Self { self }
 
-    //MARK: - Detection
+    // 1st GEN
     case horizonDetection,
          faceDetection,
          faceLandmarkDetection,
@@ -19,42 +19,39 @@ public enum VisionTaskType: CaseIterable, Identifiable {
          rectanglesDetection,
          barcodeDetection,
          textRectanglesDetection,
-         animalDetection
-
-    @available(iOS 14.0, macOS 11.0, *)
-    case humanBodyPoseDetection,
-         humanHandPoseDetection,
-         contoursDetection,
-         trajectoriesDetection
-
-    @available(iOS 17.0, macOS 14.0, *)
-    case animalBodyPoseDetection
-
-    //MARK: - Saliency
-    case attentionSaliency,
-         objectnessSaliency
-
-    //MARK: - Misc
-    case faceCaptureQuality,
+         animalDetection,
+         attentionSaliency,
+         objectnessSaliency,
+         faceCaptureQuality,
          translationalImageRegistration,
          homographicImageRegistration,
          textRecognition,
-         featurePrintGeneration
+         featurePrintGeneration,
+         rectangleTracking,
+         objectTracking,
+         imageClassification
 
-    @available(iOS 14.0, macOS 11.0, *)
-    case opticalFlowGeneration
+    // 2nd GEN
+    @available(iOS 14.0, macCatalyst 14.0, macOS 11.0, tvOS 14.0, *)
+    case humanBodyPoseDetection,
+         humanHandPoseDetection,
+         contoursDetection,
+         trajectoriesDetection,
+         opticalFlowGeneration
 
-    //MARK: - Tracking
-    case rectangleTracking,
-         objectTracking
-
-    //MARK: - Classification
-    case imageClassification
-
-    //MARK: - Segmentation
-    @available(iOS 15.0, macOS 12.0, *)
+    // 3rd GEN
+    @available(iOS 15.0, macCatalyst 15.0, macOS 12.0, tvOS 15.0, *)
     case personSegmentation,
          documentSegmentation
+
+    // 4th GEN
+    @available(iOS 17.0, macCatalyst 17.0, macOS 14.0, tvOS 17.0, *)
+    case animalBodyPoseDetection,
+         humanBodyPoseDetection3D,
+         opticalFlowTracking,
+         translationalImageRegistrationTracking,
+         homographicImageRegistrationTracking,
+         foregroundInstanceMaskGeneration
 
     //MARK: - Custom CoreMLModel
     case customClassification,
@@ -92,7 +89,7 @@ public enum VisionTaskType: CaseIterable, Identifiable {
             .customGeneric
         ]
 
-        if #available(iOS 14.0, macOS 11.0, *) {
+        if #available(iOS 14.0, macCatalyst 14.0, macOS 11.0, tvOS 14.0, *) {
             tasks.append(contentsOf: [
                 .humanBodyPoseDetection,
                 .humanHandPoseDetection,
@@ -102,16 +99,21 @@ public enum VisionTaskType: CaseIterable, Identifiable {
             ])
         }
 
-        if #available(iOS 15.0, macOS 12.0, *) {
+        if #available(iOS 15.0, macCatalyst 15.0, macOS 12.0, tvOS 15.0, *) {
             tasks.append(contentsOf: [
                 .personSegmentation,
                 .documentSegmentation
             ])
         }
 
-        if #available(iOS 17.0, macOS 14.0, *) {
+        if #available(iOS 17.0, macCatalyst 17.0, macOS 14.0, tvOS 17.0, *) {
             tasks.append(contentsOf: [
-                .animalBodyPoseDetection
+                .animalBodyPoseDetection,
+                .humanBodyPoseDetection3D,
+                .opticalFlowTracking,
+                .translationalImageRegistrationTracking,
+                .homographicImageRegistrationTracking,
+                .foregroundInstanceMaskGeneration
             ])
         }
 
@@ -161,8 +163,6 @@ public enum VisionTaskType: CaseIterable, Identifiable {
             return "Contours Detection"
         case .trajectoriesDetection:
             return "Trajectories Detection"
-        case .animalBodyPoseDetection:
-            return "Animal Body Pose Detection"
         case .barcodeDetection:
             return "Barcode Detection"
         case .textRectanglesDetection:
@@ -181,6 +181,18 @@ public enum VisionTaskType: CaseIterable, Identifiable {
             return "Custom Object Recognition CoreML Model"
         case .customGeneric:
             return "Custom CoreML Model"
+        case .animalBodyPoseDetection:
+            return "Animal Body Pose Detection"
+        case .humanBodyPoseDetection3D:
+            return "Human Body Pose Detection (3D)"
+        case .opticalFlowTracking:
+            return "Optical Flow Tracking"
+        case .translationalImageRegistrationTracking:
+            return "Translational Image Registration Tracking"
+        case .homographicImageRegistrationTracking:
+            return "Homographic Image Registration Tracking"
+        case .foregroundInstanceMaskGeneration:
+            return "Foreground Instance Mask Generation"
         }
     }
 
