@@ -7,7 +7,7 @@
 
 import Foundation
 
-public enum VisionTaskType: CaseIterable, Identifiable {
+public enum VisionTaskType: String, CaseIterable, Identifiable {
 
     public var id: Self { self }
 
@@ -58,7 +58,6 @@ public enum VisionTaskType: CaseIterable, Identifiable {
          customImageToImage,
          customRecognition,
          customGeneric
-
 
     /*----------------------------------------------------------------------------------------------------------------*/
 
