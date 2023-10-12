@@ -30,12 +30,12 @@ public extension View {
     ///   - isFlipped: Whether coordinate system is Y-Flipped. The default is `true`.
     ///   - drawingClosure: A closure providing the view to be drawn as a representation of the observation.
     /// - Returns: The overlay view.
-    func drawObservations(_ observations: [VNDetectedObjectObservation], isFlipped: Bool = true, _ drawingClosure: @escaping () -> some View) -> some View {
+    func drawObservations(_ observations: [VNDetectedObjectObservation], isFlipped: Bool = true, _ drawingClosure: @escaping (VNDetectedObjectObservation) -> some View) -> some View {
         overlay(
             GeometryReader { reader in
                 ForEach(observations, id: \.self) { observation in
                     let denormalizedRect = VNImageRectForNormalizedRect(observation.boundingBox, Int(reader.size.width), Int(reader.size.height))
-                    drawingClosure()
+                    drawingClosure(observation)
                         .frame(size: denormalizedRect.size)
                         .offset(point: denormalizedRect.origin)
                 }
@@ -180,16 +180,24 @@ struct VNDetectedObjectObservationShape: Shape {
 }
 
 /// A View constructed by stacking `CVPixelBuffer` based images suitable for masking (luminanceToAlpha)
-struct PixelBufferObservationsCompositeMask: View {
-    let observations: [VNPixelBufferObservation]
+public struct PixelBufferObservationsCompositeMask: View {
+    let pixelBuffers: [CVPixelBuffer]
+    
+    public init(observations: [VNPixelBufferObservation]) {
+        self.pixelBuffers = observations.map(\.pixelBuffer)
+    }
+    
+    public init(pixelBuffers: [CVPixelBuffer]) {
+        self.pixelBuffers = pixelBuffers
+    }
 
-    var body: some View {
-        if observations.isEmpty {
+    public var body: some View {
+        if pixelBuffers.isEmpty {
             Color.black
         } else {
             ZStack {
-                ForEach(observations, id: \.self) { observation in
-                    PixelBufferImage(buffer: observation.pixelBuffer)
+                ForEach(pixelBuffers, id: \.self) { pixelBuffer in
+                    PixelBufferImage(buffer: pixelBuffer)
                 }
             }
             .luminanceToAlpha()
