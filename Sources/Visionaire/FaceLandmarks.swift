@@ -8,7 +8,7 @@
 import Foundation
 import Vision
 
-public struct FaceLandmarks: OptionSet {
+public struct FaceLandmarks: OptionSet, Sendable {
     public let rawValue: Int
 
     public init(rawValue: Int) {

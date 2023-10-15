@@ -6,7 +6,7 @@
 //
 
 import SwiftUI
-import Vision
+@preconcurrency import Vision
 
 private extension View {
     func flipped(_ isFlipped: Bool) -> some View {
