@@ -22,6 +22,19 @@ private extension View {
     }
 }
 
+private extension Path {
+    func flipped(_ isFlipped: Bool) -> some View {
+        scaleEffect(x: 1, y: isFlipped ? -1 : 1)
+    }
+}
+
+private extension CGRect {
+    func flipped(_ isFlipped: Bool) -> CGRect {
+        CGRect(origin: CGPoint(x: origin.x, y: isFlipped ? (1 - origin.y - size.height) : origin.y),
+               size: size)
+    }
+}
+
 public extension View {
     
     /// Places `VNDetectedObjectObservation` objects as an overlay.
@@ -34,13 +47,12 @@ public extension View {
         overlay(
             GeometryReader { reader in
                 ForEach(observations, id: \.self) { observation in
-                    let denormalizedRect = VNImageRectForNormalizedRect(observation.boundingBox, Int(reader.size.width), Int(reader.size.height))
+                    let denormalizedRect = VNImageRectForNormalizedRect(observation.boundingBox.flipped(isFlipped), Int(reader.size.width), Int(reader.size.height))
                     drawingClosure(observation)
                         .frame(size: denormalizedRect.size)
                         .offset(point: denormalizedRect.origin)
                 }
             }
-            .flipped(isFlipped)
         )
     }
     
