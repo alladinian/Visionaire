@@ -218,10 +218,14 @@ public struct PixelBufferObservationsCompositeMask: View {
 }
 
 /// Presents an Image based on the contents of a `CVPixelBuffer`
-struct PixelBufferImage: View {
+public struct PixelBufferImage: View {
     let buffer: CVPixelBuffer
+    
+    public init(buffer: CVPixelBuffer) {
+        self.buffer = buffer
+    }
 
-    var body: some View {
+    public var body: some View {
         let image = CIImage(cvPixelBuffer: buffer)
         if let cgImage = kVisionaireContext.createCGImage(image, from: image.extent) {
             Image(cgImage, scale: 1, label: Text(""))
