@@ -105,9 +105,9 @@ public extension View {
     ///   - styleClosure: A closure that provides `Shape` objects for customization.
     /// - Returns: The overlay view.
     @available(iOS 14.0, macCatalyst 14.0, macOS 11.0, tvOS 14.0, *)
-    func visualizeHumanBodyPose(_ observations: [VNHumanBodyPoseObservation], isFlipped: Bool = true, _ styleClosure: @escaping (VNHumanBodyPoseObservationShape) -> some View) -> some View {
+    func visualizeHumanBodyPose(_ observations: [VNHumanBodyPoseObservation], isFlipped: Bool = true, dotsOnly: Bool = false, _ styleClosure: @escaping (VNHumanBodyPoseObservationShape) -> some View) -> some View {
         overlay(
-            styleClosure(VNHumanBodyPoseObservationShape(observations: observations))
+            styleClosure(VNHumanBodyPoseObservationShape(observations: observations, dotsOnly: dotsOnly))
                 .flipped(isFlipped)
         )
     }
@@ -167,10 +167,33 @@ public struct VNContoursObservationShape: Shape {
     }
 }
 
+@available(iOS 14.0, macCatalyst 14.0, macOS 11.0, tvOS 14.0, *)
+extension VNHumanBodyPoseObservation {
+    
+    func denormalizedPoints(_ jointNames: [VNHumanBodyPoseObservation.JointName], for size: CGSize) -> [CGPoint] {
+        jointNames
+            .compactMap { try? recognizedPoint($0) }
+            .filter { $0.confidence > 0 }
+            .map { $0.denormalizedForSize(size) }
+    }
+    
+}
+
+@available(iOS 14.0, macCatalyst 14.0, macOS 11.0, tvOS 14.0, *)
+extension VNPoint {
+    
+    func denormalizedForSize(_ size: CGSize) -> CGPoint {
+        VNImagePointForNormalizedPoint(location, Int(size.width), Int(size.height))
+    }
+    
+}
+
 /// A Shape constructed from `VNHumanBodyPoseObservation` objects.
 @available(iOS 14.0, macCatalyst 14.0, macOS 11.0, tvOS 14.0, *)
 public struct VNHumanBodyPoseObservationShape: Shape {
     let observations: [VNHumanBodyPoseObservation]
+    let dotsOnly: Bool
+    var dotSize = 4.0
 
     public func path(in rect: CGRect) -> Path {
         Path { path in
@@ -180,15 +203,44 @@ public struct VNHumanBodyPoseObservationShape: Shape {
                         continue
                     }
 
-                    for (_, point) in recognizedPoints {
-                        let cgPoint = VNImagePointForNormalizedPoint(point.location, Int(rect.size.width), Int(rect.size.height))
-                        let dotSize = 4.0
-                        let dotRect = CGRect(origin: cgPoint, size: .init(width: dotSize, height: dotSize)).offsetBy(dx: -dotSize / 2, dy: -dotSize / 2)
-                        path.addEllipse(in: dotRect)
+                    for (_, point) in recognizedPoints where point.confidence > 0 {
+                        drawDot(for: point, in: &path, size: rect.size)
                     }
+                }
+                
+                if !dotsOnly {
+                    drawLine(for: observation, in: &path, size: rect.size)
                 }
             }
         }
+    }
+    
+    private func drawDot(for point: VNRecognizedPoint, in path: inout Path, size: CGSize) {
+        let cgPoint = point.denormalizedForSize(size)
+        let dotRect = CGRect(origin: cgPoint, size: .init(width: dotSize, height: dotSize)).offsetBy(dx: -dotSize / 2, dy: -dotSize / 2)
+        path.addEllipse(in: dotRect)
+    }
+    
+    private func drawLine(for observation: VNHumanBodyPoseObservation, in path: inout Path, size: CGSize) {
+        // Right leg
+        var points = observation.denormalizedPoints([.rightAnkle, .rightKnee, .rightHip, .root], for: size)
+        path.addLines(points)
+        
+        // Left leg
+        points = observation.denormalizedPoints([.leftAnkle, .leftKnee, .leftHip, .root], for: size)
+        path.addLines(points)
+        
+        // Right arm
+        points = observation.denormalizedPoints([.rightWrist, .rightElbow, .rightShoulder, .neck], for: size)
+        path.addLines(points)
+        
+        // Left arm
+        points = observation.denormalizedPoints([.leftWrist, .leftElbow, .leftShoulder, .neck], for: size)
+        path.addLines(points)
+        
+        // Root to nose
+        points = observation.denormalizedPoints([.root, .neck, .nose], for: size)
+        path.addLines(points)
     }
 }
 
