@@ -112,6 +112,20 @@ public extension View {
         )
     }
     
+    /// Visualizes `VNHumanBodyPose3DObservation` objects as an overlay.
+    /// - Parameters:
+    ///   - observations: The observation objects.
+    ///   - isFlipped: Whether coordinate system is Y-Flipped. The default is `true`.
+    ///   - styleClosure: A closure that provides `Shape` objects for customization.
+    /// - Returns: The overlay view.
+    @available(iOS 17.0, macCatalyst 17.0, macOS 14.0, tvOS 17.0, *)
+    func visualizeHumanBodyPose(_ observations: [VNHumanBodyPose3DObservation], isFlipped: Bool = true, dotsOnly: Bool = false, _ styleClosure: @escaping (VNHumanBodyPoseObservation3DShape) -> some View) -> some View {
+        overlay(
+            styleClosure(VNHumanBodyPoseObservation3DShape(observations: observations, dotsOnly: dotsOnly))
+                .flipped(isFlipped)
+        )
+    }
+    
     /// Visualizes `VNAnimalBodyPoseObservation` objects as an overlay.
     /// - Parameters:
     ///   - observations: The observation objects.
@@ -174,6 +188,17 @@ extension VNHumanBodyPoseObservation {
         jointNames
             .compactMap { try? recognizedPoint($0) }
             .filter { $0.confidence > 0 }
+            .map { $0.denormalizedForSize(size) }
+    }
+    
+}
+
+@available(iOS 17.0, macCatalyst 17.0, macOS 14.0, tvOS 17.0, *)
+extension VNHumanBodyPose3DObservation {
+    
+    func denormalizedPoints(_ jointNames: [VNHumanBodyPose3DObservation.JointName], for size: CGSize) -> [CGPoint] {
+        jointNames
+            .compactMap { try? pointInImage($0) }
             .map { $0.denormalizedForSize(size) }
     }
     
@@ -256,6 +281,60 @@ public struct VNHumanBodyPoseObservationShape: Shape {
     }
 }
 
+/// A Shape constructed from `VNHumanBodyPose3DObservation` objects.
+@available(iOS 17.0, macCatalyst 17.0, macOS 14.0, tvOS 17.0, *)
+public struct VNHumanBodyPoseObservation3DShape: Shape {
+    let observations: [VNHumanBodyPose3DObservation]
+    let dotsOnly: Bool
+    var dotSize = 4.0
+
+    public func path(in rect: CGRect) -> Path {
+        Path { path in
+            for observation in observations {
+                for joint in observation.availableJointNames {
+                    guard let point = try? observation.pointInImage(joint) else {
+                        continue
+                    }
+
+                    drawDot(for: point, in: &path, size: rect.size)
+                }
+                
+                if !dotsOnly {
+                    drawLine(for: observation, in: &path, size: rect.size)
+                }
+            }
+        }
+    }
+    
+    private func drawDot(for point: VNPoint, in path: inout Path, size: CGSize) {
+        let cgPoint = point.denormalizedForSize(size)
+        let dotRect = CGRect(origin: cgPoint, size: .init(width: dotSize, height: dotSize)).offsetBy(dx: -dotSize / 2, dy: -dotSize / 2)
+        path.addEllipse(in: dotRect)
+    }
+    
+    private func drawLine(for observation: VNHumanBodyPose3DObservation, in path: inout Path, size: CGSize) {
+        // Right leg
+        var points = observation.denormalizedPoints([.rightAnkle, .rightKnee, .rightHip, .root], for: size)
+        path.addLines(points)
+        
+        // Left leg
+        points = observation.denormalizedPoints([.leftAnkle, .leftKnee, .leftHip, .root], for: size)
+        path.addLines(points)
+        
+        // Right arm
+        points = observation.denormalizedPoints([.rightWrist, .rightElbow, .rightShoulder], for: size)
+        path.addLines(points)
+        
+        // Left arm
+        points = observation.denormalizedPoints([.leftWrist, .leftElbow, .leftShoulder], for: size)
+        path.addLines(points)
+        
+        // Root to nose
+        points = observation.denormalizedPoints([.root, .centerShoulder, .centerHead], for: size)
+        path.addLines(points)
+    }
+}
+
 /// A Shape constructed from `VNAnimalBodyPoseObservation` objects
 @available(iOS 17.0, macCatalyst 17.0, macOS 14.0, tvOS 17.0, *)
 public struct VNAnimalBodyPoseObservationShape: Shape {
@@ -266,12 +345,12 @@ public struct VNAnimalBodyPoseObservationShape: Shape {
     public func path(in rect: CGRect) -> Path {
         Path { path in
             for observation in observations {
-                for group in observation.availableJointGroupNames {
-                    guard let recognizedPoints = try? observation.recognizedPoints(group) else {
+                for joint in observation.availableJointNames {
+                    guard let point = try? observation.recognizedPoint(joint) else {
                         continue
                     }
 
-                    for (_, point) in recognizedPoints where point.confidence > 0 {
+                    if point.confidence > 0 {
                         drawDot(for: point, in: &path, size: rect.size)
                     }
                 }
