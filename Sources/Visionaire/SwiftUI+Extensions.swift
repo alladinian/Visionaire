@@ -8,33 +8,6 @@
 import SwiftUI
 @preconcurrency import Vision
 
-private extension View {
-    func flipped(_ isFlipped: Bool) -> some View {
-        scaleEffect(x: 1, y: isFlipped ? -1 : 1)
-    }
-
-    func frame(size: CGSize) -> some View {
-        frame(width: size.width, height: size.height)
-    }
-
-    func offset(point: CGPoint) -> some View {
-        offset(x: point.x, y: point.y)
-    }
-}
-
-private extension Path {
-    func flipped(_ isFlipped: Bool) -> some View {
-        scaleEffect(x: 1, y: isFlipped ? -1 : 1)
-    }
-}
-
-private extension CGRect {
-    func flipped(_ isFlipped: Bool) -> CGRect {
-        CGRect(origin: CGPoint(x: origin.x, y: isFlipped ? (1 - origin.y - size.height) : origin.y),
-               size: size)
-    }
-}
-
 public extension View {
     
     /// Places `VNDetectedObjectObservation` objects as an overlay.
@@ -43,7 +16,11 @@ public extension View {
     ///   - isFlipped: Whether coordinate system is Y-Flipped. The default is `true`.
     ///   - drawingClosure: A closure providing the view to be drawn as a representation of the observation.
     /// - Returns: The overlay view.
-    func drawObservations(_ observations: [VNDetectedObjectObservation], isFlipped: Bool = true, _ drawingClosure: @escaping (VNDetectedObjectObservation) -> some View) -> some View {
+    func drawObservations(
+        _ observations: [VNDetectedObjectObservation],
+        isFlipped: Bool = true,
+        _ drawingClosure: @escaping (VNDetectedObjectObservation) -> some View
+    ) -> some View {
         overlay(
             GeometryReader { reader in
                 ForEach(observations, id: \.self) { observation in
@@ -63,7 +40,12 @@ public extension View {
     ///   - isFlipped: Whether coordinate system is Y-Flipped. The default is `true`.
     ///   - styleClosure: A closure that provides `Shape` objects for customization.
     /// - Returns: The overlay view.
-    func drawFaceLandmarks(_ observations: [VNFaceObservation], landmarks: FaceLandmarks = .all, isFlipped: Bool = true, _ styleClosure: @escaping (VNFaceObservationShape) -> some View) -> some View  {
+    func drawFaceLandmarks(
+        _ observations: [VNFaceObservation],
+        landmarks: FaceLandmarks = .all,
+        isFlipped: Bool = true,
+        _ styleClosure: @escaping (VNFaceObservationShape) -> some View
+    ) -> some View  {
         overlay(
             styleClosure(VNFaceObservationShape(observations: observations, enabledLandmarks: landmarks))
                 .flipped(isFlipped)
@@ -76,7 +58,11 @@ public extension View {
     ///   - isFlipped: Whether coordinate system is Y-Flipped. The default is `true`.
     ///   - styleClosure: A closure that provides `Shape` objects for customization.
     /// - Returns: The overlay view.
-    func drawQuad(_ observations: [VNRectangleObservation], isFlipped: Bool = true, _ styleClosure: @escaping (VNRectangleObservationShape) -> some View) -> some View  {
+    func drawQuad(
+        _ observations: [VNRectangleObservation],
+        isFlipped: Bool = true,
+        _ styleClosure: @escaping (VNRectangleObservationShape) -> some View
+    ) -> some View  {
         overlay(
             styleClosure(VNRectangleObservationShape(observations: observations))
                 .flipped(isFlipped)
@@ -87,7 +73,16 @@ public extension View {
     /// - Parameter observations: The observation objects.
     /// - Returns: The mask based on the observations.
     @ViewBuilder
+    @available(*, deprecated, renamed: "visualizeCompositeSegmentationMask(_:)")
     func visualizePersonSegmentationMask(_ observations: [VNPixelBufferObservation]) -> some View {
+        visualizeCompositeSegmentationMask(observations)
+    }
+    
+    /// Visualizes a composite mask for a segmentation observations.
+    /// - Parameter observations: The observation objects.
+    /// - Returns: The mask based on the observations.
+    @ViewBuilder
+    func visualizeCompositeSegmentationMask(_ observations: [VNPixelBufferObservation]) -> some View {
         if #available(iOS 15.0, macCatalyst 15.0, macOS 12.0, tvOS 15.0, *) {
            mask {
                PixelBufferObservationsCompositeMask(observations: observations)
@@ -105,7 +100,12 @@ public extension View {
     ///   - styleClosure: A closure that provides `Shape` objects for customization.
     /// - Returns: The overlay view.
     @available(iOS 14.0, macCatalyst 14.0, macOS 11.0, tvOS 14.0, *)
-    func visualizeHumanBodyPose(_ observations: [VNHumanBodyPoseObservation], isFlipped: Bool = true, dotsOnly: Bool = false, _ styleClosure: @escaping (VNHumanBodyPoseObservationShape) -> some View) -> some View {
+    func visualizeHumanBodyPose(
+        _ observations: [VNHumanBodyPoseObservation],
+        isFlipped: Bool = true,
+        dotsOnly: Bool = false,
+        _ styleClosure: @escaping (VNHumanBodyPoseObservationShape) -> some View
+    ) -> some View {
         overlay(
             styleClosure(VNHumanBodyPoseObservationShape(observations: observations, dotsOnly: dotsOnly))
                 .flipped(isFlipped)
@@ -119,7 +119,12 @@ public extension View {
     ///   - styleClosure: A closure that provides `Shape` objects for customization.
     /// - Returns: The overlay view.
     @available(iOS 17.0, macCatalyst 17.0, macOS 14.0, tvOS 17.0, *)
-    func visualizeHumanBodyPose(_ observations: [VNHumanBodyPose3DObservation], isFlipped: Bool = true, dotsOnly: Bool = false, _ styleClosure: @escaping (VNHumanBodyPoseObservation3DShape) -> some View) -> some View {
+    func visualizeHumanBodyPose(
+        _ observations: [VNHumanBodyPose3DObservation],
+        isFlipped: Bool = true,
+        dotsOnly: Bool = false,
+        _ styleClosure: @escaping (VNHumanBodyPoseObservation3DShape) -> some View
+    ) -> some View {
         overlay(
             styleClosure(VNHumanBodyPoseObservation3DShape(observations: observations, dotsOnly: dotsOnly))
                 .flipped(isFlipped)
@@ -133,7 +138,12 @@ public extension View {
     ///   - styleClosure: A closure that provides `Shape` objects for customization.
     /// - Returns: The overlay view.
     @available(iOS 17.0, macCatalyst 17.0, macOS 14.0, tvOS 17.0, *)
-    func visualizeAnimalBodyPose(_ observations: [VNAnimalBodyPoseObservation], dotsOnly: Bool = false, isFlipped: Bool = true, _ styleClosure: @escaping (VNAnimalBodyPoseObservationShape) -> some View) -> some View {
+    func visualizeAnimalBodyPose(
+        _ observations: [VNAnimalBodyPoseObservation],
+        dotsOnly: Bool = false,
+        isFlipped: Bool = true,
+        _ styleClosure: @escaping (VNAnimalBodyPoseObservationShape) -> some View
+    ) -> some View {
         overlay(
             styleClosure(VNAnimalBodyPoseObservationShape(observations: observations, dotsOnly: dotsOnly))
                 .flipped(isFlipped)
@@ -141,7 +151,11 @@ public extension View {
     }
 
     @available(iOS 14.0, macCatalyst 14.0, macOS 11.0, tvOS 14.0, *)
-    func visualizeContours(_ observations: [VNContoursObservation], isFlipped: Bool = true, _ styleClosure: @escaping (VNContoursObservationShape) -> some View) -> some View {
+    func visualizeContours(
+        _ observations: [VNContoursObservation],
+        isFlipped: Bool = true,
+        _ styleClosure: @escaping (VNContoursObservationShape) -> some View
+    ) -> some View {
         overlay(
             styleClosure(VNContoursObservationShape(observations: observations))
                 .flipped(isFlipped)
