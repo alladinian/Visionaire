@@ -119,9 +119,9 @@ public extension View {
     ///   - styleClosure: A closure that provides `Shape` objects for customization.
     /// - Returns: The overlay view.
     @available(iOS 17.0, macCatalyst 17.0, macOS 14.0, tvOS 17.0, *)
-    func visualizeAnimalBodyPose(_ observations: [VNAnimalBodyPoseObservation], isFlipped: Bool = true, _ styleClosure: @escaping (VNAnimalBodyPoseObservationShape) -> some View) -> some View {
+    func visualizeAnimalBodyPose(_ observations: [VNAnimalBodyPoseObservation], dotsOnly: Bool = false, isFlipped: Bool = true, _ styleClosure: @escaping (VNAnimalBodyPoseObservationShape) -> some View) -> some View {
         overlay(
-            styleClosure(VNAnimalBodyPoseObservationShape(observations: observations))
+            styleClosure(VNAnimalBodyPoseObservationShape(observations: observations, dotsOnly: dotsOnly))
                 .flipped(isFlipped)
         )
     }
@@ -171,6 +171,18 @@ public struct VNContoursObservationShape: Shape {
 extension VNHumanBodyPoseObservation {
     
     func denormalizedPoints(_ jointNames: [VNHumanBodyPoseObservation.JointName], for size: CGSize) -> [CGPoint] {
+        jointNames
+            .compactMap { try? recognizedPoint($0) }
+            .filter { $0.confidence > 0 }
+            .map { $0.denormalizedForSize(size) }
+    }
+    
+}
+
+@available(iOS 17.0, macCatalyst 17.0, macOS 14.0, tvOS 17.0, *)
+extension VNAnimalBodyPoseObservation {
+    
+    func denormalizedPoints(_ jointNames: [VNAnimalBodyPoseObservation.JointName], for size: CGSize) -> [CGPoint] {
         jointNames
             .compactMap { try? recognizedPoint($0) }
             .filter { $0.confidence > 0 }
@@ -248,6 +260,8 @@ public struct VNHumanBodyPoseObservationShape: Shape {
 @available(iOS 17.0, macCatalyst 17.0, macOS 14.0, tvOS 17.0, *)
 public struct VNAnimalBodyPoseObservationShape: Shape {
     let observations: [VNAnimalBodyPoseObservation]
+    let dotsOnly: Bool
+    var dotSize = 4.0
 
     public func path(in rect: CGRect) -> Path {
         Path { path in
@@ -257,15 +271,56 @@ public struct VNAnimalBodyPoseObservationShape: Shape {
                         continue
                     }
 
-                    for (_, point) in recognizedPoints {
-                        let cgPoint = VNImagePointForNormalizedPoint(point.location, Int(rect.size.width), Int(rect.size.height))
-                        let dotSize = 4.0
-                        let dotRect = CGRect(origin: cgPoint, size: .init(width: dotSize, height: dotSize)).offsetBy(dx: -dotSize / 2, dy: -dotSize / 2)
-                        path.addEllipse(in: dotRect)
+                    for (_, point) in recognizedPoints where point.confidence > 0 {
+                        drawDot(for: point, in: &path, size: rect.size)
                     }
+                }
+                
+                if !dotsOnly {
+                    drawLine(for: observation, in: &path, size: rect.size)
                 }
             }
         }
+    }
+    
+    private func drawDot(for point: VNRecognizedPoint, in path: inout Path, size: CGSize) {
+        let cgPoint = point.denormalizedForSize(size)
+        let dotRect = CGRect(origin: cgPoint, size: .init(width: dotSize, height: dotSize)).offsetBy(dx: -dotSize / 2, dy: -dotSize / 2)
+        path.addEllipse(in: dotRect)
+    }
+    
+    private func drawLine(for observation: VNAnimalBodyPoseObservation, in path: inout Path, size: CGSize) {
+        // Right back leg
+        var points = observation.denormalizedPoints([.rightBackPaw, .rightBackKnee, .rightBackElbow, .tailBottom], for: size)
+        path.addLines(points)
+        
+        // Right front leg
+        points = observation.denormalizedPoints([.rightFrontPaw, .rightFrontKnee, .rightFrontElbow, .neck], for: size)
+        path.addLines(points)
+        
+        // Left back leg
+        points = observation.denormalizedPoints([.leftBackPaw, .leftBackKnee, .leftBackElbow, .tailBottom], for: size)
+        path.addLines(points)
+        
+        // Left front leg
+        points = observation.denormalizedPoints([.leftFrontPaw, .leftFrontKnee, .leftFrontElbow, .neck], for: size)
+        path.addLines(points)
+        
+        // Left ear
+        points = observation.denormalizedPoints([.leftEarTop, .leftEarMiddle, .leftEarBottom], for: size)
+        path.addLines(points)
+        
+        // Right ear
+        points = observation.denormalizedPoints([.rightEarTop, .rightEarMiddle, .rightEarBottom], for: size)
+        path.addLines(points)
+        
+        // Tail
+        points = observation.denormalizedPoints([.tailTop, .tailMiddle, .tailBottom], for: size)
+        path.addLines(points)
+        
+        // Neck to Tail
+        points = observation.denormalizedPoints([.neck, .tailBottom], for: size)
+        path.addLines(points)
     }
 }
 
