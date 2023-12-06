@@ -88,7 +88,7 @@ public extension View {
     /// - Returns: The mask based on the observations.
     @ViewBuilder
     func visualizePersonSegmentationMask(_ observations: [VNPixelBufferObservation]) -> some View {
-        if #available(macOS 12.0, iOS 15.0, *) {
+        if #available(iOS 15.0, macCatalyst 15.0, macOS 12.0, tvOS 15.0, *) {
            mask {
                PixelBufferObservationsCompositeMask(observations: observations)
             }
@@ -104,15 +104,29 @@ public extension View {
     ///   - isFlipped: Whether coordinate system is Y-Flipped. The default is `true`.
     ///   - styleClosure: A closure that provides `Shape` objects for customization.
     /// - Returns: The overlay view.
-    @available(iOS 14.0, macOS 11.0, *)
+    @available(iOS 14.0, macCatalyst 14.0, macOS 11.0, tvOS 14.0, *)
     func visualizeHumanBodyPose(_ observations: [VNHumanBodyPoseObservation], isFlipped: Bool = true, _ styleClosure: @escaping (VNHumanBodyPoseObservationShape) -> some View) -> some View {
         overlay(
             styleClosure(VNHumanBodyPoseObservationShape(observations: observations))
                 .flipped(isFlipped)
         )
     }
+    
+    /// Visualizes `VNAnimalBodyPoseObservation` objects as an overlay.
+    /// - Parameters:
+    ///   - observations: The observation objects.
+    ///   - isFlipped: Whether coordinate system is Y-Flipped. The default is `true`.
+    ///   - styleClosure: A closure that provides `Shape` objects for customization.
+    /// - Returns: The overlay view.
+    @available(iOS 17.0, macCatalyst 17.0, macOS 14.0, tvOS 17.0, *)
+    func visualizeAnimalBodyPose(_ observations: [VNAnimalBodyPoseObservation], isFlipped: Bool = true, _ styleClosure: @escaping (VNAnimalBodyPoseObservationShape) -> some View) -> some View {
+        overlay(
+            styleClosure(VNAnimalBodyPoseObservationShape(observations: observations))
+                .flipped(isFlipped)
+        )
+    }
 
-    @available(iOS 14.0, macOS 11.0, *)
+    @available(iOS 14.0, macCatalyst 14.0, macOS 11.0, tvOS 14.0, *)
     func visualizeContours(_ observations: [VNContoursObservation], isFlipped: Bool = true, _ styleClosure: @escaping (VNContoursObservationShape) -> some View) -> some View {
         overlay(
             styleClosure(VNContoursObservationShape(observations: observations))
@@ -121,7 +135,7 @@ public extension View {
     }
 }
 
-/// A Shape constructed from `VNRectangleObservation` objects
+/// A Shape constructed from `VNRectangleObservation` objects.
 public struct VNRectangleObservationShape: Shape {
     let observations: [VNRectangleObservation]
 
@@ -138,7 +152,7 @@ public struct VNRectangleObservationShape: Shape {
     }
 }
 
-@available(iOS 14.0, macOS 11.0, *)
+@available(iOS 14.0, macCatalyst 14.0, macOS 11.0, tvOS 14.0, *)
 public struct VNContoursObservationShape: Shape {
     let observations: [VNContoursObservation]
 
@@ -153,8 +167,8 @@ public struct VNContoursObservationShape: Shape {
     }
 }
 
-/// A Shape constructed from `VNHumanBodyPoseObservation` objects
-@available(iOS 14.0, macOS 11.0, *)
+/// A Shape constructed from `VNHumanBodyPoseObservation` objects.
+@available(iOS 14.0, macCatalyst 14.0, macOS 11.0, tvOS 14.0, *)
 public struct VNHumanBodyPoseObservationShape: Shape {
     let observations: [VNHumanBodyPoseObservation]
 
@@ -162,6 +176,31 @@ public struct VNHumanBodyPoseObservationShape: Shape {
         Path { path in
             for observation in observations {
                 for group in observation.availableJointsGroupNames {
+                    guard let recognizedPoints = try? observation.recognizedPoints(group) else {
+                        continue
+                    }
+
+                    for (_, point) in recognizedPoints {
+                        let cgPoint = VNImagePointForNormalizedPoint(point.location, Int(rect.size.width), Int(rect.size.height))
+                        let dotSize = 4.0
+                        let dotRect = CGRect(origin: cgPoint, size: .init(width: dotSize, height: dotSize)).offsetBy(dx: -dotSize / 2, dy: -dotSize / 2)
+                        path.addEllipse(in: dotRect)
+                    }
+                }
+            }
+        }
+    }
+}
+
+/// A Shape constructed from `VNAnimalBodyPoseObservation` objects
+@available(iOS 17.0, macCatalyst 17.0, macOS 14.0, tvOS 17.0, *)
+public struct VNAnimalBodyPoseObservationShape: Shape {
+    let observations: [VNAnimalBodyPoseObservation]
+
+    public func path(in rect: CGRect) -> Path {
+        Path { path in
+            for observation in observations {
+                for group in observation.availableJointGroupNames {
                     guard let recognizedPoints = try? observation.recognizedPoints(group) else {
                         continue
                     }
