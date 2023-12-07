@@ -8,6 +8,18 @@
 import SwiftUI
 @preconcurrency import Vision
 
+public struct BodyPoseShapeMode: OptionSet, Sendable {
+    public let rawValue: Int
+
+    public init(rawValue: Int) {
+        self.rawValue = rawValue
+    }
+    
+    public static let joints    = BodyPoseShapeMode(rawValue: 1 << 0)
+    public static let lines     = BodyPoseShapeMode(rawValue: 1 << 1)
+    public static let composite = [.joints, lines]
+}
+
 public extension View {
     
     /// Places `VNDetectedObjectObservation` objects as an overlay.
@@ -97,17 +109,17 @@ public extension View {
     /// - Parameters:
     ///   - observations: The observation objects.
     ///   - isFlipped: Whether coordinate system is Y-Flipped. The default is `true`.
-    ///   - styleClosure: A closure that provides `Shape` objects for customization.
+    ///   - styleClosure: A closure that provides `Shape` objects (joint points & lines) for customization.
     /// - Returns: The overlay view.
     @available(iOS 14.0, macCatalyst 14.0, macOS 11.0, tvOS 14.0, *)
     func visualizeHumanBodyPose(
         _ observations: [VNHumanBodyPoseObservation],
         isFlipped: Bool = true,
-        dotsOnly: Bool = false,
-        _ styleClosure: @escaping (VNHumanBodyPoseObservationShape) -> some View
+        @ViewBuilder _ styleClosure: @escaping (_ points: VNHumanBodyPoseObservationShape, _ lines: VNHumanBodyPoseObservationShape) -> some View
     ) -> some View {
         overlay(
-            styleClosure(VNHumanBodyPoseObservationShape(observations: observations, dotsOnly: dotsOnly))
+            styleClosure(VNHumanBodyPoseObservationShape(observations: observations, mode: .joints),
+                         VNHumanBodyPoseObservationShape(observations: observations, mode: .lines))
                 .flipped(isFlipped)
         )
     }
@@ -166,6 +178,10 @@ public extension View {
 /// A Shape constructed from `VNRectangleObservation` objects.
 public struct VNRectangleObservationShape: Shape {
     let observations: [VNRectangleObservation]
+    
+    public init(observations: [VNRectangleObservation]) {
+        self.observations = observations
+    }
 
     public func path(in rect: CGRect) -> Path {
         Path { path in
@@ -183,6 +199,10 @@ public struct VNRectangleObservationShape: Shape {
 @available(iOS 14.0, macCatalyst 14.0, macOS 11.0, tvOS 14.0, *)
 public struct VNContoursObservationShape: Shape {
     let observations: [VNContoursObservation]
+    
+    public init(observations: [VNContoursObservation]) {
+        self.observations = observations
+    }
 
     public func path(in rect: CGRect) -> Path {
         Path { path in
@@ -243,23 +263,30 @@ extension VNPoint {
 @available(iOS 14.0, macCatalyst 14.0, macOS 11.0, tvOS 14.0, *)
 public struct VNHumanBodyPoseObservationShape: Shape {
     let observations: [VNHumanBodyPoseObservation]
-    let dotsOnly: Bool
-    var dotSize = 4.0
+    let mode: BodyPoseShapeMode
+    
+    init(observations: [VNHumanBodyPoseObservation], mode: BodyPoseShapeMode) {
+        self.observations = observations
+        self.mode = mode
+    }
 
     public func path(in rect: CGRect) -> Path {
         Path { path in
             for observation in observations {
-                for group in observation.availableJointsGroupNames {
-                    guard let recognizedPoints = try? observation.recognizedPoints(group) else {
-                        continue
-                    }
-
-                    for (_, point) in recognizedPoints where point.confidence > 0 {
-                        drawDot(for: point, in: &path, size: rect.size)
+                
+                if mode.contains(.joints) {
+                    for joint in observation.availableJointNames {
+                        guard let point = try? observation.recognizedPoint(joint) else {
+                            continue
+                        }
+                        
+                        if point.confidence > 0 {
+                            drawDot(for: point, in: &path, size: rect.size)
+                        }
                     }
                 }
                 
-                if !dotsOnly {
+                if mode.contains(.lines) {
                     drawLine(for: observation, in: &path, size: rect.size)
                 }
             }
@@ -268,7 +295,7 @@ public struct VNHumanBodyPoseObservationShape: Shape {
     
     private func drawDot(for point: VNRecognizedPoint, in path: inout Path, size: CGSize) {
         let cgPoint = point.denormalizedForSize(size)
-        let dotRect = CGRect(origin: cgPoint, size: .init(width: dotSize, height: dotSize)).offsetBy(dx: -dotSize / 2, dy: -dotSize / 2)
+        let dotRect = CGRect(origin: cgPoint, size: .init(width: 1, height: 1)).offsetBy(dx: 0.5, dy: 0.5)
         path.addEllipse(in: dotRect)
     }
     
