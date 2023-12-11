@@ -28,7 +28,7 @@ extension Path {
     }
 }
 
-extension CGRect {
+public extension CGRect {
     func flipped(_ isFlipped: Bool) -> CGRect {
         CGRect(origin: CGPoint(x: origin.x, y: isFlipped ? (1 - origin.y - size.height) : origin.y),
                size: size)
