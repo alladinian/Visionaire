@@ -173,6 +173,19 @@ public extension View {
                 .flipped(isFlipped)
         )
     }
+    
+    @available(iOS 14.0, macCatalyst 14.0, macOS 11.0, tvOS 14.0, *)
+    func visualizeHumanHandPose(
+        _ observations: [VNHumanHandPoseObservation],
+        isFlipped: Bool = true,
+        @ViewBuilder _ styleClosure: @escaping (_ points: VNHumanHandPoseObservationShape, _ lines: VNHumanHandPoseObservationShape) -> some View
+    ) -> some View {
+        overlay(
+            styleClosure(VNHumanHandPoseObservationShape(observations: observations, mode: .joints),
+                         VNHumanHandPoseObservationShape(observations: observations, mode: .lines))
+                .flipped(isFlipped)
+        )
+    }
 }
 
 /// A Shape constructed from `VNRectangleObservation` objects.
@@ -219,6 +232,18 @@ public struct VNContoursObservationShape: Shape {
 extension VNHumanBodyPoseObservation {
     
     func denormalizedPoints(_ jointNames: [VNHumanBodyPoseObservation.JointName], for size: CGSize) -> [CGPoint] {
+        jointNames
+            .compactMap { try? recognizedPoint($0) }
+            .filter { $0.confidence > 0 }
+            .map { $0.denormalizedForSize(size) }
+    }
+    
+}
+
+@available(iOS 14.0, macCatalyst 14.0, macOS 11.0, tvOS 14.0, *)
+extension VNHumanHandPoseObservation {
+    
+    func denormalizedPoints(_ jointNames: [VNHumanHandPoseObservation.JointName], for size: CGSize) -> [CGPoint] {
         jointNames
             .compactMap { try? recognizedPoint($0) }
             .filter { $0.confidence > 0 }
@@ -372,6 +397,81 @@ public struct VNHumanBodyPoseObservation3DShape: Shape {
         
         // Root to nose
         points = observation.denormalizedPoints([.root, .centerShoulder, .centerHead], for: size)
+        path.addLines(points)
+    }
+}
+
+/// A Shape constructed from `VNHumanHandPoseObservation` objects.
+@available(iOS 14.0, macCatalyst 14.0, macOS 11.0, tvOS 14.0, *)
+public struct VNHumanHandPoseObservationShape: Shape {
+    let observations: [VNHumanHandPoseObservation]
+    let mode: BodyPoseShapeMode
+    
+    init(observations: [VNHumanHandPoseObservation], mode: BodyPoseShapeMode) {
+        self.observations = observations
+        self.mode         = mode
+    }
+    
+    public func path(in rect: CGRect) -> Path {
+        Path { path in
+            for observation in observations {
+                
+                if mode.contains(.joints) {
+                    for joint in observation.availableJointNames {
+                        guard let point = try? observation.recognizedPoint(joint) else {
+                            continue
+                        }
+                        
+                        if point.confidence > 0 {
+                            drawDot(for: point, in: &path, size: rect.size)
+                        }
+                    }
+                }
+                
+                if mode.contains(.lines) {
+                    drawLine(for: observation, in: &path, size: rect.size)
+                }
+            }
+        }
+    }
+    
+    private func drawDot(for point: VNRecognizedPoint, in path: inout Path, size: CGSize) {
+        let cgPoint = point.denormalizedForSize(size)
+        let dotRect = CGRect(origin: cgPoint, size: .init(width: 1, height: 1)).offsetBy(dx: 0.5, dy: 0.5)
+        path.addEllipse(in: dotRect)
+    }
+    
+    private func drawLine(for observation: VNHumanHandPoseObservation, in path: inout Path, size: CGSize) {
+        // Thumb
+        var points = observation.denormalizedPoints([.thumbCMC, .thumbMP, .thumbIP, .thumbTip], for: size)
+        path.addLines(points)
+        
+        // Index
+        points = observation.denormalizedPoints([.indexMCP, .indexPIP, .indexDIP, .indexTip], for: size)
+        path.addLines(points)
+        
+        // Middle
+        points = observation.denormalizedPoints([.middleMCP, .middlePIP, .middleDIP, .middleTip], for: size)
+        path.addLines(points)
+        
+        // Ring
+        points = observation.denormalizedPoints([.ringMCP, .ringPIP, .ringDIP, .ringTip], for: size)
+        path.addLines(points)
+        
+        // Little
+        points = observation.denormalizedPoints([.littleMCP, .littlePIP, .littleDIP, .littleTip], for: size)
+        path.addLines(points)
+        
+        // Wrist
+        points = observation.denormalizedPoints([.wrist, .thumbCMC], for: size)
+        path.addLines(points)
+        points = observation.denormalizedPoints([.wrist, .indexMCP], for: size)
+        path.addLines(points)
+        points = observation.denormalizedPoints([.wrist, .middleMCP], for: size)
+        path.addLines(points)
+        points = observation.denormalizedPoints([.wrist, .ringMCP], for: size)
+        path.addLines(points)
+        points = observation.denormalizedPoints([.wrist, .littleMCP], for: size)
         path.addLines(points)
     }
 }
